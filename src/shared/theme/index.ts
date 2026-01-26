@@ -2,18 +2,18 @@
 // Premium color palette with FBLA brand colors
 
 export const colors = {
-  // Primary - FBLA Blue
+  // Primary - FBLA Navy & Blue
   primary: {
     50: '#EFF6FF',
     100: '#DBEAFE',
     200: '#BFDBFE',
     300: '#93C5FD',
     400: '#60A5FA',
-    500: '#3B82F6',
-    600: '#2563EB',
-    700: '#1D4ED8',
-    800: '#1E40AF',
-    900: '#1E3A8A',
+    500: '#1d52bc', // Official FBLA Blue
+    600: '#0a2e7f', // Official FBLA Navy
+    700: '#082566',
+    800: '#061c4d',
+    900: '#041333',
   },
   // Secondary - FBLA Gold
   secondary: {
@@ -22,11 +22,11 @@ export const colors = {
     200: '#FDE68A',
     300: '#FCD34D',
     400: '#FBBF24',
-    500: '#F59E0B',
-    600: '#D97706',
-    700: '#B45309',
-    800: '#92400E',
-    900: '#78350F',
+    500: '#f4ab19', // Official FBLA Gold
+    600: '#db9a17',
+    700: '#c28814',
+    800: '#a97712',
+    900: '#906510',
   },
   // Neutral
   neutral: {

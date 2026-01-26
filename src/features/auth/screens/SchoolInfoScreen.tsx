@@ -1,7 +1,6 @@
-// FBLA Connect - School Info Screen (Onboarding)
-import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { Text, TextInput, Button } from 'react-native-paper';
+import React, { useState, useMemo } from 'react';
+import { View, StyleSheet, TouchableOpacity, ScrollView, FlatList, Keyboard } from 'react-native';
+import { Text, TextInput, Button, Card, Divider } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -10,15 +9,54 @@ import { useAppDispatch } from '../../../shared/hooks/useRedux';
 import { updateUser } from '../authSlice';
 import { colors, spacing, typography, borderRadius } from '../../../shared/theme';
 
+// Import scraped data
+import CHAPTER_DATA from '../../../assets/data/chapters_dataset.json';
+
+interface Chapter {
+    name: string;
+    location: string;
+    state: string;
+    advisor: string;
+}
+
 type Props = {
     navigation: NativeStackNavigationProp<OnboardingStackParamList, 'SchoolInfo'>;
 };
 
 export default function SchoolInfoScreen({ navigation }: Props) {
     const dispatch = useAppDispatch();
+    const [searchQuery, setSearchQuery] = useState('');
     const [schoolName, setSchoolName] = useState('');
     const [chapterName, setChapterName] = useState('');
     const [state, setState] = useState('');
+    const [showResults, setShowResults] = useState(false);
+    const [selectedChapter, setSelectedChapter] = useState<Chapter | null>(null);
+
+    const filteredChapters = useMemo(() => {
+        if (searchQuery.length < 3) return [];
+        return CHAPTER_DATA.filter((chapter: Chapter) =>
+            chapter.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            chapter.location.toLowerCase().includes(searchQuery.toLowerCase())
+        ).slice(0, 10); // Limit results for performance
+    }, [searchQuery]);
+
+    const handleSelectChapter = (chapter: Chapter) => {
+        setSelectedChapter(chapter);
+        setSchoolName(chapter.name);
+        setChapterName(chapter.name); // Default chapter name to school name
+        setState(chapter.location.split(',')[1]?.trim() || chapter.state);
+        setSearchQuery(chapter.name);
+        setShowResults(false);
+        Keyboard.dismiss();
+    };
+
+    const handleClearSelection = () => {
+        setSelectedChapter(null);
+        setSchoolName('');
+        setChapterName('');
+        setState('');
+        setSearchQuery('');
+    };
 
     const handleContinue = () => {
         dispatch(updateUser({ schoolName, chapterName, state }));
@@ -47,40 +85,95 @@ export default function SchoolInfoScreen({ navigation }: Props) {
 
                 {/* Form */}
                 <View style={styles.form}>
+                    <Text style={styles.label}>Search for your Chapter</Text>
                     <TextInput
-                        label="School Name"
-                        value={schoolName}
-                        onChangeText={setSchoolName}
+                        label="School or City"
+                        value={searchQuery}
+                        onChangeText={(text: string) => {
+                            setSearchQuery(text);
+                            setShowResults(true);
+                        }}
                         mode="outlined"
                         style={styles.input}
                         outlineColor={colors.neutral[300]}
                         activeOutlineColor={colors.primary[600]}
-                        left={<TextInput.Icon icon="school-outline" />}
+                        left={<TextInput.Icon icon="magnify" />}
+                        right={searchQuery ? <TextInput.Icon icon="close" onPress={handleClearSelection} /> : null}
+                        placeholder="Search schools..."
                     />
 
-                    <TextInput
-                        label="Chapter Name"
-                        value={chapterName}
-                        onChangeText={setChapterName}
-                        mode="outlined"
-                        style={styles.input}
-                        outlineColor={colors.neutral[300]}
-                        activeOutlineColor={colors.primary[600]}
-                        placeholder="e.g., Lincoln FBLA"
-                        left={<TextInput.Icon icon="account-group-outline" />}
-                    />
+                    {showResults && searchQuery.length >= 3 && (
+                        <View style={styles.resultsContainer}>
+                            {filteredChapters.map((item: Chapter, index: number) => (
+                                <TouchableOpacity
+                                    key={`${item.name}-${index}`}
+                                    onPress={() => handleSelectChapter(item)}
+                                >
+                                    <Card style={styles.resultCard}>
+                                        <Card.Content style={styles.resultContent}>
+                                            <View>
+                                                <Text style={styles.resultName}>{item.name}</Text>
+                                                <Text style={styles.resultLocation}>{item.location}</Text>
+                                            </View>
+                                            <Ionicons name="add-circle-outline" size={24} color={colors.primary[600]} />
+                                        </Card.Content>
+                                    </Card>
+                                </TouchableOpacity>
+                            ))}
+                            {filteredChapters.length === 0 && (
+                                <Text style={styles.noResults}>No chapters found matching "{searchQuery}"</Text>
+                            )}
+                        </View>
+                    )}
 
-                    <TextInput
-                        label="State"
-                        value={state}
-                        onChangeText={setState}
-                        mode="outlined"
-                        style={styles.input}
-                        outlineColor={colors.neutral[300]}
-                        activeOutlineColor={colors.primary[600]}
-                        placeholder="e.g., Nebraska"
-                        left={<TextInput.Icon icon="map-marker-outline" />}
-                    />
+                    {!showResults && selectedChapter && (
+                        <View style={styles.selectionInfo}>
+                            <Divider style={styles.divider} />
+
+                            <TextInput
+                                label="School Name"
+                                value={schoolName}
+                                onChangeText={setSchoolName}
+                                mode="outlined"
+                                style={styles.input}
+                                outlineColor={colors.neutral[300]}
+                                activeOutlineColor={colors.primary[600]}
+                                left={<TextInput.Icon icon="school-outline" />}
+                                editable={false}
+                            />
+
+                            <TextInput
+                                label="Chapter Name"
+                                value={chapterName}
+                                onChangeText={setChapterName}
+                                mode="outlined"
+                                style={styles.input}
+                                outlineColor={colors.neutral[300]}
+                                activeOutlineColor={colors.primary[600]}
+                                placeholder="e.g., Lincoln FBLA"
+                                left={<TextInput.Icon icon="account-group-outline" />}
+                            />
+
+                            <TextInput
+                                label="State"
+                                value={state}
+                                onChangeText={setState}
+                                mode="outlined"
+                                style={styles.input}
+                                outlineColor={colors.neutral[300]}
+                                activeOutlineColor={colors.primary[600]}
+                                placeholder="e.g., Nebraska"
+                                left={<TextInput.Icon icon="map-marker-outline" />}
+                                editable={false}
+                            />
+                        </View>
+                    )}
+
+                    {!selectedChapter && !showResults && (
+                        <View style={styles.manualEntry}>
+                            <Text style={styles.manualText}>Can't find your chapter? Try searching for the city or enter details manually above.</Text>
+                        </View>
+                    )}
                 </View>
             </ScrollView>
 
@@ -142,9 +235,68 @@ const styles = StyleSheet.create({
     form: {
         flex: 1,
     },
+    label: {
+        fontSize: typography.fontSize.sm,
+        fontWeight: '600',
+        color: colors.neutral[700],
+        marginBottom: spacing.xs,
+        marginTop: spacing.md,
+    },
     input: {
         marginBottom: spacing.md,
         backgroundColor: '#FFFFFF',
+    },
+    resultsContainer: {
+        marginTop: spacing.xs,
+        marginBottom: spacing.lg,
+    },
+    resultCard: {
+        marginBottom: spacing.sm,
+        backgroundColor: colors.neutral[50],
+        borderRadius: borderRadius.md,
+        borderWidth: 1,
+        borderColor: colors.neutral[200],
+    },
+    resultContent: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: spacing.sm,
+    },
+    resultName: {
+        fontSize: typography.fontSize.md,
+        fontWeight: 'bold',
+        color: colors.neutral[900],
+    },
+    resultLocation: {
+        fontSize: typography.fontSize.sm,
+        color: colors.neutral[500],
+        marginTop: 2,
+    },
+    noResults: {
+        textAlign: 'center',
+        color: colors.neutral[500],
+        marginTop: spacing.md,
+        fontStyle: 'italic',
+    },
+    selectionInfo: {
+        marginTop: spacing.md,
+    },
+    divider: {
+        marginBottom: spacing.lg,
+        backgroundColor: colors.neutral[200],
+    },
+    manualEntry: {
+        padding: spacing.md,
+        backgroundColor: colors.primary[50],
+        borderRadius: borderRadius.md,
+        marginTop: spacing.lg,
+    },
+    manualText: {
+        fontSize: typography.fontSize.sm,
+        color: colors.primary[600],
+        lineHeight: 20,
+        textAlign: 'center',
     },
     footer: {
         padding: spacing.lg,
@@ -152,6 +304,7 @@ const styles = StyleSheet.create({
     },
     continueButton: {
         borderRadius: borderRadius.lg,
+        backgroundColor: colors.primary[600],
     },
     buttonContent: {
         paddingVertical: spacing.sm,
@@ -159,5 +312,6 @@ const styles = StyleSheet.create({
     buttonLabel: {
         fontSize: typography.fontSize.md,
         fontWeight: '600',
+        color: '#FFFFFF',
     },
 });
