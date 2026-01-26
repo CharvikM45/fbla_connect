@@ -6,8 +6,9 @@ import {
     ScrollView,
     TouchableOpacity,
     Dimensions,
+    TextInput,
 } from 'react-native';
-import { Text, Avatar, Card, Button, ProgressBar, Chip, Portal, Modal } from 'react-native-paper';
+import { Text, Avatar, Card, Button, ProgressBar, Chip, Portal, Modal, Switch } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector, useAppDispatch } from '../../../shared/hooks/useRedux';
 import { logout } from '../../auth/authSlice';
@@ -28,6 +29,31 @@ export default function ProfileScreen() {
     const user = useAppSelector(state => state.auth.user);
     const profile = useAppSelector(state => state.profile.profile);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [showNotificationsModal, setShowNotificationsModal] = useState(false);
+    const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+    const [showHelpModal, setShowHelpModal] = useState(false);
+    const [showAllBadgesModal, setShowAllBadgesModal] = useState(false);
+
+    // Edit form state
+    const [editForm, setEditForm] = useState({
+        displayName: user?.displayName || '',
+        bio: profile?.bio || '',
+    });
+
+    // Settings state
+    const [notificationSettings, setNotificationSettings] = useState({
+        eventReminders: true,
+        newsUpdates: true,
+        competitionAlerts: true,
+        chapterAnnouncements: true,
+    });
+
+    const [privacySettings, setPrivacySettings] = useState({
+        profileVisibility: 'public',
+        showEmail: false,
+        showChapter: true,
+    });
 
     const xpToNextLevel = 1000;
     const currentLevelXP = (profile?.totalXP || 0) % xpToNextLevel;
@@ -36,6 +62,12 @@ export default function ProfileScreen() {
     const handleLogout = () => {
         dispatch(logout());
         setShowLogoutModal(false);
+    };
+
+    const handleSaveProfile = () => {
+        // TODO: Dispatch action to update profile in Redux
+        console.log('Saving profile:', editForm);
+        setShowEditModal(false);
     };
 
     return (
@@ -97,7 +129,7 @@ export default function ProfileScreen() {
                 <View style={styles.section}>
                     <View style={styles.sectionHeader}>
                         <Text style={styles.sectionTitle}>Badges</Text>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={() => setShowAllBadgesModal(true)}>
                             <Text style={styles.seeAllText}>See All</Text>
                         </TouchableOpacity>
                     </View>
@@ -136,7 +168,7 @@ export default function ProfileScreen() {
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Account</Text>
 
-                    <TouchableOpacity style={styles.menuItem}>
+                    <TouchableOpacity style={styles.menuItem} onPress={() => setShowEditModal(true)}>
                         <View style={styles.menuItemLeft}>
                             <Ionicons name="person-outline" size={22} color={colors.neutral[600]} />
                             <Text style={styles.menuItemText}>Edit Profile</Text>
@@ -144,7 +176,7 @@ export default function ProfileScreen() {
                         <Ionicons name="chevron-forward" size={20} color={colors.neutral[400]} />
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.menuItem}>
+                    <TouchableOpacity style={styles.menuItem} onPress={() => setShowNotificationsModal(true)}>
                         <View style={styles.menuItemLeft}>
                             <Ionicons name="notifications-outline" size={22} color={colors.neutral[600]} />
                             <Text style={styles.menuItemText}>Notifications</Text>
@@ -152,7 +184,7 @@ export default function ProfileScreen() {
                         <Ionicons name="chevron-forward" size={20} color={colors.neutral[400]} />
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.menuItem}>
+                    <TouchableOpacity style={styles.menuItem} onPress={() => setShowPrivacyModal(true)}>
                         <View style={styles.menuItemLeft}>
                             <Ionicons name="shield-checkmark-outline" size={22} color={colors.neutral[600]} />
                             <Text style={styles.menuItemText}>Privacy</Text>
@@ -160,7 +192,7 @@ export default function ProfileScreen() {
                         <Ionicons name="chevron-forward" size={20} color={colors.neutral[400]} />
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.menuItem}>
+                    <TouchableOpacity style={styles.menuItem} onPress={() => setShowHelpModal(true)}>
                         <View style={styles.menuItemLeft}>
                             <Ionicons name="help-circle-outline" size={22} color={colors.neutral[600]} />
                             <Text style={styles.menuItemText}>Help & Support</Text>
@@ -210,6 +242,191 @@ export default function ProfileScreen() {
                             Log Out
                         </Button>
                     </View>
+                </Modal>
+
+                {/* Edit Profile Modal */}
+                <Modal
+                    visible={showEditModal}
+                    onDismiss={() => setShowEditModal(false)}
+                    contentContainerStyle={styles.modal}
+                >
+                    <Text style={styles.modalTitle}>Edit Profile</Text>
+                    <View style={styles.formGroup}>
+                        <Text style={styles.formLabel}>Display Name</Text>
+                        <TextInput
+                            style={styles.textInput}
+                            value={editForm.displayName}
+                            onChangeText={(text) => setEditForm({ ...editForm, displayName: text })}
+                            placeholder="Enter your name"
+                        />
+                    </View>
+                    <View style={styles.formGroup}>
+                        <Text style={styles.formLabel}>Bio</Text>
+                        <TextInput
+                            style={[styles.textInput, styles.textArea]}
+                            value={editForm.bio}
+                            onChangeText={(text) => setEditForm({ ...editForm, bio: text })}
+                            placeholder="Tell us about yourself"
+                            multiline
+                            numberOfLines={4}
+                        />
+                    </View>
+                    <View style={styles.modalActions}>
+                        <Button
+                            mode="outlined"
+                            onPress={() => setShowEditModal(false)}
+                            style={styles.modalButton}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            mode="contained"
+                            onPress={handleSaveProfile}
+                            style={styles.modalButton}
+                        >
+                            Save
+                        </Button>
+                    </View>
+                </Modal>
+
+                {/* Notifications Settings Modal */}
+                <Modal
+                    visible={showNotificationsModal}
+                    onDismiss={() => setShowNotificationsModal(false)}
+                    contentContainerStyle={styles.modal}
+                >
+                    <Text style={styles.modalTitle}>Notification Settings</Text>
+                    <View style={styles.settingItem}>
+                        <Text style={styles.settingLabel}>Event Reminders</Text>
+                        <Switch
+                            value={notificationSettings.eventReminders}
+                            onValueChange={(value) => setNotificationSettings({ ...notificationSettings, eventReminders: value })}
+                        />
+                    </View>
+                    <View style={styles.settingItem}>
+                        <Text style={styles.settingLabel}>News Updates</Text>
+                        <Switch
+                            value={notificationSettings.newsUpdates}
+                            onValueChange={(value) => setNotificationSettings({ ...notificationSettings, newsUpdates: value })}
+                        />
+                    </View>
+                    <View style={styles.settingItem}>
+                        <Text style={styles.settingLabel}>Competition Alerts</Text>
+                        <Switch
+                            value={notificationSettings.competitionAlerts}
+                            onValueChange={(value) => setNotificationSettings({ ...notificationSettings, competitionAlerts: value })}
+                        />
+                    </View>
+                    <View style={styles.settingItem}>
+                        <Text style={styles.settingLabel}>Chapter Announcements</Text>
+                        <Switch
+                            value={notificationSettings.chapterAnnouncements}
+                            onValueChange={(value) => setNotificationSettings({ ...notificationSettings, chapterAnnouncements: value })}
+                        />
+                    </View>
+                    <Button
+                        mode="contained"
+                        onPress={() => setShowNotificationsModal(false)}
+                        style={{ marginTop: spacing.md }}
+                    >
+                        Done
+                    </Button>
+                </Modal>
+
+                {/* Privacy Settings Modal */}
+                <Modal
+                    visible={showPrivacyModal}
+                    onDismiss={() => setShowPrivacyModal(false)}
+                    contentContainerStyle={styles.modal}
+                >
+                    <Text style={styles.modalTitle}>Privacy Settings</Text>
+                    <View style={styles.settingItem}>
+                        <Text style={styles.settingLabel}>Show Email</Text>
+                        <Switch
+                            value={privacySettings.showEmail}
+                            onValueChange={(value) => setPrivacySettings({ ...privacySettings, showEmail: value })}
+                        />
+                    </View>
+                    <View style={styles.settingItem}>
+                        <Text style={styles.settingLabel}>Show Chapter</Text>
+                        <Switch
+                            value={privacySettings.showChapter}
+                            onValueChange={(value) => setPrivacySettings({ ...privacySettings, showChapter: value })}
+                        />
+                    </View>
+                    <View style={styles.formGroup}>
+                        <Text style={styles.formLabel}>Profile Visibility</Text>
+                        <Text style={styles.settingSubtext}>
+                            Current: {privacySettings.profileVisibility === 'public' ? 'Public' : privacySettings.profileVisibility === 'chapter' ? 'Chapter Only' : 'Private'}
+                        </Text>
+                    </View>
+                    <Button
+                        mode="contained"
+                        onPress={() => setShowPrivacyModal(false)}
+                        style={{ marginTop: spacing.md }}
+                    >
+                        Done
+                    </Button>
+                </Modal>
+
+                {/* Help & Support Modal */}
+                <Modal
+                    visible={showHelpModal}
+                    onDismiss={() => setShowHelpModal(false)}
+                    contentContainerStyle={styles.modal}
+                >
+                    <Text style={styles.modalTitle}>Help & Support</Text>
+                    <TouchableOpacity style={styles.helpItem}>
+                        <Ionicons name="document-text-outline" size={20} color={colors.primary[600]} />
+                        <Text style={styles.helpText}>FAQ</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.helpItem}>
+                        <Ionicons name="mail-outline" size={20} color={colors.primary[600]} />
+                        <Text style={styles.helpText}>Contact Support</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.helpItem}>
+                        <Ionicons name="information-circle-outline" size={20} color={colors.primary[600]} />
+                        <Text style={styles.helpText}>About FBLA Connect</Text>
+                    </TouchableOpacity>
+                    <View style={styles.versionInfo}>
+                        <Text style={styles.versionText}>Version 1.0.0</Text>
+                    </View>
+                    <Button
+                        mode="contained"
+                        onPress={() => setShowHelpModal(false)}
+                        style={{ marginTop: spacing.md }}
+                    >
+                        Close
+                    </Button>
+                </Modal>
+
+                {/* All Badges Modal */}
+                <Modal
+                    visible={showAllBadgesModal}
+                    onDismiss={() => setShowAllBadgesModal(false)}
+                    contentContainerStyle={styles.modal}
+                >
+                    <Text style={styles.modalTitle}>All Badges</Text>
+                    <ScrollView style={styles.badgesGrid}>
+                        <View style={styles.badgesGridContainer}>
+                            {demoBadges.map(badge => (
+                                <View key={badge.id} style={styles.badgeGridItem}>
+                                    <View style={[styles.badgeIcon, getRarityStyle(badge.rarity)]}>
+                                        <Text style={styles.badgeEmoji}>{badge.icon}</Text>
+                                    </View>
+                                    <Text style={styles.badgeName} numberOfLines={2}>{badge.name}</Text>
+                                    <Text style={styles.badgeDescription} numberOfLines={2}>{badge.description}</Text>
+                                </View>
+                            ))}
+                        </View>
+                    </ScrollView>
+                    <Button
+                        mode="contained"
+                        onPress={() => setShowAllBadgesModal(false)}
+                        style={{ marginTop: spacing.md }}
+                    >
+                        Close
+                    </Button>
                 </Modal>
             </Portal>
         </View>
@@ -485,5 +702,83 @@ const styles = StyleSheet.create({
     },
     modalButton: {
         flex: 1,
+    },
+    formGroup: {
+        marginBottom: spacing.md,
+    },
+    formLabel: {
+        fontSize: typography.fontSize.sm,
+        fontWeight: '600',
+        color: colors.neutral[700],
+        marginBottom: spacing.xs,
+    },
+    textInput: {
+        borderWidth: 1,
+        borderColor: colors.neutral[300],
+        borderRadius: borderRadius.md,
+        padding: spacing.md,
+        fontSize: typography.fontSize.md,
+        color: colors.neutral[900],
+        backgroundColor: '#FFFFFF',
+    },
+    textArea: {
+        height: 100,
+        textAlignVertical: 'top',
+    },
+    settingItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: spacing.md,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.neutral[100],
+    },
+    settingLabel: {
+        fontSize: typography.fontSize.md,
+        color: colors.neutral[700],
+    },
+    settingSubtext: {
+        fontSize: typography.fontSize.sm,
+        color: colors.neutral[500],
+        marginTop: spacing.xs,
+    },
+    helpItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: spacing.md,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.neutral[100],
+    },
+    helpText: {
+        fontSize: typography.fontSize.md,
+        color: colors.neutral[700],
+        marginLeft: spacing.md,
+    },
+    versionInfo: {
+        marginTop: spacing.lg,
+        alignItems: 'center',
+    },
+    versionText: {
+        fontSize: typography.fontSize.sm,
+        color: colors.neutral[400],
+    },
+    badgesGrid: {
+        maxHeight: 400,
+    },
+    badgesGridContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: spacing.md,
+    },
+    badgeGridItem: {
+        width: '45%',
+        alignItems: 'center',
+        marginBottom: spacing.md,
+    },
+    badgeDescription: {
+        fontSize: 10,
+        color: colors.neutral[500],
+        textAlign: 'center',
+        marginTop: spacing.xs,
     },
 });

@@ -52,6 +52,7 @@ const authSlice = createSlice({
             state.user = null;
             state.isAuthenticated = false;
             state.error = null;
+            state.onboardingComplete = false;
         },
         updateUser: (state, action: PayloadAction<Partial<User>>) => {
             if (state.user) {

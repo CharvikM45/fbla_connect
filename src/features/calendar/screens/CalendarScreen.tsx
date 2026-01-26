@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
         marginBottom: spacing.sm,
     },
     levelChip: {
-        height: 24,
+        // height: 24,
     },
     levelChipText: {
         fontSize: typography.fontSize.xs,
