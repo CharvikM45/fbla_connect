@@ -7,7 +7,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { store } from './src/shared/store';
-import { paperTheme } from './src/shared/theme';
+import { paperTheme, navigationLightTheme } from './src/shared/theme';
 import RootNavigator from './src/shared/navigation/RootNavigator';
 
 export default function App() {
@@ -15,7 +15,7 @@ export default function App() {
     <ReduxProvider store={store}>
       <PaperProvider theme={paperTheme}>
         <SafeAreaProvider>
-          <NavigationContainer>
+          <NavigationContainer theme={navigationLightTheme}>
             <StatusBar style="auto" />
             <RootNavigator />
           </NavigationContainer>

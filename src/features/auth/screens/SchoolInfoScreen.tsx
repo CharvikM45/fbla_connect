@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView, FlatList, Keyboard } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ScrollView, Keyboard } from 'react-native';
 import { Text, TextInput, Button, Card, Divider } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,7 +10,7 @@ import { updateUser } from '../authSlice';
 import { colors, spacing, typography, borderRadius } from '../../../shared/theme';
 
 // Import scraped data
-import CHAPTER_DATA from '../../../assets/data/chapters_dataset.json';
+const CHAPTER_DATA = require('../../../assets/data/chapters_dataset.json') as Chapter[];
 
 interface Chapter {
     name: string;
@@ -34,17 +34,21 @@ export default function SchoolInfoScreen({ navigation }: Props) {
 
     const filteredChapters = useMemo(() => {
         if (searchQuery.length < 3) return [];
-        return CHAPTER_DATA.filter((chapter: Chapter) =>
-            chapter.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            chapter.location.toLowerCase().includes(searchQuery.toLowerCase())
-        ).slice(0, 10); // Limit results for performance
+        if (!Array.isArray(CHAPTER_DATA)) return [];
+
+        return CHAPTER_DATA.filter((chapter: Chapter) => {
+            const name = chapter?.name?.toLowerCase() || '';
+            const location = chapter?.location?.toLowerCase() || '';
+            const query = searchQuery.toLowerCase();
+            return name.includes(query) || location.includes(query);
+        }).slice(0, 10); // Limit results for performance
     }, [searchQuery]);
 
     const handleSelectChapter = (chapter: Chapter) => {
         setSelectedChapter(chapter);
         setSchoolName(chapter.name);
         setChapterName(chapter.name); // Default chapter name to school name
-        setState(chapter.location.split(',')[1]?.trim() || chapter.state);
+        setState(chapter.location?.split(',')[1]?.trim() || chapter.state || '');
         setSearchQuery(chapter.name);
         setShowResults(false);
         Keyboard.dismiss();

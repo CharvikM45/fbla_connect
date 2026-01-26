@@ -1,5 +1,9 @@
-// FBLA Connect - Design System Theme
 // Premium color palette with FBLA brand colors
+import { MD3LightTheme, MD3DarkTheme, adaptNavigationTheme } from 'react-native-paper';
+import {
+  DefaultTheme as NavigationDefaultTheme,
+  DarkTheme as NavigationDarkTheme
+} from '@react-navigation/native';
 
 export const colors = {
   // Primary - FBLA Navy & Blue
@@ -137,40 +141,65 @@ export const shadows = {
 
 // React Native Paper theme configuration
 export const paperTheme = {
+  ...MD3LightTheme,
   dark: false,
   colors: {
+    ...MD3LightTheme.colors,
     primary: colors.primary[600],
-    accent: colors.secondary[500],
+    secondary: colors.secondary[500],
+    onPrimary: '#FFFFFF',
+    onSecondary: '#FFFFFF',
     background: colors.neutral[50],
     surface: '#FFFFFF',
-    text: colors.neutral[900],
-    onSurface: colors.neutral[900],
-    disabled: colors.neutral[400],
-    placeholder: colors.neutral[500],
-    backdrop: 'rgba(0, 0, 0, 0.5)',
-    notification: colors.error.main,
     error: colors.error.main,
+    elevation: {
+      ...MD3LightTheme.colors.elevation,
+      level0: 'transparent',
+      level1: colors.primary[50],
+      level2: colors.primary[50],
+      level3: colors.primary[50],
+      level4: colors.primary[100],
+      level5: colors.primary[100],
+    }
   },
   roundness: borderRadius.md,
 };
 
 export const darkPaperTheme = {
+  ...MD3DarkTheme,
   dark: true,
   colors: {
+    ...MD3DarkTheme.colors,
     primary: colors.primary[400],
-    accent: colors.secondary[400],
+    secondary: colors.secondary[400],
+    onPrimary: colors.neutral[900],
+    onSecondary: colors.neutral[900],
     background: colors.neutral[900],
     surface: colors.neutral[800],
-    text: colors.neutral[50],
-    onSurface: colors.neutral[50],
-    disabled: colors.neutral[600],
-    placeholder: colors.neutral[500],
-    backdrop: 'rgba(0, 0, 0, 0.7)',
-    notification: colors.error.main,
     error: colors.error.light,
+    elevation: {
+      ...MD3DarkTheme.colors.elevation,
+      level0: 'transparent',
+      level1: colors.neutral[800],
+      level2: colors.neutral[800],
+      level3: colors.neutral[800],
+      level4: colors.neutral[700],
+      level5: colors.neutral[700],
+    }
   },
   roundness: borderRadius.md,
 };
+
+// Adapt navigation themes
+const { LightTheme: adaptedLightTheme, DarkTheme: adaptedDarkTheme } = adaptNavigationTheme({
+  reactNavigationLight: NavigationDefaultTheme,
+  reactNavigationDark: NavigationDarkTheme,
+  materialLight: paperTheme,
+  materialDark: darkPaperTheme,
+});
+
+export const navigationLightTheme = adaptedLightTheme;
+export const navigationDarkTheme = adaptedDarkTheme;
 
 export default {
   colors,
@@ -180,4 +209,6 @@ export default {
   shadows,
   paperTheme,
   darkPaperTheme,
+  navigationLightTheme,
+  navigationDarkTheme,
 };

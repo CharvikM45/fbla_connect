@@ -2070,12 +2070,6 @@
     "advisor": "Hobbs, Amanda"
   },
   {
-    "name": "Alabama Collegiate Direct",
-    "location": "",
-    "state": "AL",
-    "advisor": "Weeks, Lisa"
-  },
-  {
     "name": "Ardmore High School",
     "location": "Ardmore, AL",
     "state": "AL",
@@ -2302,12 +2296,6 @@
     "location": "Marion, AL",
     "state": "AL",
     "advisor": "Allen, Cassandra"
-  },
-  {
-    "name": "Lisa R. Weeks",
-    "location": "",
-    "state": "AL",
-    "advisor": ""
   },
   {
     "name": "Sparkman Middle School",
@@ -3750,7 +3738,7 @@
     "advisor": "Markou-Neven, Alexis"
   },
   {
-    "name": "West Point High School \u2013 IT",
+    "name": "West Point High School – IT",
     "location": "Avondale, AZ",
     "state": "AZ",
     "advisor": "Bowman, Conroy"
@@ -3918,7 +3906,7 @@
     "advisor": "Nistas, Joshua"
   },
   {
-    "name": "Chinle High School \u2013 IT",
+    "name": "Chinle High School – IT",
     "location": "Chinle, AZ",
     "state": "AZ",
     "advisor": "Parrish, Julian"
@@ -6540,12 +6528,6 @@
     "advisor": "Rice, Stephanie"
   },
   {
-    "name": "Arkansas Collegiate Direct",
-    "location": "",
-    "state": "AR",
-    "advisor": ""
-  },
-  {
     "name": "Bald Knob Middle School",
     "location": "Bald Knob, AR",
     "state": "AR",
@@ -7690,12 +7672,6 @@
     "location": "Madera, CA",
     "state": "CA",
     "advisor": "Corona, Johnny"
-  },
-  {
-    "name": "California Collegiate Direct",
-    "location": "",
-    "state": "CA",
-    "advisor": "Colston III, Billy"
   },
   {
     "name": "El Mirage School",
@@ -9036,12 +9012,6 @@
     "advisor": "Huelskamp, Chris"
   },
   {
-    "name": "Colorado Collegiate Direct",
-    "location": "",
-    "state": "CO",
-    "advisor": "Davis, Molly"
-  },
-  {
     "name": "Roosevelt Middle School",
     "location": "Johnstown, CO",
     "state": "CO",
@@ -9798,12 +9768,6 @@
     "advisor": ""
   },
   {
-    "name": "Connecticut Collegiate Direct",
-    "location": "",
-    "state": "CT",
-    "advisor": "Dennis Ed.D., Julia"
-  },
-  {
     "name": "Bi-Cultural Hebrew Academy",
     "location": "Stamford, CT",
     "state": "CT",
@@ -9934,12 +9898,6 @@
     "location": "Hockessin, DE",
     "state": "DE",
     "advisor": "Agarwal, Anish"
-  },
-  {
-    "name": "Delaware - High School",
-    "location": "",
-    "state": "DE",
-    "advisor": ""
   },
   {
     "name": "Hillsborough High School",
@@ -12702,12 +12660,6 @@
     "advisor": "Hansen, Nikki"
   },
   {
-    "name": "Florida Collegiate Direct",
-    "location": "",
-    "state": "FL",
-    "advisor": "Poma, Katera"
-  },
-  {
     "name": "Parrish Community High School",
     "location": "Parrish, FL",
     "state": "FL",
@@ -12876,7 +12828,7 @@
     "advisor": "Waugh, Heather"
   },
   {
-    "name": "Law Enforcement Officers\u2019 Memorial High School",
+    "name": "Law Enforcement Officers’ Memorial High School",
     "location": "Miami, FL",
     "state": "FL",
     "advisor": "Siervo, Marco"
@@ -13462,12 +13414,6 @@
     "location": "Miami, Fl",
     "state": "FL",
     "advisor": "Taylor, Alex"
-  },
-  {
-    "name": "Saint Petersburg College--Stem High School",
-    "location": "",
-    "state": "FL",
-    "advisor": "Charleston, Jody"
   },
   {
     "name": "John F Kennedy Middle School",
@@ -16194,12 +16140,6 @@
     "advisor": "Ragin, Penney"
   },
   {
-    "name": "Georgia Collegiate Direct",
-    "location": "",
-    "state": "GA",
-    "advisor": "Dyer, Jodi"
-  },
-  {
     "name": "Appling County Middle School",
     "location": "Baxley, GA",
     "state": "GA",
@@ -17982,12 +17922,6 @@
     "advisor": "MacLean, Kylee"
   },
   {
-    "name": "Hawaii Collegiate Direct",
-    "location": "",
-    "state": "HI",
-    "advisor": "Poma, Katera"
-  },
-  {
     "name": "Waipahu Intermediate School",
     "location": "Waipahu, HI",
     "state": "HI",
@@ -18004,12 +17938,6 @@
     "location": "Jerome, ID",
     "state": "ID",
     "advisor": "Russell, Catherine"
-  },
-  {
-    "name": "Idaho Collegiate Direct",
-    "location": "",
-    "state": "ID",
-    "advisor": ""
   },
   {
     "name": "Lewis-Clark State College",
@@ -18612,12 +18540,6 @@
     "advisor": "Visser, Steven"
   },
   {
-    "name": "Illinois Collegiate Direct",
-    "location": "",
-    "state": "IL",
-    "advisor": "Robinson, Corbin"
-  },
-  {
     "name": "South Shore International College Prep",
     "location": "Chicago, IL",
     "state": "IL",
@@ -18710,12 +18632,6 @@
   {
     "name": "Illinois - High School",
     "location": "Decatur, IL",
-    "state": "IL",
-    "advisor": ""
-  },
-  {
-    "name": "Illinois - Collegiate",
-    "location": "",
     "state": "IL",
     "advisor": ""
   },
@@ -19066,12 +18982,6 @@
     "location": "West Lafayette, IN",
     "state": "IN",
     "advisor": "Stocklin, Angie"
-  },
-  {
-    "name": "Indiana Collegiate Direct",
-    "location": "",
-    "state": "IN",
-    "advisor": ""
   },
   {
     "name": "Pierre Moran Middle School",
@@ -19962,12 +19872,6 @@
     "advisor": "Doll, Kristina"
   },
   {
-    "name": "Iowa Collegiate Direct",
-    "location": "",
-    "state": "IA",
-    "advisor": ""
-  },
-  {
     "name": "Greene County High School",
     "location": "Jefferson, IA",
     "state": "IA",
@@ -20613,7 +20517,7 @@
     "name": "Baldwin High School",
     "location": "Baldwin City, KS",
     "state": "KS",
-    "advisor": "Batman, Bront\u00e9"
+    "advisor": "Batman, Bronté"
   },
   {
     "name": "Sterling College",
@@ -21129,7 +21033,7 @@
     "name": "Flint Hills Technical College",
     "location": "Emporia, KS",
     "state": "KS",
-    "advisor": "O\u2019Mara, Kenda"
+    "advisor": "O’Mara, Kenda"
   },
   {
     "name": "Southeast High School",
@@ -21218,12 +21122,6 @@
   {
     "name": "Friend's University",
     "location": "Wichita, KS",
-    "state": "KS",
-    "advisor": ""
-  },
-  {
-    "name": "Kansas Collegiate Direct",
-    "location": "",
     "state": "KS",
     "advisor": ""
   },
@@ -21675,7 +21573,7 @@
     "name": "Johnson Central High School",
     "location": "Paintsville, KY",
     "state": "KY",
-    "advisor": "Sartin-Slone, Zo\u00eb"
+    "advisor": "Sartin-Slone, Zoë"
   },
   {
     "name": "Carroll County Area Technology Center",
@@ -22422,12 +22320,6 @@
     "advisor": "Besant, Donna"
   },
   {
-    "name": "Kentucky Collegiate Direct",
-    "location": "",
-    "state": "KY",
-    "advisor": "Walker, Kelley"
-  },
-  {
     "name": "Jenkins Independent School",
     "location": "Jenkins, KY",
     "state": "KY",
@@ -22648,12 +22540,6 @@
     "location": "Paducah, KY",
     "state": "KY",
     "advisor": "Enlow, Carol"
-  },
-  {
-    "name": "Clinton County ATC Middle Level",
-    "location": "",
-    "state": "KY",
-    "advisor": "Grant, Lora"
   },
   {
     "name": "Pathfinder School of Innovation",
@@ -23436,12 +23322,6 @@
     "advisor": ""
   },
   {
-    "name": "Louisiana Collegiate Direct",
-    "location": "",
-    "state": "LA",
-    "advisor": ""
-  },
-  {
     "name": "Evangeline Parish Virtual Middle School",
     "location": "Ville Platte, LA",
     "state": "LA",
@@ -23631,7 +23511,7 @@
     "name": "York High School",
     "location": "York, ME",
     "state": "ME",
-    "advisor": "Bola\u00f1os, Sarah"
+    "advisor": "Bolaños, Sarah"
   },
   {
     "name": "Van Buren District Secondary School",
@@ -24222,12 +24102,6 @@
     "advisor": "Anderson, Rafique"
   },
   {
-    "name": "Maryland Collegiate Direct",
-    "location": "",
-    "state": "MD",
-    "advisor": "Connor, Jamie"
-  },
-  {
     "name": "Patterson Mill High School",
     "location": "Bel Air, MD",
     "state": "MD",
@@ -24292,12 +24166,6 @@
     "location": "Largo, MD",
     "state": "MD",
     "advisor": "Benavidez, Maria"
-  },
-  {
-    "name": "Direct Middle School MD",
-    "location": "",
-    "state": "MD",
-    "advisor": "Lewis, Athena"
   },
   {
     "name": "North Carroll Middle School",
@@ -24766,18 +24634,6 @@
     "location": "Mendota Heights, MN",
     "state": "MN",
     "advisor": "Cervantes De Blois, Carlie"
-  },
-  {
-    "name": "Minnesota - High School",
-    "location": "",
-    "state": "MN",
-    "advisor": ""
-  },
-  {
-    "name": "Minnesota FBLA Virtual Chapter",
-    "location": "",
-    "state": "MN",
-    "advisor": "Soucheray Jr, Phil"
   },
   {
     "name": "East Central Community College",
@@ -25840,12 +25696,6 @@
     "location": "Summit, MS",
     "state": "MS",
     "advisor": "Lawon, Julie"
-  },
-  {
-    "name": "Mississippi Collegiate Direct",
-    "location": "",
-    "state": "MS",
-    "advisor": "Jones, Kimberly"
   },
   {
     "name": "Oak Grove Middle School",
@@ -29418,12 +29268,6 @@
     "advisor": "Santa Cruz, Gabe"
   },
   {
-    "name": "Missouri Collegiate Direct",
-    "location": "",
-    "state": "MO",
-    "advisor": "Crider, Leslie"
-  },
-  {
     "name": "Niangua Middle School",
     "location": "Niangua, MO",
     "state": "MO",
@@ -30876,12 +30720,6 @@
     "advisor": "Wilcox, Juanita"
   },
   {
-    "name": "Nebraska Collegiate Direct",
-    "location": "",
-    "state": "NE",
-    "advisor": "Krause, Adam"
-  },
-  {
     "name": "Arlington Public Schools - MS",
     "location": "Arlington, NE",
     "state": "NE",
@@ -31408,12 +31246,6 @@
     "location": "Carson City, NV",
     "state": "NV",
     "advisor": "Haley, Curtis"
-  },
-  {
-    "name": "Nevada Middle School Virtual",
-    "location": "",
-    "state": "NV",
-    "advisor": ""
   },
   {
     "name": "Faith Lutheran Middle School",
@@ -32742,12 +32574,6 @@
     "advisor": "Marie Lowenstein, Carol"
   },
   {
-    "name": "New Jersey Collegiate Direct",
-    "location": "",
-    "state": "NJ",
-    "advisor": "Poma, Katera"
-  },
-  {
     "name": "Ogdensburg Public School",
     "location": "Ogdensburg, NJ",
     "state": "NJ",
@@ -33780,12 +33606,6 @@
     "advisor": ""
   },
   {
-    "name": "New York Collegiate Direct",
-    "location": "",
-    "state": "NY",
-    "advisor": "Clark, Kimberly"
-  },
-  {
     "name": "Nazareth College",
     "location": "Rochester, NY",
     "state": "NY",
@@ -33831,7 +33651,7 @@
     "name": "French American School of New York",
     "location": "Mamaroneck, NY",
     "state": "NY",
-    "advisor": "Nguyen Andr\u00e9, H\u00f4ng T\u00e2m"
+    "advisor": "Nguyen André, Hông Tâm"
   },
   {
     "name": "Dominican Academy",
@@ -35112,12 +34932,6 @@
     "advisor": "Woods, Brandon"
   },
   {
-    "name": "University of North Carolina at Charlotte",
-    "location": "",
-    "state": "NC",
-    "advisor": "Davis, Brianna"
-  },
-  {
     "name": "Julius L. Chambers High School",
     "location": "Charlotte, NC",
     "state": "NC",
@@ -35986,12 +35800,6 @@
     "location": "Hillsborough, NC",
     "state": "NC",
     "advisor": "Bruhns, Lori"
-  },
-  {
-    "name": "North Carolina Collegiate Direct",
-    "location": "",
-    "state": "NC",
-    "advisor": ""
   },
   {
     "name": "Quail Hollow Middle School",
@@ -37026,12 +36834,6 @@
     "advisor": "Boedeker, Kelsey"
   },
   {
-    "name": "North Dakota Collegiate Direct",
-    "location": "",
-    "state": "ND",
-    "advisor": "DeVaal, Jessica"
-  },
-  {
     "name": "Burke Central Middle School",
     "location": "Lignite, ND",
     "state": "ND",
@@ -37374,12 +37176,6 @@
     "advisor": "Chaudhary, Shamael"
   },
   {
-    "name": "Ohio Collegiate Direct",
-    "location": "",
-    "state": "OH",
-    "advisor": "McGarvey, Eric"
-  },
-  {
     "name": "Aurora High School",
     "location": "Aurora, OH",
     "state": "OH",
@@ -37522,12 +37318,6 @@
     "location": "Hunting valley, OH",
     "state": "OH",
     "advisor": "Lewis, James"
-  },
-  {
-    "name": "Oakwood High School",
-    "location": "",
-    "state": "OH",
-    "advisor": "Johnston, Natalie"
   },
   {
     "name": "Olentangy Liberty High School",
@@ -38224,12 +38014,6 @@
     "location": "Molalla, OR",
     "state": "OR",
     "advisor": "Marson, SANDY"
-  },
-  {
-    "name": "Oregon Collegiate Direct",
-    "location": "",
-    "state": "OR",
-    "advisor": "Tuason, Danielle"
   },
   {
     "name": "John C. Fremont Middle School",
@@ -40188,7 +39972,7 @@
     "advisor": "Merto, Caitlin"
   },
   {
-    "name": "Pennsylvania State University \u2013 York",
+    "name": "Pennsylvania State University – York",
     "location": "York, PA",
     "state": "PA",
     "advisor": "Lorenz, Megan"
@@ -40228,12 +40012,6 @@
     "location": "Philadelphia, PA",
     "state": "PA",
     "advisor": "Sereni, Ayisha"
-  },
-  {
-    "name": "Pennsylvania Collegiate Direct",
-    "location": "",
-    "state": "PA",
-    "advisor": "Poma, Katera"
   },
   {
     "name": "Penn State University - Schuylkill Campus",
@@ -40708,12 +40486,6 @@
     "location": "Pawtucket, RI",
     "state": "RI",
     "advisor": "Monahan, Betty"
-  },
-  {
-    "name": "Rhode Island Collegiate Direct",
-    "location": "",
-    "state": "RI",
-    "advisor": ""
   },
   {
     "name": "Dr. Jorge Alvarez High School",
@@ -41416,12 +41188,6 @@
     "location": "Effingham, SC",
     "state": "SC",
     "advisor": "Izzard, Safoya"
-  },
-  {
-    "name": "South Carolina Collegiate Direct",
-    "location": "",
-    "state": "SC",
-    "advisor": "Davidson, Shayla"
   },
   {
     "name": "Catawba Ridge High",
@@ -43026,12 +42792,6 @@
     "advisor": ""
   },
   {
-    "name": "Tennessee Collegiate Direct",
-    "location": "",
-    "state": "TN",
-    "advisor": ""
-  },
-  {
     "name": "Bluff City High School",
     "location": "Memphis, TN",
     "state": "TN",
@@ -43800,7 +43560,7 @@
     "advisor": "Merritt, Amanda"
   },
   {
-    "name": "Claudia Taylor \u201cLady Bird\u201d Johnson High School",
+    "name": "Claudia Taylor “Lady Bird” Johnson High School",
     "location": "San Antonio, TX",
     "state": "TX",
     "advisor": "Weeks, Michele"
@@ -43996,12 +43756,6 @@
     "location": "Houston, TX",
     "state": "TX",
     "advisor": "Williams, Eshmacore"
-  },
-  {
-    "name": "Texas Collegiate Direct",
-    "location": "",
-    "state": "TX",
-    "advisor": "Reynolds, Sherilyn"
   },
   {
     "name": "Columbia High School",
@@ -45534,12 +45288,6 @@
     "advisor": "Reed, Missy"
   },
   {
-    "name": "Utah Collegiate Direct",
-    "location": "",
-    "state": "UT",
-    "advisor": ""
-  },
-  {
     "name": "Wahlquist Junior High",
     "location": "Farr West, UT",
     "state": "UT",
@@ -45820,12 +45568,6 @@
     "location": "Lyndon Center, VT",
     "state": "VT",
     "advisor": "Atkins, Bridget"
-  },
-  {
-    "name": "Vermont Collegiate Direct",
-    "location": "",
-    "state": "VT",
-    "advisor": ""
   },
   {
     "name": "North Country Career Center",
@@ -48276,12 +48018,6 @@
     "advisor": "Dix, Alice"
   },
   {
-    "name": "Virginia Collegiate Direct",
-    "location": "",
-    "state": "VA",
-    "advisor": "Mills, Sandy"
-  },
-  {
     "name": "Buffalo Gap High School",
     "location": "Swoope, VA",
     "state": "VA",
@@ -50004,12 +49740,6 @@
     "advisor": "Haley, Bill"
   },
   {
-    "name": "Washington Collegiate Direct",
-    "location": "",
-    "state": "WA",
-    "advisor": "Perez, Tiffany"
-  },
-  {
     "name": "Holy Names Academy",
     "location": "Seattle, WA",
     "state": "WA",
@@ -50616,12 +50346,6 @@
     "advisor": "Mounts, Stephanie"
   },
   {
-    "name": "West Virginia Collegiate Direct",
-    "location": "",
-    "state": "WV",
-    "advisor": ""
-  },
-  {
     "name": "Wirt County Middle School",
     "location": "Elizabeth, WV",
     "state": "WV",
@@ -50722,12 +50446,6 @@
     "location": "Spencer, WV",
     "state": "WV",
     "advisor": "Collins, Norma"
-  },
-  {
-    "name": "West Virginia Northern Community College",
-    "location": "",
-    "state": "WV",
-    "advisor": "Guzek, Lyndsie"
   },
   {
     "name": "Charleston Catholic High School",
@@ -51906,12 +51624,6 @@
     "advisor": "Goss, Samantha"
   },
   {
-    "name": "Wisconsin Collegiate Direct",
-    "location": "",
-    "state": "WI",
-    "advisor": ""
-  },
-  {
     "name": "Wausau Area Virtual Education",
     "location": "Wausau, WI",
     "state": "WI",
@@ -52425,13 +52137,13 @@
     "name": "Manuela Toro Morice High School",
     "location": "CAGUAS, PR",
     "state": "PR",
-    "advisor": "L\u00f3pez-soto, Awilda"
+    "advisor": "López-soto, Awilda"
   },
   {
-    "name": "Eugenio Mar\u00eda de Hostos High School",
+    "name": "Eugenio María de Hostos High School",
     "location": "Hormigueros, PR",
     "state": "PR",
-    "advisor": "QUI\u00d1ONES, BARBARA"
+    "advisor": "QUIÑONES, BARBARA"
   },
   {
     "name": "Ponce High School",
@@ -52440,7 +52152,7 @@
     "advisor": "Robles Torres, Jennifer"
   },
   {
-    "name": "Dr. Agust\u00edn Stahl High School",
+    "name": "Dr. Agustín Stahl High School",
     "location": "Bayamon, PR",
     "state": "PR",
     "advisor": "Rosado, Dagmar"
@@ -52452,7 +52164,7 @@
     "advisor": "Rivera, Stephanie"
   },
   {
-    "name": "Juan Su\u00e1rez Pelegrina High School",
+    "name": "Juan Suárez Pelegrina High School",
     "location": "Moca , PR",
     "state": "PR",
     "advisor": "Gonzalez Cordero, Ivette"
@@ -52470,7 +52182,7 @@
     "advisor": "Guzman, Claudia"
   },
   {
-    "name": "Manuel Mediavilla Negr\u00f3n High School",
+    "name": "Manuel Mediavilla Negrón High School",
     "location": "Punta Santiago, PR",
     "state": "PR",
     "advisor": "RAMOS-LUGO, CLARINES"
@@ -52479,10 +52191,10 @@
     "name": "Benjamin Harrison Vocational High School",
     "location": "Patillas, PR",
     "state": "PR",
-    "advisor": "Rivera-Lebr\u00f3n, Maribel"
+    "advisor": "Rivera-Lebrón, Maribel"
   },
   {
-    "name": "Jos\u00e9 Felipe Zayas High School",
+    "name": "José Felipe Zayas High School",
     "location": "Coamo, PR",
     "state": "PR",
     "advisor": "Lopez, Aida"
@@ -52491,40 +52203,40 @@
     "name": "Antonio Reyes Padilla Vocational High School",
     "location": "Utuado, PR",
     "state": "PR",
-    "advisor": "Cipri\u00e1n, Evelyn"
+    "advisor": "Ciprián, Evelyn"
   },
   {
-    "name": "Lino Padr\u00f3n Rivera High School",
+    "name": "Lino Padrón Rivera High School",
     "location": "Vega Baja, PR",
     "state": "PR",
     "advisor": "Santiago Colon, Lourdes"
   },
   {
-    "name": "Luis Mu\u00f1oz Marin High School - Barranquitas",
+    "name": "Luis Muñoz Marin High School - Barranquitas",
     "location": "Orocovis, PR",
     "state": "PR",
     "advisor": "MIRANDA, ROSAEL"
   },
   {
-    "name": "Elvira M. Col\u00f3n High School",
+    "name": "Elvira M. Colón High School",
     "location": "Santa Isabel, PR",
     "state": "PR",
-    "advisor": "Rivas-L\u00f3pez, Catherine"
+    "advisor": "Rivas-López, Catherine"
   },
   {
     "name": "Dr. Heriberto Domenech Vocational High School",
     "location": "Isabela, PR",
     "state": "PR",
-    "advisor": "P\u00e9rez V\u00e9lez, Dianna"
+    "advisor": "Pérez Vélez, Dianna"
   },
   {
-    "name": "In\u00e9s Mar\u00eda Mendoza High School",
+    "name": "Inés María Mendoza High School",
     "location": "Cabo Rojo, PR",
     "state": "PR",
     "advisor": "Valentin Ortiz, Migdalia"
   },
   {
-    "name": "Jos\u00e9 Rojas Cort\u00e9s High School",
+    "name": "José Rojas Cortés High School",
     "location": "Corozal, PR",
     "state": "PR",
     "advisor": "Rivera, Saadia"
@@ -52533,10 +52245,10 @@
     "name": "Luis Llorens Torres High School",
     "location": "Juana Diaz, PR",
     "state": "PR",
-    "advisor": "De Jes\u00fas-Pi\u00f1eiro, Luz"
+    "advisor": "De Jesús-Piñeiro, Luz"
   },
   {
-    "name": "Natividad Rodr\u00edguez Gonz\u00e1lez High School",
+    "name": "Natividad Rodríguez González High School",
     "location": "Arroyo, PR",
     "state": "PR",
     "advisor": "Santiago, Caroll"
@@ -52548,10 +52260,10 @@
     "advisor": "Ortiz, Ivonne"
   },
   {
-    "name": "Rub\u00e9n Rodr\u00edguez Figueroa High School",
+    "name": "Rubén Rodríguez Figueroa High School",
     "location": "Naranjito, PR",
     "state": "PR",
-    "advisor": "V\u00e1zquez, Flordaliz"
+    "advisor": "Vázquez, Flordaliz"
   },
   {
     "name": "Carlos F. Daniels Vocational High School",
@@ -52566,13 +52278,13 @@
     "advisor": "Rodriguez, Jacqueline"
   },
   {
-    "name": "Josefa V\u00e9lez Bauza High School",
+    "name": "Josefa Vélez Bauza High School",
     "location": "Penuelas, PR",
     "state": "PR",
     "advisor": "Bonilla Irizarry Mrs, Haydee Bonilla Irizarry"
   },
   {
-    "name": "Manuel M\u00e9ndez Liciaga High School",
+    "name": "Manuel Méndez Liciaga High School",
     "location": "San Sebastian, PR",
     "state": "PR",
     "advisor": ""
@@ -52584,10 +52296,10 @@
     "advisor": "Ortiz Sanjurjo, Ilia"
   },
   {
-    "name": "Isidro A. S\u00e1nchez High School",
+    "name": "Isidro A. Sánchez High School",
     "location": "Luquillo, PR",
     "state": "PR",
-    "advisor": "Gonz\u00e1lez, Raquel"
+    "advisor": "González, Raquel"
   },
   {
     "name": "Emilio R. Delgado High School",
@@ -52599,10 +52311,10 @@
     "name": "Miguel Such Vocational High School",
     "location": "San Juan, PR",
     "state": "PR",
-    "advisor": "Pe\u00f1a De Jes\u00fas, Damaris"
+    "advisor": "Peña De Jesús, Damaris"
   },
   {
-    "name": "Jos\u00e9 E. Lugo Ponce De Le\u00f3n High School",
+    "name": "José E. Lugo Ponce De León High School",
     "location": "Adjuntas, PR",
     "state": "PR",
     "advisor": "Bonilla Irizarry, Gloria M."
@@ -52638,25 +52350,25 @@
     "advisor": "Thomas, Carmen"
   },
   {
-    "name": "Dr. Jos\u00e9 N. G\u00e1ndara High School",
+    "name": "Dr. José N. Gándara High School",
     "location": "Aibonito, PR",
     "state": "PR",
     "advisor": "De Jesus , Gisela"
   },
   {
-    "name": "Dr. Antonio Fern\u00f3s Isern Vocational High School",
+    "name": "Dr. Antonio Fernós Isern Vocational High School",
     "location": "San Lorenzo, PR",
     "state": "PR",
-    "advisor": "V\u00e9lez-crespo, Mar\u00eda V\u00e9lez"
+    "advisor": "Vélez-crespo, María Vélez"
   },
   {
-    "name": "Nicol\u00e1s Sevilla G\u00fcemarez High School",
+    "name": "Nicolás Sevilla Güemarez High School",
     "location": "Toa Alta, PR",
     "state": "PR",
     "advisor": "Corazon, Maria De Lourdes"
   },
   {
-    "name": "Dr. Carlos Gonz\u00e1lez High School",
+    "name": "Dr. Carlos González High School",
     "location": "Aguada, PR",
     "state": "PR",
     "advisor": "Lorenzo-Chaparro, Yadiel"
@@ -52668,7 +52380,7 @@
     "advisor": "De Leon, Dianoris"
   },
   {
-    "name": "Pedro Fal\u00fa Orellano High School",
+    "name": "Pedro Falú Orellano High School",
     "location": "Rio Grande, PR",
     "state": "PR",
     "advisor": "Molina Calzada, Mariela"
@@ -52680,13 +52392,13 @@
     "advisor": ""
   },
   {
-    "name": "Luis Negr\u00f3n L\u00f3pez High School",
+    "name": "Luis Negrón López High School",
     "location": "Maricao, PR",
     "state": "PR",
     "advisor": "Vega Vidro, Lesbia"
   },
   {
-    "name": "Josefina Le\u00f3n Zayas High School",
+    "name": "Josefina León Zayas High School",
     "location": "Jayuya, PR",
     "state": "PR",
     "advisor": "Aulet MRS, Eilleen"
@@ -52698,7 +52410,7 @@
     "advisor": "Acevedo-ruiz, Yonayda"
   },
   {
-    "name": "Petra Zen\u00f3n de Fabery Vocational High School",
+    "name": "Petra Zenón de Fabery Vocational High School",
     "location": "Trujillo Alto, PR",
     "state": "PR",
     "advisor": "Santana, Alma"
@@ -52710,19 +52422,19 @@
     "advisor": "12, Carol Morales Soto"
   },
   {
-    "name": "Ram\u00f3n Power y Giralt High School",
+    "name": "Ramón Power y Giralt High School",
     "location": "Las Piedras, PR",
     "state": "PR",
-    "advisor": "\u00c1lamo-Serrano, Laura"
+    "advisor": "Álamo-Serrano, Laura"
   },
   {
     "name": "Catalina Morales de Flores High School",
     "location": "Aguada, PR",
     "state": "PR",
-    "advisor": "Cruz Gonz\u00e1lez, D\u00e9bora"
+    "advisor": "Cruz González, Débora"
   },
   {
-    "name": "Ladislao Mart\u00ednez High School",
+    "name": "Ladislao Martínez High School",
     "location": "Vega Alta, PR",
     "state": "PR",
     "advisor": "Santana, Maria"
@@ -52740,19 +52452,19 @@
     "advisor": "Candelaria-Vilella, Omayra"
   },
   {
-    "name": "Lola Rodr\u00edguez de Ti\u00f3 High School",
+    "name": "Lola Rodríguez de Tió High School",
     "location": "San German, PR",
     "state": "PR",
-    "advisor": "Rodr\u00edguez Vigo, Lizbeth"
+    "advisor": "Rodríguez Vigo, Lizbeth"
   },
   {
     "name": "Bernardino Cordero Bernard Vocational High School",
     "location": "Ponce, PR",
     "state": "PR",
-    "advisor": "Garc\u00eda, Alexys"
+    "advisor": "García, Alexys"
   },
   {
-    "name": "Ja\u00edme A. Collazo del R\u00edo High School",
+    "name": "Jaíme A. Collazo del Río High School",
     "location": "Morovis, PR",
     "state": "PR",
     "advisor": "Nieves-Alvarado, Hecmary"
@@ -52782,7 +52494,7 @@
     "advisor": "Lebron Matias, Tania"
   },
   {
-    "name": "Luis Mu\u00f1oz Mar\u00edn High School - A\u00f1asco",
+    "name": "Luis Muñoz Marín High School - Añasco",
     "location": "Anasco, PR",
     "state": "PR",
     "advisor": "Torres, Tammy"
@@ -52800,7 +52512,7 @@
     "advisor": "Roldan, Luz E"
   },
   {
-    "name": "Jos\u00e9 S. Alegr\u00eda High School",
+    "name": "José S. Alegría High School",
     "location": "Dorado, PR",
     "state": "PR",
     "advisor": "Perez, Marian"
@@ -52809,7 +52521,7 @@
     "name": "Aurea E. Quiles Claudio High School",
     "location": "Guanica, PR",
     "state": "PR",
-    "advisor": "Almod\u00f3var, Yaritxa Almodovar"
+    "advisor": "Almodóvar, Yaritxa Almodovar"
   },
   {
     "name": "Lorenzo Coballes Gandia High School",
@@ -52818,16 +52530,16 @@
     "advisor": "Morales-Romero, Amalix"
   },
   {
-    "name": "Dra. Mar\u00eda Socorro Lacot Vocational High School",
+    "name": "Dra. María Socorro Lacot Vocational High School",
     "location": "GUAYAMA, PR",
     "state": "PR",
     "advisor": "Reyes-Guzman, Ginnette"
   },
   {
-    "name": "Asunci\u00f3n Rodr\u00edguez De Sala High School",
+    "name": "Asunción Rodríguez De Sala High School",
     "location": "Guayanilla, PR",
     "state": "PR",
-    "advisor": "Jim\u00e9nez, Nilmary"
+    "advisor": "Jiménez, Nilmary"
   },
   {
     "name": "Eva y Patria Custodio High School",
@@ -52842,13 +52554,13 @@
     "advisor": "MIRO-GONZALEZ, YAMILET"
   },
   {
-    "name": "Manuel Garc\u00eda P\u00e9rez High School",
+    "name": "Manuel García Pérez High School",
     "location": "Rincon, PR",
     "state": "PR",
-    "advisor": "Cordero-l\u00f3pez, Mariel"
+    "advisor": "Cordero-lópez, Mariel"
   },
   {
-    "name": "Juan Ponce De Le\u00f3n High School",
+    "name": "Juan Ponce De León High School",
     "location": "Bajadero, PR",
     "state": "PR",
     "advisor": "Molina, Jocelyn"
@@ -52857,10 +52569,10 @@
     "name": "Dr. Pedro Albizu Campos High School",
     "location": "Toa Baja, PR",
     "state": "PR",
-    "advisor": "Navedo-Mart\u00ednez, Jessica"
+    "advisor": "Navedo-Martínez, Jessica"
   },
   {
-    "name": "Abelardo Mart\u00ednez Otero High School",
+    "name": "Abelardo Martínez Otero High School",
     "location": "Arecibo, PR",
     "state": "PR",
     "advisor": "Centeno, Ricardo"
@@ -52902,13 +52614,13 @@
     "advisor": "Irizarry, Iraida"
   },
   {
-    "name": "Dra. Mar\u00eda Cadilla de Mart\u00ednez High School",
+    "name": "Dra. María Cadilla de Martínez High School",
     "location": "Arecibo, PR",
     "state": "PR",
     "advisor": "Cintron, Jean"
   },
   {
-    "name": "Eladio Rivera Qui\u00f1ones Vocational High School",
+    "name": "Eladio Rivera Quiñones Vocational High School",
     "location": "Carolina, PR",
     "state": "PR",
     "advisor": "Figueroa, Barbara Figueroa"
@@ -52923,10 +52635,10 @@
     "name": "Instituto Tecnologico de Guayama",
     "location": "Guayama, PR",
     "state": "PR",
-    "advisor": "Rivas-v\u00e1zquez, Carmen"
+    "advisor": "Rivas-vázquez, Carmen"
   },
   {
-    "name": "Dr. Gilberto Concepci\u00f3n de Gracia High School",
+    "name": "Dr. Gilberto Concepción de Gracia High School",
     "location": "SAN JUAN, PR",
     "state": "PR",
     "advisor": "Miranda Irizarry, Annette"
@@ -52962,7 +52674,7 @@
     "advisor": "Rodriguez, Carlos"
   },
   {
-    "name": "Ocupacional y T\u00e9cnica de Yauco High School",
+    "name": "Ocupacional y Técnica de Yauco High School",
     "location": "Yauco, PR",
     "state": "PR",
     "advisor": "Irizarry-Orengo, Yolimar"
@@ -52986,7 +52698,7 @@
     "advisor": ""
   },
   {
-    "name": "Instituto Tecnol\u00f3gico de Puerto Rico",
+    "name": "Instituto Tecnológico de Puerto Rico",
     "location": "GUAYAMA, PR",
     "state": "PR",
     "advisor": ""
@@ -53017,7 +52729,7 @@
   },
   {
     "name": "Instituto Tecnologico de Puerto Rico - Recinto de Manati",
-    "location": "Manat\u00ed, PR",
+    "location": "Manatí, PR",
     "state": "PR",
     "advisor": ""
   },

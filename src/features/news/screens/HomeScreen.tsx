@@ -25,6 +25,7 @@ const demoNews: NewsItem[] = [
         content: 'Register now for the 2026 State Leadership Conference...',
         summary: 'Early bird registration ends February 15. Don\'t miss your chance to compete!',
         level: 'state',
+        stateId: 'NE',
         category: 'deadline',
         authorId: 'admin',
         authorName: 'Nebraska FBLA',
@@ -33,6 +34,25 @@ const demoNews: NewsItem[] = [
         isPinned: true,
         priority: 'high',
         tags: ['SLC', 'Registration', 'Competition'],
+        relatedEventIds: [],
+        isRead: false,
+        isSaved: false,
+    },
+    {
+        id: '1-GA',
+        title: 'Georgia SLC 2026: Ignite Your Future',
+        content: 'Registration for Georgia FBLA State Leadership Conference is officially open!',
+        summary: 'Join thousands of Georgia members in Atlanta this March.',
+        level: 'state',
+        stateId: 'GA',
+        category: 'deadline',
+        authorId: 'admin',
+        authorName: 'Georgia FBLA',
+        authorRole: 'State Association',
+        publishedAt: new Date().toISOString(),
+        isPinned: true,
+        priority: 'high',
+        tags: ['GA SLC', 'Atlanta', 'Competition'],
         relatedEventIds: [],
         isRead: false,
         isSaved: false,
@@ -61,6 +81,7 @@ const demoNews: NewsItem[] = [
         content: 'Join us for our weekly chapter meeting...',
         summary: 'This week: Competition prep workshop and officer elections preview',
         level: 'chapter',
+        chapterId: 'Lincoln FBLA',
         category: 'event',
         authorId: 'officer',
         authorName: 'Lincoln FBLA',
@@ -73,6 +94,25 @@ const demoNews: NewsItem[] = [
         isRead: true,
         isSaved: false,
     },
+    {
+        id: '4',
+        title: 'Middle Georgia Regional Workshop',
+        content: 'Attention chapters in the Middle Georgia region...',
+        summary: 'Final call for regional workshop registrations.',
+        level: 'state',
+        stateId: 'GA',
+        category: 'event',
+        authorId: 'admin',
+        authorName: 'Georgia FBLA',
+        authorRole: 'State Association',
+        publishedAt: new Date(Date.now() - 43200000).toISOString(),
+        isPinned: false,
+        priority: 'normal',
+        tags: ['Regional', 'Georgia'],
+        relatedEventIds: [],
+        isRead: false,
+        isSaved: false,
+    },
 ];
 
 export default function HomeScreen() {
@@ -81,6 +121,28 @@ export default function HomeScreen() {
     const profile = useAppSelector(state => state.profile.profile);
     const { news, unreadCount } = useAppSelector(state => state.news);
     const [refreshing, setRefreshing] = useState(false);
+
+    // Filter news based on user's location
+    const filteredNews = React.useMemo(() => {
+        if (!user) return news;
+
+        return news.filter(item => {
+            // Always show national news
+            if (item.level === 'national') return true;
+
+            // Filter state news
+            if (item.level === 'state') {
+                return item.stateId === user.state;
+            }
+
+            // Filter chapter news
+            if (item.level === 'chapter') {
+                return item.chapterId === user.chapterName;
+            }
+
+            return false;
+        });
+    }, [news, user]);
 
     useEffect(() => {
         dispatch(setNews(demoNews));
@@ -170,7 +232,7 @@ export default function HomeScreen() {
                         )}
                     </View>
 
-                    {news.map((item) => (
+                    {filteredNews.map((item) => (
                         <NewsCard key={item.id} item={item} onPress={() => handleNewsPress(item.id)} />
                     ))}
                 </View>
@@ -182,7 +244,9 @@ export default function HomeScreen() {
                         <Card.Content>
                             <View style={styles.socialHeader}>
                                 <Ionicons name="logo-instagram" size={24} color="#E1306C" />
-                                <Text style={styles.socialHandle}>@lincolnfbla</Text>
+                                <Text style={styles.socialHandle}>
+                                    @{user?.chapterName?.toLowerCase().replace(/\s+/g, '') || 'chapter'}
+                                </Text>
                                 <Text style={styles.socialTime}>2h ago</Text>
                             </View>
                             <Text style={styles.socialContent}>
