@@ -16,7 +16,7 @@ import { setNews, markAsRead, NewsItem, addNewsItem } from '../newsSlice';
 import { colors, spacing, typography, borderRadius, shadows } from '../../../shared/theme';
 import { fetchStateNews } from '../../../shared/services/newsService';
 import { useNavigation } from '@react-navigation/native';
-import { ResourcesStackParamList } from '../../../shared/navigation/types';
+import { ResourcesStackParamList, MainTabParamList } from '../../../shared/navigation/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 const { width } = Dimensions.get('window');
@@ -39,7 +39,7 @@ const demoNews: NewsItem[] = [
         priority: 'high',
         tags: ['SLC', 'Registration', 'Competition'],
         relatedEventIds: [],
-        isRead: false,
+        isRead: true,
         isSaved: false,
     },
     {
@@ -58,7 +58,7 @@ const demoNews: NewsItem[] = [
         priority: 'high',
         tags: ['GA SLC', 'Atlanta', 'Competition'],
         relatedEventIds: [],
-        isRead: false,
+        isRead: true,
         isSaved: false,
     },
     {
@@ -76,7 +76,25 @@ const demoNews: NewsItem[] = [
         priority: 'normal',
         tags: ['Mobile App Dev', 'Guidelines'],
         relatedEventIds: [],
-        isRead: false,
+        isRead: true,
+        isSaved: false,
+    },
+    {
+        id: '2b',
+        title: 'National Leadership Conference 2026 Announced',
+        content: 'Join us in Orlando, Florida for NLC 2026...',
+        summary: 'Early registration opens March 1st. Book your hotel now for the best rates!',
+        level: 'national',
+        category: 'announcement',
+        authorId: 'admin',
+        authorName: 'FBLA National',
+        authorRole: 'National Headquarters',
+        publishedAt: new Date(Date.now() - 43200000).toISOString(),
+        isPinned: false,
+        priority: 'high',
+        tags: ['NLC', 'Conference'],
+        relatedEventIds: [],
+        isRead: true,
         isSaved: false,
     },
     {
@@ -114,7 +132,7 @@ const demoNews: NewsItem[] = [
         priority: 'normal',
         tags: ['Regional', 'Georgia'],
         relatedEventIds: [],
-        isRead: false,
+        isRead: true,
         isSaved: false,
     },
 ];
@@ -177,6 +195,26 @@ export default function HomeScreen() {
         // Navigate to detail (would be implemented)
     };
 
+    const handleQuickAction = (label: string) => {
+        switch (label) {
+            case 'Ask AI':
+                navigation.navigate('AI');
+                break;
+            case 'Events':
+                navigation.navigate('Calendar');
+                break;
+            case 'Resources':
+                navigation.navigate('Resources');
+                break;
+            case 'Compete':
+                navigation.navigate('Calendar');
+                break;
+            case 'Network':
+                navigation.navigate('Profile');
+                break;
+        }
+    };
+
     return (
         <View style={styles.container}>
             <ScrollView
@@ -230,16 +268,16 @@ export default function HomeScreen() {
                     <Text style={styles.sectionTitle}>Quick Actions</Text>
                     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                         <View style={styles.actionsRow}>
-                            <QuickAction icon="chatbubbles" label="Ask AI" color={colors.primary[600]} />
-                            <QuickAction icon="calendar" label="Events" color={colors.secondary[500]} />
-                            <QuickAction icon="document-text" label="Resources" color={colors.success.main} />
+                            <QuickAction icon="chatbubbles" label="Ask AI" color={colors.primary[600]} onPress={() => handleQuickAction('Ask AI')} />
+                            <QuickAction icon="calendar" label="Events" color={colors.secondary[500]} onPress={() => handleQuickAction('Events')} />
+                            <QuickAction icon="document-text" label="Resources" color={colors.success.main} onPress={() => handleQuickAction('Resources')} />
                             <QuickAction
                                 icon="trophy"
                                 label="Compete"
                                 color={colors.warning.main}
                                 onPress={() => navigation.navigate('Resources', { screen: 'CompetitiveEvents' })}
                             />
-                            <QuickAction icon="people" label="Network" color={colors.info.main} />
+                            <QuickAction icon="people" label="Network" color={colors.info.main} onPress={() => handleQuickAction('Network')} />
                         </View>
                     </ScrollView>
                 </View>
@@ -484,7 +522,7 @@ const styles = StyleSheet.create({
         marginBottom: spacing.sm,
     },
     levelChip: {
-        height: 24,
+        // height: 24,
     },
     levelChipText: {
         fontSize: typography.fontSize.xs,

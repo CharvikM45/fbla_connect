@@ -183,6 +183,8 @@ export default function SignUpScreen({ navigation }: Props) {
                             outlineColor={colors.neutral[300]}
                             activeOutlineColor={colors.primary[600]}
                             error={!!errors.password}
+                            textContentType="oneTimeCode"
+                            autoComplete="off"
                             left={<TextInput.Icon icon="lock-outline" />}
                             right={
                                 <TextInput.Icon
@@ -205,19 +207,22 @@ export default function SignUpScreen({ navigation }: Props) {
                             outlineColor={colors.neutral[300]}
                             activeOutlineColor={colors.primary[600]}
                             error={!!errors.confirmPassword}
+                            textContentType="oneTimeCode"
+                            autoComplete="off"
                             left={<TextInput.Icon icon="lock-check-outline" />}
                         />
                         {errors.confirmPassword ? (
                             <HelperText type="error">{errors.confirmPassword}</HelperText>
                         ) : null}
 
-                        {/* Terms checkbox */}
                         <View style={styles.termsContainer}>
-                            <Checkbox
-                                status={agreeToTerms ? 'checked' : 'unchecked'}
-                                onPress={() => setAgreeToTerms(!agreeToTerms)}
-                                color={colors.primary[600]}
-                            />
+                            <View style={styles.checkboxWrapper}>
+                                <Checkbox
+                                    status={agreeToTerms ? 'checked' : 'unchecked'}
+                                    onPress={() => setAgreeToTerms(!agreeToTerms)}
+                                    color={colors.primary[600]}
+                                />
+                            </View>
                             <Text style={styles.termsText}>
                                 I agree to the{' '}
                                 <Text style={styles.termsLink}>Terms of Service</Text>
@@ -326,6 +331,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: spacing.md,
         marginTop: spacing.sm,
+    },
+    checkboxWrapper: {
+        borderWidth: 0.5,
+        borderColor: colors.neutral[300],
+        borderRadius: borderRadius.sm,
+        padding: 0,
     },
     termsText: {
         flex: 1,
