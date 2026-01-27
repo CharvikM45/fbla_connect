@@ -5,10 +5,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { MainTabParamList } from './types';
 import { colors } from '../theme';
 
-// Import screens
-import HomeScreen from '../../features/news/screens/HomeScreen';
+// Import navigators
+import HomeNavigator from './HomeNavigator';
 import CalendarScreen from '../../features/calendar/screens/CalendarScreen';
-import ResourcesScreen from '../../features/resources/screens/ResourcesScreen';
+import ResourcesNavigator from './ResourcesNavigator';
 import AIAssistantScreen from '../../features/ai/assistant/screens/AIAssistantScreen';
 import ProfileScreen from '../../features/profile/screens/ProfileScreen';
 
@@ -62,8 +62,8 @@ export default function MainTabNavigator() {
         >
             <Tab.Screen
                 name="Home"
-                component={HomeScreen}
-                options={{ title: 'FBLA Connect' }}
+                component={HomeNavigator}
+                options={{ title: 'FBLA Connect', headerShown: false }}
             />
             <Tab.Screen
                 name="Calendar"
@@ -72,7 +72,7 @@ export default function MainTabNavigator() {
             />
             <Tab.Screen
                 name="Resources"
-                component={ResourcesScreen}
+                component={ResourcesNavigator}
                 options={{ title: 'Resources' }}
             />
             <Tab.Screen

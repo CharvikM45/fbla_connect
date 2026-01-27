@@ -27,11 +27,17 @@ export type OnboardingStackParamList = {
 
 // Main tab navigator params
 export type MainTabParamList = {
-    Home: undefined;
+    Home: NavigatorScreenParams<HomeStackParamList>;
     Calendar: NavigatorScreenParams<CalendarStackParamList>;
     Resources: NavigatorScreenParams<ResourcesStackParamList>;
     AI: undefined;
     Profile: NavigatorScreenParams<ProfileStackParamList>;
+};
+
+// Home stack params
+export type HomeStackParamList = {
+    HomeMain: undefined;
+    SocialHub: undefined;
 };
 
 // Calendar stack params
@@ -44,6 +50,7 @@ export type CalendarStackParamList = {
 // Resources stack params
 export type ResourcesStackParamList = {
     ResourcesList: undefined;
+    CompetitiveEvents: undefined;
     ResourceDetail: { resourceId: string };
     ResourceViewer: { resourceId: string; url: string };
 };

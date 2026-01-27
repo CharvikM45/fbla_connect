@@ -8,6 +8,7 @@ import {
     TextInput as RNTextInput,
 } from 'react-native';
 import { Text, Card, Chip, Searchbar, IconButton, ProgressBar } from 'react-native-paper';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector, useAppDispatch } from '../../../shared/hooks/useRedux';
 import {
@@ -104,7 +105,7 @@ const categoryFilters: { id: ResourceCategory | 'all'; label: string; icon: stri
     { id: 'dress-code', label: 'Dress Code', icon: 'shirt' },
 ];
 
-export default function ResourcesScreen() {
+export default function ResourcesScreen({ navigation }: any) {
     const dispatch = useAppDispatch();
     const { resources, searchQuery, downloadProgress, favorites } = useAppSelector(
         state => state.resources
@@ -165,6 +166,25 @@ export default function ResourcesScreen() {
                     inputStyle={styles.searchInput}
                 />
             </View>
+
+            {/* Quick Access to Competitions */}
+            <TouchableOpacity
+                style={styles.competeCard}
+                onPress={() => navigation.navigate('CompetitiveEvents')}
+            >
+                <LinearGradient
+                    colors={[colors.primary[600], colors.primary[800]]}
+                    style={styles.competeGradient}
+                >
+                    <View style={styles.competeContent}>
+                        <View>
+                            <Text style={styles.competeTitle}>Competitive Events</Text>
+                            <Text style={styles.competeSubtitle}>Browse 2025-26 guidelines</Text>
+                        </View>
+                        <Ionicons name="trophy" size={32} color="#FFFFFF" opacity={0.8} />
+                    </View>
+                </LinearGradient>
+            </TouchableOpacity>
 
             {/* Category Filters */}
             <View style={styles.filterContainer}>
@@ -439,5 +459,29 @@ const styles = StyleSheet.create({
         fontSize: typography.fontSize.md,
         color: colors.neutral[400],
         marginTop: spacing.md,
+    },
+    competeCard: {
+        marginHorizontal: spacing.md,
+        marginBottom: spacing.md,
+        borderRadius: borderRadius.lg,
+        overflow: 'hidden',
+        ...shadows.md,
+    },
+    competeGradient: {
+        padding: spacing.lg,
+    },
+    competeContent: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    competeTitle: {
+        fontSize: typography.fontSize.lg,
+        fontWeight: 'bold',
+        color: '#FFFFFF',
+    },
+    competeSubtitle: {
+        fontSize: typography.fontSize.sm,
+        color: 'rgba(255, 255, 255, 0.8)',
     },
 });

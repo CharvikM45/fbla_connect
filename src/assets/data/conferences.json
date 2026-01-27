@@ -1,0 +1,1089 @@
+[
+    {
+        "id": "conf-nflc-2025-phx",
+        "name": "National Fall Leadership Conference (NFLC)",
+        "level": "National",
+        "date": "2025-11-07",
+        "endDate": "2025-11-08",
+        "location": "Phoenix, AZ",
+        "type": "FLC"
+    },
+    {
+        "id": "conf-nlc-2026-sa",
+        "name": "National Leadership Conference (NLC) - HS/MS",
+        "level": "National",
+        "date": "2026-06-29",
+        "endDate": "2026-07-02",
+        "location": "San Antonio, TX",
+        "type": "NLC"
+    },
+    {
+        "id": "conf-nlc-collegiate-2026",
+        "name": "National Leadership Conference (NLC) - Collegiate",
+        "level": "National",
+        "date": "2026-06-06",
+        "endDate": "2026-06-08",
+        "location": "Las Vegas, NV",
+        "type": "NLC"
+    },
+    {
+        "id": "conf-al-slc-2026",
+        "name": "Alabama FBLA SLC",
+        "level": "State",
+        "stateId": "AL",
+        "date": "2026-04-23",
+        "endDate": "2026-04-24",
+        "location": "Mobile, AL",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-az-slc-2026",
+        "name": "Arizona FBLA SLC",
+        "level": "State",
+        "stateId": "AZ",
+        "date": "2026-04-06",
+        "endDate": "2026-04-08",
+        "location": "Westin La Paloma, Tucson, AZ",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-ca-slc-2026",
+        "name": "California FBLA SLC",
+        "level": "State",
+        "stateId": "CA",
+        "date": "2026-04-16",
+        "endDate": "2026-04-19",
+        "location": "Sacramento, CA",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-fl-slc-2026",
+        "name": "Florida FBLA SLC",
+        "level": "State",
+        "stateId": "FL",
+        "date": "2026-03-26",
+        "endDate": "2026-03-29",
+        "location": "Orlando, FL",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-ga-slc-2026",
+        "name": "Georgia FBLA HS SLC",
+        "level": "State",
+        "stateId": "GA",
+        "date": "2026-03-15",
+        "endDate": "2026-03-17",
+        "location": "Atlanta, GA",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-ia-slc-2026",
+        "name": "Iowa FBLA SLC",
+        "level": "State",
+        "stateId": "IA",
+        "date": "2026-03-29",
+        "endDate": "2026-03-31",
+        "location": "Cedar Rapids, IA",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-mo-slc-collegiate-2026",
+        "name": "Missouri Collegiate SLC",
+        "level": "State",
+        "stateId": "MO",
+        "date": "2026-03-09",
+        "endDate": "2026-03-09",
+        "location": "St. Joseph, MO",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-ne-slc-2026",
+        "name": "Nebraska FBLA SLC",
+        "level": "State",
+        "stateId": "NE",
+        "date": "2026-04-16",
+        "endDate": "2026-04-18",
+        "location": "Kearney, NE",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-nj-slc-2026",
+        "name": "New Jersey FBLA SLC",
+        "level": "State",
+        "stateId": "NJ",
+        "date": "2026-03-09",
+        "endDate": "2026-03-11",
+        "location": "Atlantic City, NJ",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-ok-slc-2026",
+        "name": "Oklahoma FBLA SLC",
+        "level": "State",
+        "stateId": "OK",
+        "date": "2026-03-27",
+        "endDate": "2026-03-28",
+        "location": "Edmond, OK",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-pa-slc-2026",
+        "name": "Pennsylvania FBLA SLC",
+        "level": "State",
+        "stateId": "PA",
+        "date": "2026-04-13",
+        "endDate": "2026-04-15",
+        "location": "Hershey, PA",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-tx-slc-2026",
+        "name": "Texas FBLA SLC",
+        "level": "State",
+        "stateId": "TX",
+        "date": "2026-04-08",
+        "endDate": "2026-04-10",
+        "location": "Houston/Galveston, TX",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-va-slc-2026",
+        "name": "Virginia FBLA HS SLC",
+        "level": "State",
+        "stateId": "VA",
+        "date": "2026-04-10",
+        "endDate": "2026-04-11",
+        "location": "Reston, VA",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-wa-slc-2026",
+        "name": "Washington FBLA SLC",
+        "level": "State",
+        "stateId": "WA",
+        "date": "2026-04-21",
+        "endDate": "2026-04-24",
+        "location": "TBD, WA",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-ny-slc-2026",
+        "name": "New York FBLA SLC",
+        "level": "State",
+        "stateId": "NY",
+        "date": "2026-04-15",
+        "endDate": "2026-04-17",
+        "location": "Rochester, NY",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-mi-slc-2026",
+        "name": "Michigan FBLA SLC",
+        "level": "State",
+        "stateId": "MI",
+        "date": "2026-04-16",
+        "endDate": "2026-04-17",
+        "location": "Grand Rapids, MI",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-oh-slc-2026",
+        "name": "Ohio FBLA SLC",
+        "level": "State",
+        "stateId": "OH",
+        "date": "2026-04-09",
+        "endDate": "2026-04-10",
+        "location": "Columbus, OH",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-nc-slc-2026",
+        "name": "North Carolina FBLA SLC",
+        "level": "State",
+        "stateId": "NC",
+        "date": "2026-03-23",
+        "endDate": "2026-03-25",
+        "location": "Greensboro, NC",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-sc-slc-2026",
+        "name": "South Carolina FBLA SLC",
+        "level": "State",
+        "stateId": "SC",
+        "date": "2026-03-13",
+        "endDate": "2026-03-14",
+        "location": "North Charleston, SC",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-tn-slc-2026",
+        "name": "Tennessee FBLA SLC",
+        "level": "State",
+        "stateId": "TN",
+        "date": "2026-04-05",
+        "endDate": "2026-04-08",
+        "location": "Chattanooga, TN",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-in-slc-2026",
+        "name": "Indiana FBLA SLC",
+        "level": "State",
+        "stateId": "IN",
+        "date": "2026-04-12",
+        "endDate": "2026-04-14",
+        "location": "Indianapolis, IN",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-ak-slc-2026",
+        "name": "AK FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "AK",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-ak-rlc-2026",
+        "name": "AK Regional Leadership Conference",
+        "level": "State",
+        "stateId": "AK",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-al-rlc-2026",
+        "name": "AL Regional Leadership Conference",
+        "level": "State",
+        "stateId": "AL",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-ar-slc-2026",
+        "name": "AR FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "AR",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-ar-rlc-2026",
+        "name": "AR Regional Leadership Conference",
+        "level": "State",
+        "stateId": "AR",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-az-rlc-2026",
+        "name": "AZ Regional Leadership Conference",
+        "level": "State",
+        "stateId": "AZ",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-ca-rlc-2026",
+        "name": "CA Regional Leadership Conference",
+        "level": "State",
+        "stateId": "CA",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-co-slc-2026",
+        "name": "CO FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "CO",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-co-rlc-2026",
+        "name": "CO Regional Leadership Conference",
+        "level": "State",
+        "stateId": "CO",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-ct-slc-2026",
+        "name": "CT FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "CT",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-ct-rlc-2026",
+        "name": "CT Regional Leadership Conference",
+        "level": "State",
+        "stateId": "CT",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-de-slc-2026",
+        "name": "DE FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "DE",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-de-rlc-2026",
+        "name": "DE Regional Leadership Conference",
+        "level": "State",
+        "stateId": "DE",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-fl-rlc-2026",
+        "name": "FL Regional Leadership Conference",
+        "level": "State",
+        "stateId": "FL",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-ga-rlc-2026",
+        "name": "GA Regional Leadership Conference",
+        "level": "State",
+        "stateId": "GA",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-hi-slc-2026",
+        "name": "HI FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "HI",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-hi-rlc-2026",
+        "name": "HI Regional Leadership Conference",
+        "level": "State",
+        "stateId": "HI",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-ia-rlc-2026",
+        "name": "IA Regional Leadership Conference",
+        "level": "State",
+        "stateId": "IA",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-id-slc-2026",
+        "name": "ID FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "ID",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-id-rlc-2026",
+        "name": "ID Regional Leadership Conference",
+        "level": "State",
+        "stateId": "ID",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-il-slc-2026",
+        "name": "IL FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "IL",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-il-rlc-2026",
+        "name": "IL Regional Leadership Conference",
+        "level": "State",
+        "stateId": "IL",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-in-rlc-2026",
+        "name": "IN Regional Leadership Conference",
+        "level": "State",
+        "stateId": "IN",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-ks-slc-2026",
+        "name": "KS FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "KS",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-ks-rlc-2026",
+        "name": "KS Regional Leadership Conference",
+        "level": "State",
+        "stateId": "KS",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-ky-slc-2026",
+        "name": "KY FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "KY",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-ky-rlc-2026",
+        "name": "KY Regional Leadership Conference",
+        "level": "State",
+        "stateId": "KY",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-la-slc-2026",
+        "name": "LA FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "LA",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-la-rlc-2026",
+        "name": "LA Regional Leadership Conference",
+        "level": "State",
+        "stateId": "LA",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-ma-slc-2026",
+        "name": "MA FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "MA",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-ma-rlc-2026",
+        "name": "MA Regional Leadership Conference",
+        "level": "State",
+        "stateId": "MA",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-md-slc-2026",
+        "name": "MD FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "MD",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-md-rlc-2026",
+        "name": "MD Regional Leadership Conference",
+        "level": "State",
+        "stateId": "MD",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-me-slc-2026",
+        "name": "ME FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "ME",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-me-rlc-2026",
+        "name": "ME Regional Leadership Conference",
+        "level": "State",
+        "stateId": "ME",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-mi-rlc-2026",
+        "name": "MI Regional Leadership Conference",
+        "level": "State",
+        "stateId": "MI",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-mn-slc-2026",
+        "name": "MN FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "MN",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-mn-rlc-2026",
+        "name": "MN Regional Leadership Conference",
+        "level": "State",
+        "stateId": "MN",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-mo-rlc-2026",
+        "name": "MO Regional Leadership Conference",
+        "level": "State",
+        "stateId": "MO",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-ms-slc-2026",
+        "name": "MS FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "MS",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-ms-rlc-2026",
+        "name": "MS Regional Leadership Conference",
+        "level": "State",
+        "stateId": "MS",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-mt-slc-2026",
+        "name": "MT FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "MT",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-mt-rlc-2026",
+        "name": "MT Regional Leadership Conference",
+        "level": "State",
+        "stateId": "MT",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-nc-rlc-2026",
+        "name": "NC Regional Leadership Conference",
+        "level": "State",
+        "stateId": "NC",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-nd-slc-2026",
+        "name": "ND FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "ND",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-nd-rlc-2026",
+        "name": "ND Regional Leadership Conference",
+        "level": "State",
+        "stateId": "ND",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-ne-rlc-2026",
+        "name": "NE Regional Leadership Conference",
+        "level": "State",
+        "stateId": "NE",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-nh-slc-2026",
+        "name": "NH FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "NH",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-nh-rlc-2026",
+        "name": "NH Regional Leadership Conference",
+        "level": "State",
+        "stateId": "NH",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-nj-rlc-2026",
+        "name": "NJ Regional Leadership Conference",
+        "level": "State",
+        "stateId": "NJ",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-nm-slc-2026",
+        "name": "NM FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "NM",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-nm-rlc-2026",
+        "name": "NM Regional Leadership Conference",
+        "level": "State",
+        "stateId": "NM",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-nv-slc-2026",
+        "name": "NV FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "NV",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-nv-rlc-2026",
+        "name": "NV Regional Leadership Conference",
+        "level": "State",
+        "stateId": "NV",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-ny-rlc-2026",
+        "name": "NY Regional Leadership Conference",
+        "level": "State",
+        "stateId": "NY",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-oh-rlc-2026",
+        "name": "OH Regional Leadership Conference",
+        "level": "State",
+        "stateId": "OH",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-ok-rlc-2026",
+        "name": "OK Regional Leadership Conference",
+        "level": "State",
+        "stateId": "OK",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-or-slc-2026",
+        "name": "OR FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "OR",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-or-rlc-2026",
+        "name": "OR Regional Leadership Conference",
+        "level": "State",
+        "stateId": "OR",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-pa-rlc-2026",
+        "name": "PA Regional Leadership Conference",
+        "level": "State",
+        "stateId": "PA",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-ri-slc-2026",
+        "name": "RI FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "RI",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-ri-rlc-2026",
+        "name": "RI Regional Leadership Conference",
+        "level": "State",
+        "stateId": "RI",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-sc-rlc-2026",
+        "name": "SC Regional Leadership Conference",
+        "level": "State",
+        "stateId": "SC",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-sd-slc-2026",
+        "name": "SD FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "SD",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-sd-rlc-2026",
+        "name": "SD Regional Leadership Conference",
+        "level": "State",
+        "stateId": "SD",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-tn-rlc-2026",
+        "name": "TN Regional Leadership Conference",
+        "level": "State",
+        "stateId": "TN",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-tx-rlc-2026",
+        "name": "TX Regional Leadership Conference",
+        "level": "State",
+        "stateId": "TX",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-ut-slc-2026",
+        "name": "UT FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "UT",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-ut-rlc-2026",
+        "name": "UT Regional Leadership Conference",
+        "level": "State",
+        "stateId": "UT",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-va-rlc-2026",
+        "name": "VA Regional Leadership Conference",
+        "level": "State",
+        "stateId": "VA",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-vt-slc-2026",
+        "name": "VT FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "VT",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-vt-rlc-2026",
+        "name": "VT Regional Leadership Conference",
+        "level": "State",
+        "stateId": "VT",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-wa-rlc-2026",
+        "name": "WA Regional Leadership Conference",
+        "level": "State",
+        "stateId": "WA",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-wi-slc-2026",
+        "name": "WI FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "WI",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-wi-rlc-2026",
+        "name": "WI Regional Leadership Conference",
+        "level": "State",
+        "stateId": "WI",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-wv-slc-2026",
+        "name": "WV FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "WV",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-wv-rlc-2026",
+        "name": "WV Regional Leadership Conference",
+        "level": "State",
+        "stateId": "WV",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-wy-slc-2026",
+        "name": "WY FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "WY",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-wy-rlc-2026",
+        "name": "WY Regional Leadership Conference",
+        "level": "State",
+        "stateId": "WY",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-dc-slc-2026",
+        "name": "DC FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "DC",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-dc-rlc-2026",
+        "name": "DC Regional Leadership Conference",
+        "level": "State",
+        "stateId": "DC",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-pr-slc-2026",
+        "name": "PR FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "PR",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-pr-rlc-2026",
+        "name": "PR Regional Leadership Conference",
+        "level": "State",
+        "stateId": "PR",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    },
+    {
+        "id": "conf-vi-slc-2026",
+        "name": "VI FBLA State Leadership Conference",
+        "level": "State",
+        "stateId": "VI",
+        "date": "2026-04-01",
+        "endDate": "2026-04-03",
+        "location": "State Capitol/Convention Center",
+        "type": "SLC"
+    },
+    {
+        "id": "conf-vi-rlc-2026",
+        "name": "VI Regional Leadership Conference",
+        "level": "State",
+        "stateId": "VI",
+        "date": "2026-01-15",
+        "endDate": "2026-01-30",
+        "location": "Various Regional Locations",
+        "type": "RLC"
+    }
+]

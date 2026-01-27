@@ -12,8 +12,12 @@ import { Text, Card, Chip, Avatar, Badge, FAB } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector, useAppDispatch } from '../../../shared/hooks/useRedux';
-import { setNews, markAsRead, NewsItem } from '../newsSlice';
+import { setNews, markAsRead, NewsItem, addNewsItem } from '../newsSlice';
 import { colors, spacing, typography, borderRadius, shadows } from '../../../shared/theme';
+import { fetchStateNews } from '../../../shared/services/newsService';
+import { useNavigation } from '@react-navigation/native';
+import { ResourcesStackParamList } from '../../../shared/navigation/types';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 const { width } = Dimensions.get('window');
 
@@ -117,6 +121,7 @@ const demoNews: NewsItem[] = [
 
 export default function HomeScreen() {
     const dispatch = useAppDispatch();
+    const navigation = useNavigation<NativeStackNavigationProp<any>>();
     const user = useAppSelector(state => state.auth.user);
     const profile = useAppSelector(state => state.profile.profile);
     const { news, unreadCount } = useAppSelector(state => state.news);
@@ -146,14 +151,25 @@ export default function HomeScreen() {
 
     useEffect(() => {
         dispatch(setNews(demoNews));
-    }, []);
+
+        // Fetch real-time state news if user has a state
+        if (user?.state) {
+            fetchStateNews(user.state).then(stateNews => {
+                stateNews.forEach(item => {
+                    // Avoid duplicates if needed, for simplicity just add
+                    dispatch(addNewsItem(item as NewsItem));
+                });
+            });
+        }
+    }, [user?.state]);
 
     const onRefresh = async () => {
         setRefreshing(true);
-        // Simulate API call
-        setTimeout(() => {
-            setRefreshing(false);
-        }, 1000);
+        if (user?.state) {
+            const stateNews = await fetchStateNews(user.state);
+            dispatch(setNews([...demoNews, ...(stateNews as NewsItem[])]));
+        }
+        setRefreshing(false);
     };
 
     const handleNewsPress = (newsId: string) => {
@@ -217,7 +233,12 @@ export default function HomeScreen() {
                             <QuickAction icon="chatbubbles" label="Ask AI" color={colors.primary[600]} />
                             <QuickAction icon="calendar" label="Events" color={colors.secondary[500]} />
                             <QuickAction icon="document-text" label="Resources" color={colors.success.main} />
-                            <QuickAction icon="trophy" label="Compete" color={colors.warning.main} />
+                            <QuickAction
+                                icon="trophy"
+                                label="Compete"
+                                color={colors.warning.main}
+                                onPress={() => navigation.navigate('Resources', { screen: 'CompetitiveEvents' })}
+                            />
                             <QuickAction icon="people" label="Network" color={colors.info.main} />
                         </View>
                     </ScrollView>
@@ -240,20 +261,22 @@ export default function HomeScreen() {
                 {/* Social Feed Preview */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Chapter Social</Text>
-                    <Card style={styles.socialCard}>
-                        <Card.Content>
-                            <View style={styles.socialHeader}>
-                                <Ionicons name="logo-instagram" size={24} color="#E1306C" />
-                                <Text style={styles.socialHandle}>
-                                    @{user?.chapterName?.toLowerCase().replace(/\s+/g, '') || 'chapter'}
+                    <TouchableOpacity onPress={() => navigation.navigate('SocialHub')}>
+                        <Card style={styles.socialCard}>
+                            <Card.Content>
+                                <View style={styles.socialHeader}>
+                                    <Ionicons name="logo-instagram" size={24} color="#E1306C" />
+                                    <Text style={styles.socialHandle}>
+                                        @{user?.chapterName?.toLowerCase().replace(/\s+/g, '') || 'chapter'}
+                                    </Text>
+                                    <Text style={styles.socialTime}>Live Feed</Text>
+                                </View>
+                                <Text style={styles.socialContent}>
+                                    Tap to view the latest updates from your state and chapter on social media. 📸
                                 </Text>
-                                <Text style={styles.socialTime}>2h ago</Text>
-                            </View>
-                            <Text style={styles.socialContent}>
-                                Great turnout at today's competition prep workshop! 📚 #FBLA #FutureBusiness
-                            </Text>
-                        </Card.Content>
-                    </Card>
+                            </Card.Content>
+                        </Card>
+                    </TouchableOpacity>
                 </View>
 
                 <View style={{ height: 100 }} />
@@ -262,9 +285,9 @@ export default function HomeScreen() {
     );
 }
 
-function QuickAction({ icon, label, color }: { icon: string; label: string; color: string }) {
+function QuickAction({ icon, label, color, onPress }: { icon: string; label: string; color: string; onPress?: () => void }) {
     return (
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity style={styles.actionButton} onPress={onPress}>
             <View style={[styles.actionIcon, { backgroundColor: color + '20' }]}>
                 <Ionicons name={icon as any} size={24} color={color} />
             </View>

@@ -13,12 +13,15 @@ import { useAppSelector, useAppDispatch } from '../../../shared/hooks/useRedux';
 import { setEvents, toggleRSVP, CalendarEvent, EventType, EventLevel } from '../calendarSlice';
 import { colors, spacing, typography, borderRadius, shadows } from '../../../shared/theme';
 
+// Import datasets
+import CONFERENCES from '../../../assets/data/conferences.json';
+
 const { width } = Dimensions.get('window');
 
-// Demo events
-const demoEvents: CalendarEvent[] = [
+// Initial demo events for chapter-specific local meetings
+const initialChapterEvents: CalendarEvent[] = [
     {
-        id: '1',
+        id: 'local-1',
         title: 'Weekly Chapter Meeting',
         description: 'Regular chapter meeting with competition prep workshop',
         type: 'meeting',
@@ -29,68 +32,41 @@ const demoEvents: CalendarEvent[] = [
         allDay: false,
         reminderEnabled: true,
         isRSVPed: true,
-        organizer: 'Lincoln FBLA',
+        organizer: 'Local Chapter',
         tags: ['Meeting', 'Competition Prep'],
-    },
-    {
-        id: '2',
-        title: 'District Leadership Conference',
-        description: 'Compete in preliminary rounds at the district level',
-        type: 'competition',
-        level: 'district',
-        location: 'Lincoln East High School',
-        startDate: new Date(Date.now() + 86400000 * 14).toISOString(),
-        endDate: new Date(Date.now() + 86400000 * 14 + 28800000).toISOString(),
-        allDay: true,
-        reminderEnabled: true,
-        registrationDeadline: new Date(Date.now() + 86400000 * 7).toISOString(),
-        isRSVPed: false,
-        organizer: 'Nebraska FBLA',
-        tags: ['Competition', 'DLC'],
-    },
-    {
-        id: '3',
-        title: 'State Leadership Conference',
-        description: 'Annual state conference with competitions and networking',
-        type: 'conference',
-        level: 'state',
-        location: 'Omaha Marriott Downtown',
-        startDate: new Date(Date.now() + 86400000 * 45).toISOString(),
-        endDate: new Date(Date.now() + 86400000 * 47).toISOString(),
-        allDay: true,
-        reminderEnabled: true,
-        registrationDeadline: new Date(Date.now() + 86400000 * 30).toISOString(),
-        registrationUrl: 'https://nebraskafbla.org/slc',
-        isRSVPed: false,
-        organizer: 'Nebraska FBLA',
-        tags: ['SLC', 'Competition', 'Networking'],
-    },
-    {
-        id: '4',
-        title: 'Officer Application Deadline',
-        description: 'Submit your application for chapter officer positions',
-        type: 'deadline',
-        level: 'chapter',
-        startDate: new Date(Date.now() + 86400000 * 10).toISOString(),
-        endDate: new Date(Date.now() + 86400000 * 10).toISOString(),
-        allDay: true,
-        reminderEnabled: true,
-        isRSVPed: false,
-        organizer: 'Lincoln FBLA',
-        tags: ['Officer', 'Deadline'],
     },
 ];
 
 export default function CalendarScreen() {
     const dispatch = useAppDispatch();
+    const user = useAppSelector(state => state.auth.user);
     const { events } = useAppSelector(state => state.calendar);
     const [selectedFilter, setSelectedFilter] = useState<EventType | 'all'>('all');
     const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
     const [showEventModal, setShowEventModal] = useState(false);
 
     useEffect(() => {
-        dispatch(setEvents(demoEvents));
-    }, []);
+        // Map conference dataset to calendar events
+        const conferenceEvents: CalendarEvent[] = CONFERENCES
+            .filter(conf => conf.level === 'National' || conf.stateId === user?.state)
+            .map(conf => ({
+                id: conf.id,
+                title: conf.name,
+                description: `${conf.level} level ${conf.type} conference.`,
+                type: 'conference',
+                level: conf.level.toLowerCase() as EventLevel,
+                location: conf.location,
+                startDate: new Date(conf.date).toISOString(),
+                endDate: new Date(conf.endDate).toISOString(),
+                allDay: true,
+                reminderEnabled: true,
+                isRSVPed: false,
+                organizer: conf.level === 'National' ? 'FBLA National' : `${conf.stateId} FBLA`,
+                tags: [conf.type, conf.level],
+            }));
+
+        dispatch(setEvents([...initialChapterEvents, ...conferenceEvents]));
+    }, [user?.state]);
 
     const filteredEvents = selectedFilter === 'all'
         ? events
