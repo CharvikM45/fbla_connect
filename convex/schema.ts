@@ -14,7 +14,7 @@ export default defineSchema({
         clerkId: v.optional(v.string()), // For future Clerk integration
         tokenIdentifier: v.optional(v.string()), // For built-in auth
         createdAt: v.string(),
-    }).index("by_token", ["tokenIdentifier"]),
+    }).index("by_token", ["tokenIdentifier"]).index("by_email", ["email"]),
 
     profiles: defineTable({
         userId: v.id("users"),

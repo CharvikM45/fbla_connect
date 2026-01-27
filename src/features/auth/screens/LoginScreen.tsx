@@ -14,10 +14,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../../../shared/navigation/types';
 import { useAppDispatch, useAppSelector } from '../../../shared/hooks/useRedux';
-import { loginSuccess, completeOnboarding } from '../authSlice';
+import { loginSuccess, completeOnboarding, loginFailure, setLoading } from '../authSlice';
 import { setProfile } from '../../profile/profileSlice';
 import { colors, spacing, typography, borderRadius } from '../../../shared/theme';
-import { useMutation } from "convex/react";
+import { useMutation, useConvex } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 
 type Props = {
@@ -40,6 +40,10 @@ export default function LoginScreen({ navigation }: Props) {
     };
 
     const storeUser = useMutation(api.users.storeUser);
+    const convex = useConvex();
+    const getUserByEmail = async (args: { email: string }) => {
+        return await convex.query(api.users.getUserByEmail, args);
+    };
 
     const handleLogin = async () => {
         let isValid = true;
@@ -66,12 +70,22 @@ export default function LoginScreen({ navigation }: Props) {
 
         if (isValid) {
             try {
-                // In a real app, we would authenticate with Clerk/Firebase first
-                // Here we call storeUser to get/create the profile in Convex
+                dispatch(setLoading(true));
+
+                // Check if user exists
+                // We cast api.users to any to avoid TS errors if codegen hasn't finished indexing the new query
+                const existingUser = await getUserByEmail({ email });
+
+                if (!existingUser) {
+                    dispatch(loginFailure('Account not found. Please sign up.'));
+                    return;
+                }
+
+                // Call storeUser to get/update the profile in Convex
                 const userData = await storeUser({
                     email: email,
                     displayName: email.split('@')[0], // Fallback if name not found
-                    role: 'member',
+                    role: existingUser.role, // Use existing role
                 });
 
                 // Since Convex storeUser returns user details or we fetch them:
@@ -108,6 +122,8 @@ export default function LoginScreen({ navigation }: Props) {
                 dispatch(completeOnboarding());
             } catch (err) {
                 console.error("Login failed:", err);
+                // Handle Convex errors (like rate limits or network issues)
+                dispatch(loginFailure(err instanceof Error ? err.message : 'Login failed'));
             }
         }
     };
