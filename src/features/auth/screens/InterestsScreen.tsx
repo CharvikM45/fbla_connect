@@ -9,6 +9,8 @@ import { OnboardingStackParamList } from '../../../shared/navigation/types';
 import { useAppDispatch } from '../../../shared/hooks/useRedux';
 import { updateProfile } from '../../profile/profileSlice';
 import { colors, spacing, typography, borderRadius } from '../../../shared/theme';
+import { useMutation } from "convex/react";
+import { api } from "../../../../convex/_generated/api";
 
 type Props = {
     navigation: NativeStackNavigationProp<OnboardingStackParamList, 'Interests'>;
@@ -61,12 +63,24 @@ export default function InterestsScreen({ navigation }: Props) {
         );
     };
 
-    const handleContinue = () => {
+    const updateConvexUser = useMutation(api.users.updateUser);
+
+    const handleContinue = async () => {
         const interestLabels = selectedInterests.map(
             id => interestOptions.find(i => i.id === id)?.label || id
         );
-        dispatch(updateProfile({ interests: interestLabels }));
-        navigation.navigate('Notifications');
+
+        try {
+            await updateConvexUser({
+                interests: interestLabels
+            });
+            dispatch(updateProfile({ interests: interestLabels }));
+            navigation.navigate('Notifications');
+        } catch (error) {
+            console.error("Failed to update interests in Convex:", error);
+            dispatch(updateProfile({ interests: interestLabels }));
+            navigation.navigate('Notifications');
+        }
     };
 
     return (

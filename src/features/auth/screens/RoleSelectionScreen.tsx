@@ -9,6 +9,8 @@ import { OnboardingStackParamList } from '../../../shared/navigation/types';
 import { useAppDispatch } from '../../../shared/hooks/useRedux';
 import { updateUser, UserRole } from '../authSlice';
 import { colors, spacing, typography, borderRadius, shadows } from '../../../shared/theme';
+import { useMutation } from "convex/react";
+import { api } from "../../../../convex/_generated/api";
 
 type Props = {
     navigation: NativeStackNavigationProp<OnboardingStackParamList, 'RoleSelection'>;
@@ -39,10 +41,21 @@ export default function RoleSelectionScreen({ navigation }: Props) {
     const dispatch = useAppDispatch();
     const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
 
-    const handleContinue = () => {
+    const updateConvexUser = useMutation(api.users.updateUser);
+
+    const handleContinue = async () => {
         if (selectedRole) {
-            dispatch(updateUser({ role: selectedRole }));
-            navigation.navigate('SchoolInfo');
+            try {
+                await updateConvexUser({
+                    role: selectedRole
+                });
+                dispatch(updateUser({ role: selectedRole }));
+                navigation.navigate('SchoolInfo');
+            } catch (error) {
+                console.error("Failed to update role in Convex:", error);
+                dispatch(updateUser({ role: selectedRole }));
+                navigation.navigate('SchoolInfo');
+            }
         }
     };
 

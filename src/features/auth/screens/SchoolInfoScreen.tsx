@@ -8,6 +8,8 @@ import { OnboardingStackParamList } from '../../../shared/navigation/types';
 import { useAppDispatch } from '../../../shared/hooks/useRedux';
 import { updateUser } from '../authSlice';
 import { colors, spacing, typography, borderRadius } from '../../../shared/theme';
+import { useMutation } from "convex/react";
+import { api } from "../../../../convex/_generated/api";
 
 // Import scraped data
 const CHAPTER_DATA = require('../../../assets/data/chapters_dataset.json') as Chapter[];
@@ -62,9 +64,23 @@ export default function SchoolInfoScreen({ navigation }: Props) {
         setSearchQuery('');
     };
 
-    const handleContinue = () => {
-        dispatch(updateUser({ schoolName, chapterName, state }));
-        navigation.navigate('Interests');
+    const updateConvexUser = useMutation(api.users.updateUser);
+
+    const handleContinue = async () => {
+        try {
+            await updateConvexUser({
+                schoolName,
+                chapterName,
+                state
+            });
+            dispatch(updateUser({ schoolName, chapterName, state }));
+            navigation.navigate('Interests');
+        } catch (error) {
+            console.error("Failed to update user in Convex:", error);
+            // Fallback to local state if DB update fails
+            dispatch(updateUser({ schoolName, chapterName, state }));
+            navigation.navigate('Interests');
+        }
     };
 
     const isValid = schoolName.trim() && chapterName.trim() && state.trim();

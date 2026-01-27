@@ -1,17 +1,17 @@
 [
     {
         "id": "event-1",
-        "title": "Accounting",
+        "title": "Accounting I",
         "category": "Objective Test",
         "division": "High School",
         "description": "Individual event focused on fundamental accounting principles."
     },
     {
         "id": "event-2",
-        "title": "Advanced Accounting",
+        "title": "Accounting II",
         "category": "Objective Test",
         "division": "High School",
-        "description": "Individual event covering corporate and managerial accounting (formerly Accounting II)."
+        "description": "Individual event covering corporate and managerial accounting."
     },
     {
         "id": "event-3",
@@ -30,121 +30,121 @@
     {
         "id": "event-5",
         "title": "Banking & Financial Systems",
-        "category": "Presentation & Role Play",
+        "category": "Objective Test & Role Play",
         "division": "High School",
         "description": "Team event testing knowledge of banking and finance through a performance and test."
     },
     {
         "id": "event-6",
-        "title": "Business Ethics",
-        "category": "Presentation",
+        "title": "Business Calculations",
+        "category": "Objective Test",
         "division": "High School",
-        "description": "Team event involving the presentation of an ethical solution to a business problem."
+        "description": "Individual event solving business problems using mathematical concepts."
     },
     {
         "id": "event-7",
-        "title": "Coding & Programming",
-        "category": "Presentation",
-        "division": "High School",
-        "description": "Individual or team event testing software development and programming skills."
-    },
-    {
-        "id": "event-8",
-        "title": "Data Science & AI",
-        "category": "Objective Test",
-        "division": "High School",
-        "description": "New 2025-26 event focused on data analytics, machine learning, and AI applications."
-    },
-    {
-        "id": "event-9",
-        "title": "Mobile Application Development",
-        "category": "Presentation",
-        "division": "High School",
-        "description": "Individual or team event to design and develop a mobile app for the annual theme."
-    },
-    {
-        "id": "event-10",
-        "title": "Social Media Strategies",
-        "category": "Presentation",
-        "division": "High School",
-        "description": "Team event focused on creating and presenting a social media campaign."
-    },
-    {
-        "id": "event-11",
-        "title": "Website Design",
-        "category": "Presentation",
-        "division": "High School",
-        "description": "Individual or team event to design and build a functional website."
-    },
-    {
-        "id": "event-12",
         "title": "Business Communication",
         "category": "Objective Test",
         "division": "High School",
         "description": "Individual event testing written and oral communication skills in business."
     },
     {
-        "id": "event-13",
+        "id": "event-8",
         "title": "Business Law",
         "category": "Objective Test",
         "division": "High School",
         "description": "Individual event focused on legal principles affecting business."
     },
     {
+        "id": "event-9",
+        "title": "Business Management",
+        "category": "Objective Test",
+        "division": "High School",
+        "description": "Individual event covering management theories and applications."
+    },
+    {
+        "id": "event-10",
+        "title": "Business Plan",
+        "category": "Presentation",
+        "division": "High School",
+        "description": "Team event involving the development and presentation of a business plan."
+    },
+    {
+        "id": "event-11",
+        "title": "Business Ethics",
+        "category": "Presentation",
+        "division": "High School",
+        "description": "Team event involving the presentation of an ethical solution to a business problem."
+    },
+    {
+        "id": "event-12",
+        "title": "Coding & Programming",
+        "category": "Production & Presentation",
+        "division": "High School",
+        "description": "Individual or team event testing software development and programming skills."
+    },
+    {
+        "id": "event-13",
+        "title": "Computer Applications",
+        "category": "Production & Objective Test",
+        "division": "High School",
+        "description": "Individual event demonstrating proficiency in word processing and spreadsheets."
+    },
+    {
         "id": "event-14",
+        "title": "Computer Problem Solving",
+        "category": "Objective Test",
+        "division": "High School",
+        "description": "Individual event solving hardware and software problems."
+    },
+    {
+        "id": "event-15",
         "title": "Cybersecurity",
         "category": "Objective Test",
         "division": "High School",
         "description": "Individual event testing knowledge of security threats and data protection."
     },
     {
-        "id": "event-15",
+        "id": "event-16",
+        "title": "Data Analysis",
+        "category": "Presentation",
+        "division": "High School",
+        "description": "Individual or team event analyzing data to solve a business problem."
+    },
+    {
+        "id": "event-17",
+        "title": "Database Design & Application",
+        "category": "Production & Objective Test",
+        "division": "High School",
+        "description": "Individual event designing and querying relational databases."
+    },
+    {
+        "id": "event-18",
         "title": "Economics",
         "category": "Objective Test",
         "division": "High School",
         "description": "Individual event covering micro and macro economics."
     },
     {
-        "id": "event-16",
+        "id": "event-19",
+        "title": "Electronic Career Portfolio",
+        "category": "Presentation",
+        "division": "High School",
+        "description": "Individual event showcasing professional assets and career planning."
+    },
+    {
+        "id": "event-20",
         "title": "Entrepreneurship",
-        "category": "Presentation & Role Play",
+        "category": "Objective Test & Role Play",
         "division": "High School",
         "description": "Team event simulating the creation and management of a new business venture."
     },
     {
-        "id": "event-17",
-        "title": "Hospitality & Event Management",
-        "category": "Presentation & Role Play",
-        "division": "High School",
-        "description": "Team event testing knowledge of the hospitality industry and event planning."
-    },
-    {
-        "id": "event-18",
-        "title": "International Business",
-        "category": "Presentation & Role Play",
-        "division": "High School",
-        "description": "Team event focused on global business concepts and cultural awareness."
-    },
-    {
-        "id": "event-19",
-        "title": "Journalism",
-        "category": "Objective Test",
-        "division": "High School",
-        "description": "Individual event testing knowledge of media history, ethics, and writing."
-    },
-    {
-        "id": "event-20",
-        "title": "Networking Infrastructures",
-        "category": "Objective Test",
-        "division": "High School",
-        "description": "Individual event focused on computer networks and technical troubleshooting."
-    },
-    {
         "id": "event-21",
-        "title": "Public Speaking",
-        "category": "Presentation",
+        "title": "Future Business Leader",
+        "category": "Objective Test & Interview",
         "division": "High School",
-        "description": "Individual event involving a prepared speech on business-related topics."
+        "description": "FBLA's premier event recognizing leadership and business knowledge."
     },
     {
         "id": "event-22",
@@ -155,37 +155,345 @@
     },
     {
         "id": "event-23",
+        "title": "Healthcare Administration",
+        "category": "Objective Test",
+        "division": "High School",
+        "description": "Individual event on managing healthcare facilities and systems."
+    },
+    {
+        "id": "event-24",
+        "title": "Help Desk",
+        "category": "Objective Test & Role Play",
+        "division": "High School",
+        "description": "Individual event simulating technical support scenarios."
+    },
+    {
+        "id": "event-25",
+        "title": "Hospitality & Event Management",
+        "category": "Objective Test & Role Play",
+        "division": "High School",
+        "description": "Team event testing knowledge of the hospitality industry and event planning."
+    },
+    {
+        "id": "event-26",
+        "title": "Human Resource Management",
+        "category": "Objective Test",
+        "division": "High School",
+        "description": "Individual event on hiring, training, and managing employees."
+    },
+    {
+        "id": "event-27",
+        "title": "Impromptu Speaking",
+        "category": "Presentation",
+        "division": "High School",
+        "description": "Individual event delivering a speech on a randomly selected topic."
+    },
+    {
+        "id": "event-28",
+        "title": "Insurance & Risk Management",
+        "category": "Objective Test",
+        "division": "High School",
+        "description": "Individual event covering types of insurance and risk assessment."
+    },
+    {
+        "id": "event-29",
+        "title": "International Business",
+        "category": "Objective Test & Role Play",
+        "division": "High School",
+        "description": "Team event focused on global business concepts and cultural awareness."
+    },
+    {
+        "id": "event-30",
+        "title": "Introduction to Business Communication",
+        "category": "Objective Test",
+        "division": "9th & 10th Grade",
+        "description": "Introductory event for younger members on business cmmmunication."
+    },
+    {
+        "id": "event-31",
+        "title": "Introduction to Business Concepts",
+        "category": "Objective Test",
+        "division": "9th & 10th Grade",
+        "description": "Introductory event covering basic business principles."
+    },
+    {
+        "id": "event-32",
+        "title": "Introduction to Business Procedures",
+        "category": "Objective Test",
+        "division": "9th & 10th Grade",
+        "description": "Introductory event on office procedures and etiquette."
+    },
+    {
+        "id": "event-33",
+        "title": "Introduction to FBLA",
+        "category": "Objective Test",
+        "division": "9th & 10th Grade",
+        "description": "Test on FBLA history, bylaws, and programs."
+    },
+    {
+        "id": "event-34",
+        "title": "Introduction to Financial Math",
+        "category": "Objective Test",
+        "division": "9th & 10th Grade",
+        "description": "Introductory event on financial calculations."
+    },
+    {
+        "id": "event-35",
+        "title": "Introduction to Information Technology",
+        "category": "Objective Test",
+        "division": "9th & 10th Grade",
+        "description": "Introductory event on IT concepts."
+    },
+    {
+        "id": "event-36",
+        "title": "Introduction to Parliamentary Procedure",
+        "category": "Objective Test",
+        "division": "9th & 10th Grade",
+        "description": "Introductory event on rules of order."
+    },
+    {
+        "id": "event-37",
+        "title": "Introduction to Public Speaking",
+        "category": "Presentation",
+        "division": "9th & 10th Grade",
+        "description": "Prepared speech for younger members."
+    },
+    {
+        "id": "event-38",
+        "title": "Job Interview",
+        "category": "Presentation & Interview",
+        "division": "High School",
+        "description": "Individual event simulating the job application and interview process."
+    },
+    {
+        "id": "event-39",
+        "title": "Journalism",
+        "category": "Objective Test",
+        "division": "High School",
+        "description": "Individual event testing knowledge of media history, ethics, and writing."
+    },
+    {
+        "id": "event-40",
         "title": "Management Information Systems",
-        "category": "Presentation & Role Play",
+        "category": "Objective Test & Role Play",
         "division": "High School",
         "description": "Team event testing technical and management skills in information systems."
     },
     {
-        "id": "event-24",
+        "id": "event-41",
         "title": "Marketing",
-        "category": "Presentation & Role Play",
+        "category": "Objective Test & Role Play",
         "division": "High School",
         "description": "Team event simulating marketing strategy and presentation."
     },
     {
-        "id": "event-25",
+        "id": "event-42",
+        "title": "Mobile Application Development",
+        "category": "Production & Presentation",
+        "division": "High School",
+        "description": "Individual or team event to design and develop a mobile app."
+    },
+    {
+        "id": "event-43",
+        "title": "Network Design",
+        "category": "Objective Test & Role Play",
+        "division": "High School",
+        "description": "Team event resolving network infrastructure problems."
+    },
+    {
+        "id": "event-44",
+        "title": "Networking Infrastructures",
+        "category": "Objective Test",
+        "division": "High School",
+        "description": "Individual event focused on computer networks and technical troubleshooting."
+    },
+    {
+        "id": "event-45",
+        "title": "Organizational Leadership",
+        "category": "Objective Test",
+        "division": "High School",
+        "description": "Individual event on leadership theories and practices."
+    },
+    {
+        "id": "event-46",
+        "title": "Parliamentary Procedure",
+        "category": "Objective Test & Role Play",
+        "division": "High School",
+        "description": "Team event demonstrating proper meeting conduct."
+    },
+    {
+        "id": "event-47",
+        "title": "Personal Finance",
+        "category": "Objective Test",
+        "division": "High School",
+        "description": "Individual event on managing personal finances."
+    },
+    {
+        "id": "event-48",
+        "title": "Political Science",
+        "category": "Objective Test",
+        "division": "High School",
+        "description": "Individual event on government structures and political theory."
+    },
+    {
+        "id": "event-49",
+        "title": "Public Service Announcement",
+        "category": "Presentation",
+        "division": "High School",
+        "description": "Video presentation on a social issue."
+    },
+    {
+        "id": "event-50",
+        "title": "Public Speaking",
+        "category": "Presentation",
+        "division": "High School",
+        "description": "Individual event involving a prepared speech on business-related topics."
+    },
+    {
+        "id": "event-51",
+        "title": "Sales Presentation",
+        "category": "Presentation",
+        "division": "High School",
+        "description": "Individual event focused on selling a product or service."
+    },
+    {
+        "id": "event-52",
+        "title": "Securities & Investments",
+        "category": "Objective Test",
+        "division": "High School",
+        "description": "Individual event on investment vehicles and markets."
+    },
+    {
+        "id": "event-53",
+        "title": "Social Media Strategies",
+        "category": "Presentation",
+        "division": "High School",
+        "description": "Team event focused on creating and presenting a social media campaign."
+    },
+    {
+        "id": "event-54",
+        "title": "Sports & Entertainment Management",
+        "category": "Objective Test & Role Play",
+        "division": "High School",
+        "description": "Team event covering management in the sports and entertainment industries."
+    },
+    {
+        "id": "event-55",
+        "title": "Spreadsheet Applications",
+        "category": "Production & Objective Test",
+        "division": "High School",
+        "description": "Individual event demonstrating advanced spreadsheet skills."
+    },
+    {
+        "id": "event-56",
         "title": "Supply Chain Management",
         "category": "Objective Test",
         "division": "High School",
         "description": "Individual event on the logistics and movement of goods."
     },
     {
-        "id": "event-26",
+        "id": "event-57",
+        "title": "UX Design",
+        "category": "Objective Test",
+        "division": "High School",
+        "description": "Individual event on User Experience design principles."
+    },
+    {
+        "id": "event-58",
+        "title": "Website Design",
+        "category": "Production & Presentation",
+        "division": "High School",
+        "description": "Individual or team event to design and build a functional website."
+    },
+    {
+        "id": "event-59",
+        "title": "Word Processing",
+        "category": "Production & Objective Test",
+        "division": "High School",
+        "description": "Individual event demonstrating advanced document creation skills."
+    },
+    {
+        "id": "event-60",
         "title": "Client Service",
         "category": "Presentation & Role Play",
         "division": "High School",
         "description": "Individual event simulating customer service scenarios."
     },
     {
-        "id": "event-27",
-        "title": "Electronic Career Portfolio",
+        "id": "event-61",
+        "title": "Introduction to Competitive Events",
+        "category": "Objective Test",
+        "division": "Middle School",
+        "description": "Introductory test for middle school members."
+    },
+    {
+        "id": "event-62",
+        "title": "Running an Effective Meeting",
+        "category": "Objective Test",
+        "division": "Middle School",
+        "description": "Test on conducting meetings."
+    },
+    {
+        "id": "event-63",
+        "title": "Visual Design",
         "category": "Presentation",
         "division": "High School",
-        "description": "Individual event showcasing professional assets and career planning."
+        "description": "Event focused on design principles."
+    },
+    {
+        "id": "event-64",
+        "title": "Broadcast Journalism",
+        "category": "Presentation",
+        "division": "High School",
+        "description": "Delivering news stories in a broadcast format."
+    },
+    {
+        "id": "event-65",
+        "title": "Digital Animation",
+        "category": "Presentation",
+        "division": "High School",
+        "description": "Creating animated content for business."
+    },
+    {
+        "id": "event-66",
+        "title": "Digital Video Production",
+        "category": "Presentation",
+        "division": "High School",
+        "description": "Producing video content for a specific topic."
+    },
+    {
+        "id": "event-67",
+        "title": "Financial Statement Analysis",
+        "category": "Objective Test",
+        "division": "High School",
+        "description": "Analysing financial reports."
+    },
+    {
+        "id": "event-68",
+        "title": "Introduction to Event Planning",
+        "category": "Objective Test & Role Play",
+        "division": "9th & 10th Grade",
+        "description": "Basics of planning events."
+    },
+    {
+        "id": "event-69",
+        "title": "Introduction to Marketing Concepts",
+        "category": "Objective Test",
+        "division": "9th & 10th Grade",
+        "description": "Basics of marketing."
+    },
+    {
+        "id": "event-70",
+        "title": "Introduction to Programming",
+        "category": "Objective Test",
+        "division": "High School",
+        "description": "Basics of coding."
+    },
+    {
+        "id": "event-71",
+        "title": "Use of Data in Business",
+        "category": "Objective Test",
+        "division": "High School",
+        "description": "Understanding data utility."
     }
 ]

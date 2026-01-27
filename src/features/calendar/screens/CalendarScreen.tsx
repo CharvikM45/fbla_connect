@@ -16,6 +16,9 @@ import { colors, spacing, typography, borderRadius, shadows } from '../../../sha
 // Import datasets
 import CONFERENCES from '../../../assets/data/conferences.json';
 
+import { useQuery } from "convex/react";
+import { api } from "../../../../convex/_generated/api";
+
 const { width } = Dimensions.get('window');
 
 // Initial demo events for chapter-specific local meetings
@@ -40,16 +43,41 @@ const initialChapterEvents: CalendarEvent[] = [
 export default function CalendarScreen() {
     const dispatch = useAppDispatch();
     const user = useAppSelector(state => state.auth.user);
-    const { events } = useAppSelector(state => state.calendar);
+    const { events: reduxEvents } = useAppSelector(state => state.calendar);
     const [selectedFilter, setSelectedFilter] = useState<EventType | 'all'>('all');
     const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
     const [showEventModal, setShowEventModal] = useState(false);
 
-    useEffect(() => {
-        // Map conference dataset to calendar events
+    // Convex Query
+    const liveConferences = useQuery(api.conferences.getConferences, {
+        stateId: user?.state
+    });
+
+    const events = React.useMemo((): CalendarEvent[] => {
+        const liveMapped: CalendarEvent[] = (liveConferences || []).map((conf: any) => ({
+            id: conf._id || conf.id,
+            title: conf.name,
+            description: `${conf.level} level ${conf.type} conference.`,
+            type: 'conference',
+            level: conf.level.toLowerCase() as EventLevel,
+            location: conf.location,
+            startDate: new Date(conf.date).toISOString(),
+            endDate: new Date(conf.endDate).toISOString(),
+            allDay: true,
+            reminderEnabled: true,
+            isRSVPed: false,
+            organizer: conf.level === 'National' ? 'FBLA National' : `${conf.stateId} FBLA`,
+            tags: [conf.type, conf.level],
+        }));
+
+        if (liveMapped.length > 0) {
+            return [...initialChapterEvents, ...liveMapped];
+        }
+
+        // Fallback to local JSON
         const conferenceEvents: CalendarEvent[] = CONFERENCES
-            .filter(conf => conf.level === 'National' || conf.stateId === user?.state)
-            .map(conf => ({
+            .filter((conf) => conf.level === 'National' || conf.stateId === user?.state)
+            .map((conf) => ({
                 id: conf.id,
                 title: conf.name,
                 description: `${conf.level} level ${conf.type} conference.`,
@@ -65,8 +93,12 @@ export default function CalendarScreen() {
                 tags: [conf.type, conf.level],
             }));
 
-        dispatch(setEvents([...initialChapterEvents, ...conferenceEvents]));
-    }, [user?.state]);
+        return [...initialChapterEvents, ...conferenceEvents];
+    }, [liveConferences, user?.state]);
+
+    useEffect(() => {
+        dispatch(setEvents(events));
+    }, [events]);
 
     const filteredEvents = selectedFilter === 'all'
         ? events

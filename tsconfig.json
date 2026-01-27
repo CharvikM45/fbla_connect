@@ -10,6 +10,7 @@
     "baseUrl": ".",
     "resolveJsonModule": true,
     "esModuleInterop": true,
+    "module": "esnext",
     "moduleResolution": "bundler",
     "paths": {
       "*": [

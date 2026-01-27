@@ -16,6 +16,8 @@ import { AuthStackParamList } from '../../../shared/navigation/types';
 import { useAppDispatch, useAppSelector } from '../../../shared/hooks/useRedux';
 import { loginSuccess } from '../authSlice';
 import { colors, spacing, typography, borderRadius } from '../../../shared/theme';
+import { useMutation } from "convex/react";
+import { api } from "../../../../convex/_generated/api";
 
 type Props = {
     navigation: NativeStackNavigationProp<AuthStackParamList, 'SignUp'>;
@@ -88,19 +90,33 @@ export default function SignUpScreen({ navigation }: Props) {
         return isValid;
     };
 
-    const handleSignUp = () => {
-        if (validateForm()) {
-            // Demo signup - creates user and goes to onboarding
-            const newUser = {
-                id: `user-${Date.now()}`,
-                email: email,
-                displayName: fullName,
-                role: 'member' as const,
-                createdAt: new Date().toISOString(),
-            };
+    const storeUser = useMutation(api.users.storeUser);
 
-            dispatch(loginSuccess(newUser));
-            // Don't complete onboarding - will navigate to onboarding flow
+    const handleSignUp = async () => {
+        if (validateForm()) {
+            try {
+                // Store user in Convex DB
+                const userId = await storeUser({
+                    email: email,
+                    displayName: fullName,
+                    role: 'member',
+                });
+
+                // Update Redux state
+                const newUser = {
+                    id: userId,
+                    email: email,
+                    displayName: fullName,
+                    role: 'member' as const,
+                    createdAt: new Date().toISOString(),
+                };
+
+                dispatch(loginSuccess(newUser));
+                // Will automatically navigate since isAuthenticated becomes true
+            } catch (error) {
+                console.error("Failed to store user in database:", error);
+                setErrors(prev => ({ ...prev, terms: 'Failed to create account in database. Please try again.' }));
+            }
         }
     };
 

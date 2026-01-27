@@ -17,6 +17,8 @@ import { useAppDispatch, useAppSelector } from '../../../shared/hooks/useRedux';
 import { loginSuccess, completeOnboarding } from '../authSlice';
 import { setProfile } from '../../profile/profileSlice';
 import { colors, spacing, typography, borderRadius } from '../../../shared/theme';
+import { useMutation } from "convex/react";
+import { api } from "../../../../convex/_generated/api";
 
 type Props = {
     navigation: NativeStackNavigationProp<AuthStackParamList, 'Login'>;
@@ -37,7 +39,9 @@ export default function LoginScreen({ navigation }: Props) {
         return emailRegex.test(email);
     };
 
-    const handleLogin = () => {
+    const storeUser = useMutation(api.users.storeUser);
+
+    const handleLogin = async () => {
         let isValid = true;
 
         if (!email) {
@@ -61,37 +65,50 @@ export default function LoginScreen({ navigation }: Props) {
         }
 
         if (isValid) {
-            // Demo login - in production, this would call Firebase Auth
-            const demoUser = {
-                id: 'demo-user-1',
-                email: email,
-                displayName: 'Alex Johnson',
-                role: 'member' as const,
-                schoolName: 'Lincoln High School',
-                chapterName: 'Lincoln FBLA',
-                state: 'Nebraska',
-                createdAt: new Date().toISOString(),
-            };
+            try {
+                // In a real app, we would authenticate with Clerk/Firebase first
+                // Here we call storeUser to get/create the profile in Convex
+                const userData = await storeUser({
+                    email: email,
+                    displayName: email.split('@')[0], // Fallback if name not found
+                    role: 'member',
+                });
 
-            dispatch(loginSuccess(demoUser));
+                // Since Convex storeUser returns user details or we fetch them:
+                // For this demo/setup, we assume the mutation returns what we need or we fetch it
+                const loggedInUser = {
+                    id: (userData as any)._id || 'new-user',
+                    email: email,
+                    displayName: (userData as any).displayName || email.split('@')[0],
+                    role: (userData as any).role || 'member',
+                    schoolName: (userData as any).schoolName,
+                    chapterName: (userData as any).chapterName,
+                    state: (userData as any).state,
+                    createdAt: (userData as any).createdAt || new Date().toISOString(),
+                };
 
-            // Set demo profile
-            dispatch(setProfile({
-                userId: 'demo-user-1',
-                gradeLevel: 11,
-                graduationYear: 2027,
-                interests: ['Business', 'Technology', 'Leadership'],
-                careerGoals: ['Entrepreneurship', 'Marketing'],
-                officerRoles: [],
-                competitiveEvents: [],
-                badges: [],
-                totalXP: 250,
-                level: 1,
-                contactPreferences: { email: true, push: true, sms: false },
-                privacySettings: { showProfile: true, showBadges: true, showEvents: true },
-            }));
+                dispatch(loginSuccess(loggedInUser));
 
-            dispatch(completeOnboarding());
+                // Initialize profile state
+                dispatch(setProfile({
+                    userId: loggedInUser.id,
+                    gradeLevel: 11,
+                    graduationYear: 2027,
+                    interests: (userData as any).interests || ['Business', 'Technology', 'Leadership'],
+                    careerGoals: ['Entrepreneurship', 'Marketing'],
+                    officerRoles: [],
+                    competitiveEvents: [],
+                    badges: [],
+                    totalXP: (userData as any).totalXP || 0,
+                    level: (userData as any).level || 1,
+                    contactPreferences: { email: true, push: true, sms: false },
+                    privacySettings: { showProfile: true, showBadges: true, showEvents: true },
+                }));
+
+                dispatch(completeOnboarding());
+            } catch (err) {
+                console.error("Login failed:", err);
+            }
         }
     };
 

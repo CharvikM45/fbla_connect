@@ -8,7 +8,8 @@ import {
     TouchableOpacity,
     Dimensions,
 } from 'react-native';
-import { Text, Card, Chip, Avatar, Badge, FAB } from 'react-native-paper';
+import { Text, Card, Chip, Avatar, Badge } from 'react-native-paper';
+import { View as MotiView } from 'moti';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector, useAppDispatch } from '../../../shared/hooks/useRedux';
@@ -16,8 +17,10 @@ import { setNews, markAsRead, NewsItem, addNewsItem } from '../newsSlice';
 import { colors, spacing, typography, borderRadius, shadows } from '../../../shared/theme';
 import { fetchStateNews } from '../../../shared/services/newsService';
 import { useNavigation } from '@react-navigation/native';
-import { ResourcesStackParamList, MainTabParamList } from '../../../shared/navigation/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useQuery } from "convex/react";
+import { api } from "../../../../convex/_generated/api";
+import { AnimatedButton } from '../../../shared/components/AnimatedButton';
 
 const { width } = Dimensions.get('window');
 
@@ -79,62 +82,6 @@ const demoNews: NewsItem[] = [
         isRead: true,
         isSaved: false,
     },
-    {
-        id: '2b',
-        title: 'National Leadership Conference 2026 Announced',
-        content: 'Join us in Orlando, Florida for NLC 2026...',
-        summary: 'Early registration opens March 1st. Book your hotel now for the best rates!',
-        level: 'national',
-        category: 'announcement',
-        authorId: 'admin',
-        authorName: 'FBLA National',
-        authorRole: 'National Headquarters',
-        publishedAt: new Date(Date.now() - 43200000).toISOString(),
-        isPinned: false,
-        priority: 'high',
-        tags: ['NLC', 'Conference'],
-        relatedEventIds: [],
-        isRead: true,
-        isSaved: false,
-    },
-    {
-        id: '3',
-        title: 'Chapter Meeting This Thursday',
-        content: 'Join us for our weekly chapter meeting...',
-        summary: 'This week: Competition prep workshop and officer elections preview',
-        level: 'chapter',
-        chapterId: 'Lincoln FBLA',
-        category: 'event',
-        authorId: 'officer',
-        authorName: 'Lincoln FBLA',
-        authorRole: 'Chapter',
-        publishedAt: new Date(Date.now() - 172800000).toISOString(),
-        isPinned: false,
-        priority: 'normal',
-        tags: ['Meeting', 'Competition Prep'],
-        relatedEventIds: ['event-1'],
-        isRead: true,
-        isSaved: false,
-    },
-    {
-        id: '4',
-        title: 'Middle Georgia Regional Workshop',
-        content: 'Attention chapters in the Middle Georgia region...',
-        summary: 'Final call for regional workshop registrations.',
-        level: 'state',
-        stateId: 'GA',
-        category: 'event',
-        authorId: 'admin',
-        authorName: 'Georgia FBLA',
-        authorRole: 'State Association',
-        publishedAt: new Date(Date.now() - 43200000).toISOString(),
-        isPinned: false,
-        priority: 'normal',
-        tags: ['Regional', 'Georgia'],
-        relatedEventIds: [],
-        isRead: true,
-        isSaved: false,
-    },
 ];
 
 export default function HomeScreen() {
@@ -142,39 +89,35 @@ export default function HomeScreen() {
     const navigation = useNavigation<NativeStackNavigationProp<any>>();
     const user = useAppSelector(state => state.auth.user);
     const profile = useAppSelector(state => state.profile.profile);
-    const { news, unreadCount } = useAppSelector(state => state.news);
+    const { unreadCount } = useAppSelector(state => state.news);
     const [refreshing, setRefreshing] = useState(false);
 
-    // Filter news based on user's location
-    const filteredNews = React.useMemo(() => {
-        if (!user) return news;
+    // Convex Query for real-time news
+    const convexNews = useQuery(api.news.getFilteredNews, {
+        stateId: user?.state,
+        chapterId: user?.chapterName
+    });
 
-        return news.filter(item => {
-            // Always show national news
+    // Filter news based on user's location (Keep demo news as fallback)
+    const news = React.useMemo((): NewsItem[] => {
+        const liveNews: NewsItem[] = (convexNews as any) || [];
+        if (liveNews.length > 0) return liveNews;
+
+        if (!user) return demoNews;
+
+        return demoNews.filter((item: NewsItem) => {
             if (item.level === 'national') return true;
-
-            // Filter state news
-            if (item.level === 'state') {
-                return item.stateId === user.state;
-            }
-
-            // Filter chapter news
-            if (item.level === 'chapter') {
-                return item.chapterId === user.chapterName;
-            }
-
+            if (item.level === 'state') return item.stateId === user.state;
+            if (item.level === 'chapter') return item.chapterId === user.chapterName;
             return false;
         });
-    }, [news, user]);
+    }, [convexNews, user]);
 
     useEffect(() => {
         dispatch(setNews(demoNews));
-
-        // Fetch real-time state news if user has a state
         if (user?.state) {
             fetchStateNews(user.state).then(stateNews => {
                 stateNews.forEach(item => {
-                    // Avoid duplicates if needed, for simplicity just add
                     dispatch(addNewsItem(item as NewsItem));
                 });
             });
@@ -192,26 +135,15 @@ export default function HomeScreen() {
 
     const handleNewsPress = (newsId: string) => {
         dispatch(markAsRead(newsId));
-        // Navigate to detail (would be implemented)
     };
 
     const handleQuickAction = (label: string) => {
         switch (label) {
-            case 'Ask AI':
-                navigation.navigate('AI');
-                break;
-            case 'Events':
-                navigation.navigate('Calendar');
-                break;
-            case 'Resources':
-                navigation.navigate('Resources');
-                break;
-            case 'Compete':
-                navigation.navigate('Calendar');
-                break;
-            case 'Network':
-                navigation.navigate('Profile');
-                break;
+            case 'Ask AI': navigation.navigate('AI'); break;
+            case 'Events': navigation.navigate('Calendar'); break;
+            case 'Resources': navigation.navigate('Resources'); break;
+            case 'Compete': navigation.navigate('Resources', { screen: 'CompetitiveEvents' }); break;
+            case 'Network': navigation.navigate('Profile'); break;
         }
     };
 
@@ -224,7 +156,12 @@ export default function HomeScreen() {
                 }
             >
                 {/* Welcome Card */}
-                <View style={styles.welcomeCard}>
+                <MotiView
+                    from={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ type: 'spring', damping: 20 }}
+                    style={styles.welcomeCard}
+                >
                     <View style={styles.welcomeHeader}>
                         <View>
                             <Text style={styles.welcomeText}>Welcome back,</Text>
@@ -244,7 +181,6 @@ export default function HomeScreen() {
                         </View>
                     </View>
 
-                    {/* Quick Stats */}
                     <View style={styles.statsRow}>
                         <View style={styles.statItem}>
                             <Text style={styles.statValue}>{profile?.totalXP || 0}</Text>
@@ -261,7 +197,7 @@ export default function HomeScreen() {
                             <Text style={styles.statLabel}>Events</Text>
                         </View>
                     </View>
-                </View>
+                </MotiView>
 
                 {/* Quick Actions */}
                 <View style={styles.section}>
@@ -275,7 +211,7 @@ export default function HomeScreen() {
                                 icon="trophy"
                                 label="Compete"
                                 color={colors.warning.main}
-                                onPress={() => navigation.navigate('Resources', { screen: 'CompetitiveEvents' })}
+                                onPress={() => handleQuickAction('Compete')}
                             />
                             <QuickAction icon="people" label="Network" color={colors.info.main} onPress={() => handleQuickAction('Network')} />
                         </View>
@@ -291,15 +227,27 @@ export default function HomeScreen() {
                         )}
                     </View>
 
-                    {filteredNews.map((item) => (
-                        <NewsCard key={item.id} item={item} onPress={() => handleNewsPress(item.id)} />
+                    {news.map((item, index) => (
+                        <MotiView
+                            key={item.id}
+                            from={{ opacity: 0, translateY: 20 }}
+                            animate={{ opacity: 1, translateY: 0 }}
+                            transition={{
+                                type: 'spring',
+                                damping: 15,
+                                stiffness: 100,
+                                delay: 300 + (index * 100),
+                            }}
+                        >
+                            <NewsCard item={item} onPress={() => handleNewsPress(item.id)} />
+                        </MotiView>
                     ))}
                 </View>
 
-                {/* Social Feed Preview */}
+                {/* Social Card */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Chapter Social</Text>
-                    <TouchableOpacity onPress={() => navigation.navigate('SocialHub')}>
+                    <AnimatedButton onPress={() => navigation.navigate('SocialHub')}>
                         <Card style={styles.socialCard}>
                             <Card.Content>
                                 <View style={styles.socialHeader}>
@@ -314,7 +262,7 @@ export default function HomeScreen() {
                                 </Text>
                             </Card.Content>
                         </Card>
-                    </TouchableOpacity>
+                    </AnimatedButton>
                 </View>
 
                 <View style={{ height: 100 }} />
@@ -325,12 +273,12 @@ export default function HomeScreen() {
 
 function QuickAction({ icon, label, color, onPress }: { icon: string; label: string; color: string; onPress?: () => void }) {
     return (
-        <TouchableOpacity style={styles.actionButton} onPress={onPress}>
+        <AnimatedButton style={styles.actionButton} onPress={onPress}>
             <View style={[styles.actionIcon, { backgroundColor: color + '20' }]}>
                 <Ionicons name={icon as any} size={24} color={color} />
             </View>
             <Text style={styles.actionLabel}>{label}</Text>
-        </TouchableOpacity>
+        </AnimatedButton>
     );
 }
 
@@ -345,7 +293,7 @@ function NewsCard({ item, onPress }: { item: NewsItem; onPress: () => void }) {
     };
 
     return (
-        <TouchableOpacity onPress={onPress}>
+        <AnimatedButton onPress={onPress} style={{ marginBottom: spacing.md }}>
             <Card style={[styles.newsCard, item.isPinned && styles.newsCardPinned]}>
                 <Card.Content>
                     {item.isPinned && (
@@ -373,7 +321,7 @@ function NewsCard({ item, onPress }: { item: NewsItem; onPress: () => void }) {
                     </View>
                 </Card.Content>
             </Card>
-        </TouchableOpacity>
+        </AnimatedButton>
     );
 }
 
@@ -497,9 +445,9 @@ const styles = StyleSheet.create({
         fontWeight: '500',
     },
     newsCard: {
-        marginBottom: spacing.md,
         borderRadius: borderRadius.lg,
         backgroundColor: '#FFFFFF',
+        ...shadows.sm,
     },
     newsCardPinned: {
         borderLeftWidth: 4,
@@ -563,6 +511,7 @@ const styles = StyleSheet.create({
     socialCard: {
         borderRadius: borderRadius.lg,
         backgroundColor: '#FFFFFF',
+        ...shadows.sm,
     },
     socialHeader: {
         flexDirection: 'row',
