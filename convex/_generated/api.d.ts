@@ -13,6 +13,7 @@ import type * as conferences from "../conferences.js";
 import type * as init from "../init.js";
 import type * as meetings from "../meetings.js";
 import type * as news from "../news.js";
+import type * as profiles from "../profiles.js";
 import type * as seed_data from "../seed_data.js";
 import type * as users from "../users.js";
 
@@ -28,6 +29,7 @@ declare const fullApi: ApiFromModules<{
   init: typeof init;
   meetings: typeof meetings;
   news: typeof news;
+  profiles: typeof profiles;
   seed_data: typeof seed_data;
   users: typeof users;
 }>;

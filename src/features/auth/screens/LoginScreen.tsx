@@ -82,40 +82,50 @@ export default function LoginScreen({ navigation }: Props) {
                 }
 
                 // Call storeUser to get/update the profile in Convex
-                const userData = await storeUser({
+                await storeUser({
                     email: email,
-                    displayName: email.split('@')[0], // Fallback if name not found
-                    role: existingUser.role, // Use existing role
+                    displayName: existingUser.displayName || email.split('@')[0],
+                    role: existingUser.role,
+                    schoolName: existingUser.schoolName,
+                    chapterName: existingUser.chapterName,
+                    state: existingUser.state,
                 });
 
-                // Since Convex storeUser returns user details or we fetch them:
-                // For this demo/setup, we assume the mutation returns what we need or we fetch it
+                // Fetch the updated user data
+                const updatedUser = await getUserByEmail({ email });
+                
+                if (!updatedUser) {
+                    dispatch(loginFailure('Failed to retrieve user data.'));
+                    return;
+                }
+
                 const loggedInUser = {
-                    id: (userData as any)._id || 'new-user',
-                    email: email,
-                    displayName: (userData as any).displayName || email.split('@')[0],
-                    role: (userData as any).role || 'member',
-                    schoolName: (userData as any).schoolName,
-                    chapterName: (userData as any).chapterName,
-                    state: (userData as any).state,
-                    createdAt: (userData as any).createdAt || new Date().toISOString(),
+                    id: updatedUser._id,
+                    email: updatedUser.email,
+                    displayName: updatedUser.displayName,
+                    role: updatedUser.role,
+                    schoolName: updatedUser.schoolName,
+                    chapterName: updatedUser.chapterName,
+                    state: updatedUser.state,
+                    createdAt: updatedUser.createdAt,
                 };
 
                 dispatch(loginSuccess(loggedInUser));
 
-                // Initialize profile state
+                // Initialize profile state - profile data will be loaded from Convex
+                // The ProfileScreen will fetch profile data using useQuery
                 dispatch(setProfile({
                     userId: loggedInUser.id,
                     gradeLevel: 11,
                     graduationYear: 2027,
-                    interests: (userData as any).interests || ['Business', 'Technology', 'Leadership'],
+                    interests: updatedUser.interests || ['Business', 'Technology', 'Leadership'],
                     careerGoals: ['Entrepreneurship', 'Marketing'],
                     officerRoles: [],
                     competitiveEvents: [],
                     badges: [],
-                    totalXP: (userData as any).totalXP || 0,
-                    level: (userData as any).level || 1,
-                    contactPreferences: { email: true, push: true, sms: false },
+                    totalXP: 0, // Will be loaded from Convex profile
+                    level: 1, // Will be loaded from Convex profile
+                    contactPreferences: updatedUser.contactPreferences || { email: true, push: true, sms: false },
                     privacySettings: { showProfile: true, showBadges: true, showEvents: true },
                 }));
 

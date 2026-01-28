@@ -44,16 +44,17 @@ export default function ProfileScreen() {
     const [showHelpModal, setShowHelpModal] = useState(false);
     const [showAllBadgesModal, setShowAllBadgesModal] = useState(false);
 
-    // Convex Query
+    // Convex Queries
     const convexUser = useQuery(api.users.currentUser);
+    const convexProfile = useQuery(api.profiles.getCurrentUserProfile);
     const user = convexUser || reduxUser;
 
-    const profile = convexUser ? {
-        totalXP: (convexUser as any).totalXP || 0,
-        level: (convexUser as any).level || 1,
-        badges: (convexUser as any).badges || [],
-        interests: (convexUser as any).interests || [],
-        bio: (convexUser as any).bio || '',
+    const profile = convexProfile && convexUser ? {
+        totalXP: convexProfile.totalXP || 0,
+        level: convexProfile.level || 1,
+        badges: convexProfile.badges || [],
+        interests: convexUser.interests || [],
+        bio: convexUser.bio || '',
         competitiveEvents: [],
     } : reduxProfile;
 
