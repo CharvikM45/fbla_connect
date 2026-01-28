@@ -6,7 +6,6 @@ import {
     TouchableOpacity,
     SafeAreaView,
     ActivityIndicator,
-    Dimensions,
     Platform,
 } from 'react-native';
 import { WebView } from 'react-native-webview';
@@ -30,18 +29,18 @@ export default function PDFViewerModal({ visible, url, title = 'PDF Viewer', onC
         if (visible && url) {
             setIsLoading(true);
             setError(null);
-            // For PDFs, we can use the URL directly with Google Docs Viewer or display directly
+            // For PDFs, we can use the URL directly
             // Using direct PDF URL works best in WebView
             setPdfUrl(url);
+        } else if (!visible) {
+            // Reset state when modal closes
+            setPdfUrl(null);
+            setError(null);
+            setIsLoading(true);
         }
     }, [visible, url]);
 
     if (!url) return null;
-
-    // Create a PDF viewer URL - using Google Docs Viewer as fallback for better compatibility
-    const viewerUrl = Platform.OS === 'ios' 
-        ? url // iOS WebView handles PDFs natively
-        : `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`;
 
     const handleLoadStart = () => {
         setIsLoading(true);
@@ -116,12 +115,6 @@ export default function PDFViewerModal({ visible, url, title = 'PDF Viewer', onC
                                 scalesPageToFit={true}
                                 javaScriptEnabled={true}
                                 domStorageEnabled={true}
-                                renderLoading={() => (
-                                    <View style={styles.loadingContainer}>
-                                        <ActivityIndicator size="large" color={colors.primary[600]} />
-                                        <Text style={styles.loadingText}>Loading PDF...</Text>
-                                    </View>
-                                )}
                             />
                             {isLoading && (
                                 <View style={styles.loadingOverlay}>
