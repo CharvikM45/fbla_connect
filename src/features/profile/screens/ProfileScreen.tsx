@@ -16,6 +16,9 @@ import { colors, spacing, typography, borderRadius, shadows } from '../../../sha
 import { MotiView } from 'moti';
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { ProfileStackParamList } from '../../../shared/navigation/types';
 
 const { width } = Dimensions.get('window');
 
@@ -27,8 +30,11 @@ const demoBadges = [
     { id: '4', name: 'Team Player', icon: '🤝', description: 'Collaborated on a team event', rarity: 'uncommon' },
 ];
 
+type NavigationProp = NativeStackNavigationProp<ProfileStackParamList>;
+
 export default function ProfileScreen() {
     const dispatch = useAppDispatch();
+    const navigation = useNavigation<NavigationProp>();
     const reduxUser = useAppSelector(state => state.auth.user);
     const reduxProfile = useAppSelector(state => state.profile.profile);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -222,6 +228,35 @@ export default function ProfileScreen() {
                             </View>
                             <Ionicons name="chevron-forward" size={18} color={colors.neutral[300]} />
                         </TouchableOpacity>
+
+                        {user?.role === 'adviser' && (
+                            <>
+                                <TouchableOpacity
+                                    style={styles.menuItem}
+                                    onPress={() => navigation.navigate('AdvisorDashboard')}
+                                >
+                                    <View style={styles.menuItemLeft}>
+                                        <View style={[styles.menuIconContainer, { backgroundColor: colors.primary[50] }]}>
+                                            <Ionicons name="grid-outline" size={20} color={colors.primary[600]} />
+                                        </View>
+                                        <Text style={styles.menuItemText}>Advisor Dashboard</Text>
+                                    </View>
+                                    <Ionicons name="chevron-forward" size={18} color={colors.neutral[300]} />
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={styles.menuItem}
+                                    onPress={() => navigation.navigate('ChapterManagement')}
+                                >
+                                    <View style={styles.menuItemLeft}>
+                                        <View style={[styles.menuIconContainer, { backgroundColor: colors.primary[50] }]}>
+                                            <Ionicons name="people-outline" size={20} color={colors.primary[600]} />
+                                        </View>
+                                        <Text style={styles.menuItemText}>Manage Chapter</Text>
+                                    </View>
+                                    <Ionicons name="chevron-forward" size={18} color={colors.neutral[300]} />
+                                </TouchableOpacity>
+                            </>
+                        )}
 
                         <TouchableOpacity style={[styles.menuItem, { borderBottomWidth: 0 }]} onPress={() => setShowLogoutModal(true)}>
                             <View style={styles.menuItemLeft}>

@@ -44,7 +44,7 @@ const interestSubsets = [
     },
     {
         title: 'Management & Marketing',
-        icon: 'stats-chart',
+        icon: 'bar-chart-outline',
         color: '#F59E0B',
         items: [
             { id: 'business-mgmt', label: 'Business Mgmt' },

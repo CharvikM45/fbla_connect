@@ -94,7 +94,7 @@ export default function NotificationsScreen({ navigation }: Props) {
                     />
 
                     <NotificationOption
-                        icon="megaphone"
+                        icon="megaphone-outline"
                         title="Announcements"
                         description="Important news from your chapter and FBLA"
                         value={settings.announcements}

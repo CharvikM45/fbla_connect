@@ -62,6 +62,8 @@ export type ProfileStackParamList = {
     Badges: undefined;
     Leaderboard: undefined;
     Settings: undefined;
+    ChapterManagement: undefined;
+    AdvisorDashboard: undefined;
 };
 
 // News stack params (nested in Home)

@@ -13,6 +13,7 @@ import { useAppSelector, useAppDispatch } from '../../../shared/hooks/useRedux';
 import { setEvents, toggleRSVP, CalendarEvent, EventType, EventLevel } from '../calendarSlice';
 import { colors, spacing, typography, borderRadius, shadows } from '../../../shared/theme';
 import { MotiView } from 'moti';
+import AddMeetingModal from '../components/AddMeetingModal';
 
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
@@ -25,6 +26,7 @@ export default function CalendarScreen() {
     const [selectedFilter, setSelectedFilter] = useState<EventType | 'all'>('all');
     const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
     const [showEventModal, setShowEventModal] = useState(false);
+    const [showAddMeetingModal, setShowAddMeetingModal] = useState(false);
 
     // Convex Queries
     const liveConferences = useQuery(api.conferences.getConferences, {
@@ -177,7 +179,10 @@ export default function CalendarScreen() {
                                         'Your Schedule'}
                             </Text>
                             {isAdvisor && selectedFilter === 'meeting' && (
-                                <TouchableOpacity style={styles.addMeetingBtn}>
+                                <TouchableOpacity
+                                    style={styles.addMeetingBtn}
+                                    onPress={() => setShowAddMeetingModal(true)}
+                                >
                                     <Ionicons name="add" size={18} color={colors.primary[600]} />
                                     <Text style={styles.addMeetingText}>Add Meeting</Text>
                                 </TouchableOpacity>
@@ -227,7 +232,7 @@ export default function CalendarScreen() {
                                                         </View>
                                                         {event.isRSVPed && (
                                                             <View style={styles.rsvpBadge}>
-                                                                <Ionicons name="sparkles" size={14} color={colors.secondary[500]} />
+                                                                <Ionicons name="checkmark-circle" size={14} color={colors.secondary[500]} />
                                                                 <Text style={styles.rsvpText}>Going</Text>
                                                             </View>
                                                         )}
@@ -335,6 +340,16 @@ export default function CalendarScreen() {
                     )}
                 </Modal>
             </Portal>
+
+            {/* Advisor Add Meeting Modal */}
+            <AddMeetingModal
+                visible={showAddMeetingModal}
+                onDismiss={() => setShowAddMeetingModal(false)}
+                onSuccess={() => {
+                    // Refetch handled automatically by Convex
+                    setShowAddMeetingModal(false);
+                }}
+            />
         </View>
     );
 }

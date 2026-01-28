@@ -18,6 +18,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { colors, spacing, typography, borderRadius } from '../../../shared/theme';
+import AddAnnouncementModal from '../components/AddAnnouncementModal';
 const { width } = Dimensions.get('window');
 
 const demoNews: NewsItem[] = [
@@ -67,6 +68,7 @@ export default function HomeScreen() {
     const profile = useAppSelector(state => state.profile.profile);
     const { unreadCount } = useAppSelector(state => state.news);
     const [refreshing, setRefreshing] = useState(false);
+    const [showAddAnnouncementModal, setShowAddAnnouncementModal] = useState(false);
 
     // Convex Query for real-time news
     const liveNews = useQuery(api.news.getFilteredNews, {
@@ -190,9 +192,9 @@ export default function HomeScreen() {
                     <Text style={styles.sectionTitle}>Quick Actions</Text>
                     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                         <View style={styles.actionsRow}>
-                            <QuickAction icon="sparkles" label="Ask AI" color="#8B5CF6" onPress={() => handleQuickAction('Ask AI')} />
+                            <QuickAction icon="sparkles-outline" label="Ask AI" color="#8B5CF6" onPress={() => handleQuickAction('Ask AI')} />
                             <QuickAction icon="calendar" label="Events" color="#3B82F6" onPress={() => handleQuickAction('Events')} />
-                            <QuickAction icon="library" label="Resources" color="#10B981" onPress={() => handleQuickAction('Resources')} />
+                            <QuickAction icon="library-outline" label="Resources" color="#10B981" onPress={() => handleQuickAction('Resources')} />
                             <QuickAction icon="trophy" label="Compete" color="#F59E0B" onPress={() => handleQuickAction('Compete')} />
                             <QuickAction icon="people" label="Network" color="#EC4899" onPress={() => handleQuickAction('Network')} />
                         </View>
@@ -203,9 +205,20 @@ export default function HomeScreen() {
                 <View style={styles.section}>
                     <View style={styles.sectionHeader}>
                         <Text style={styles.sectionTitle}>News Feed</Text>
-                        {unreadCount > 0 && (
-                            <Badge style={styles.unreadBadge}>{unreadCount}</Badge>
-                        )}
+                        <View style={styles.sectionHeaderRight}>
+                            {user?.role === 'adviser' && (
+                                <TouchableOpacity
+                                    style={styles.addAnnouncementBtn}
+                                    onPress={() => setShowAddAnnouncementModal(true)}
+                                >
+                                    <Ionicons name="add-circle" size={20} color={colors.primary[600]} />
+                                    <Text style={styles.addAnnouncementText}>Create</Text>
+                                </TouchableOpacity>
+                            )}
+                            {unreadCount > 0 && (
+                                <Badge style={styles.unreadBadge}>{unreadCount}</Badge>
+                            )}
+                        </View>
                     </View>
 
                     {news.map((item, index) => (
@@ -222,6 +235,16 @@ export default function HomeScreen() {
 
                 <View style={{ height: 120 }} />
             </ScrollView>
+
+            {/* Add Announcement Modal */}
+            <AddAnnouncementModal
+                visible={showAddAnnouncementModal}
+                onDismiss={() => setShowAddAnnouncementModal(false)}
+                onSuccess={() => {
+                    // Refetch handled automatically by Convex
+                    setShowAddAnnouncementModal(false);
+                }}
+            />
         </View>
     );
 }
@@ -378,6 +401,25 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         marginBottom: spacing.md,
+    },
+    sectionHeaderRight: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.sm,
+    },
+    addAnnouncementBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: colors.primary[50],
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 10,
+        gap: 4,
+    },
+    addAnnouncementText: {
+        fontSize: 12,
+        fontWeight: 'bold',
+        color: colors.primary[600],
     },
     sectionTitle: {
         fontSize: 18,

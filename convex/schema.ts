@@ -20,7 +20,7 @@ export default defineSchema({
             sms: v.boolean(),
         })),
         createdAt: v.string(),
-    }).index("by_token", ["tokenIdentifier"]).index("by_email", ["email"]),
+    }).index("by_token", ["tokenIdentifier"]).index("by_email", ["email"]).index("by_chapter", ["chapterName"]),
 
     profiles: defineTable({
         userId: v.id("users"),
@@ -44,7 +44,7 @@ export default defineSchema({
         chapterId: v.optional(v.string()),
         imageUrl: v.optional(v.string()),
         linkUrl: v.optional(v.string()),
-    }).index("by_level", ["level"]),
+    }).index("by_level", ["level"]).index("by_chapter", ["chapterId"]),
 
     conferences: defineTable({
         name: v.string(),

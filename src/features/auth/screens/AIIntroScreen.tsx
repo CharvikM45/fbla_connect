@@ -27,7 +27,7 @@ const aiFeatures = [
         description: 'Personalized prep timelines and task checklists for your events',
     },
     {
-        icon: 'sparkles',
+        icon: 'sparkles-outline',
         title: 'Recommendations',
         description: 'Discover events and resources tailored to your interests',
     },
@@ -69,7 +69,7 @@ export default function AIIntroScreen({ navigation }: Props) {
                         colors={[colors.primary[500], colors.primary[700]]}
                         style={styles.aiIcon}
                     >
-                        <Ionicons name="sparkles" size={48} color="#FFFFFF" />
+                        <Ionicons name="sparkles-outline" size={48} color="#FFFFFF" />
                     </LinearGradient>
                 </View>
 

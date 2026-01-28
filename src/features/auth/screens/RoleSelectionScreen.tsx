@@ -1,7 +1,7 @@
 // FBLA Connect - Role Selection Screen (Onboarding)
 import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { Text, Button } from 'react-native-paper';
+import { Text, Button, TextInput, HelperText, Portal, Modal } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -40,22 +40,54 @@ const roles: { id: UserRole; title: string; description: string; icon: string }[
 export default function RoleSelectionScreen({ navigation }: Props) {
     const dispatch = useAppDispatch();
     const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
+    const [accessCode, setAccessCode] = useState('');
+    const [showAccessCodeModal, setShowAccessCodeModal] = useState(false);
+    const [accessCodeError, setAccessCodeError] = useState('');
+
+    const ADVISOR_CODE = 'FBLA2026';
 
     const updateConvexUser = useMutation(api.users.updateUser);
 
+    const handleRoleSelect = (roleId: UserRole) => {
+        setSelectedRole(roleId);
+        setAccessCodeError(''); // Clear previous errors
+    };
+
     const handleContinue = async () => {
-        if (selectedRole) {
-            try {
-                await updateConvexUser({
-                    role: selectedRole
-                });
-                dispatch(updateUser({ role: selectedRole }));
-                navigation.navigate('SchoolInfo');
-            } catch (error) {
-                console.error("Failed to update role in Convex:", error);
-                dispatch(updateUser({ role: selectedRole }));
-                navigation.navigate('SchoolInfo');
+        if (!selectedRole) return;
+
+        if (selectedRole === 'adviser') {
+            if (accessCode !== ADVISOR_CODE) {
+                setShowAccessCodeModal(true);
+                return;
             }
+        }
+
+        proceedWithRoleUpdate();
+    };
+
+    const verifyAccessCode = () => {
+        if (accessCode === ADVISOR_CODE) {
+            setShowAccessCodeModal(false);
+            proceedWithRoleUpdate();
+        } else {
+            setAccessCodeError('Invalid Access Code. Please contact FBLA National Center.');
+        }
+    };
+
+    const proceedWithRoleUpdate = async () => {
+        try {
+            await updateConvexUser({
+                role: selectedRole!
+            });
+            dispatch(updateUser({ role: selectedRole! }));
+            navigation.navigate('SchoolInfo');
+        } catch (error) {
+            console.error("Failed to update role in Convex:", error);
+            // Even if backend fails, proceed locally for onboarding flow if needed, 
+            // but ideally we want to ensure backend sync.
+            dispatch(updateUser({ role: selectedRole! }));
+            navigation.navigate('SchoolInfo');
         }
     };
 
@@ -80,7 +112,7 @@ export default function RoleSelectionScreen({ navigation }: Props) {
                                 styles.roleCard,
                                 selectedRole === role.id && styles.roleCardSelected,
                             ]}
-                            onPress={() => setSelectedRole(role.id)}
+                            onPress={() => handleRoleSelect(role.id)}
                             activeOpacity={0.7}
                         >
                             <View
@@ -131,7 +163,47 @@ export default function RoleSelectionScreen({ navigation }: Props) {
                     </Button>
                 </View>
             </View>
-        </SafeAreaView>
+
+            <Portal>
+                <Modal
+                    visible={showAccessCodeModal}
+                    onDismiss={() => setShowAccessCodeModal(false)}
+                    contentContainerStyle={styles.modal}
+                >
+                    <Text style={styles.modalTitle}>Advisor Verification</Text>
+                    <Text style={styles.modalText}>
+                        To ensure security, please enter the Advisor Access Code provided by FBLA.
+                    </Text>
+
+                    <TextInput
+                        mode="outlined"
+                        label="Access Code"
+                        value={accessCode}
+                        onChangeText={(text) => {
+                            setAccessCode(text);
+                            setAccessCodeError('');
+                        }}
+                        secureTextEntry
+                        style={styles.input}
+                        activeOutlineColor={colors.primary[600]}
+                        error={!!accessCodeError}
+                    />
+                    {accessCodeError ? (
+                        <HelperText type="error">
+                            {accessCodeError}
+                        </HelperText>
+                    ) : null}
+
+                    <Button
+                        mode="contained"
+                        onPress={verifyAccessCode}
+                        style={styles.modalButton}
+                    >
+                        Verify & Continue
+                    </Button>
+                </Modal>
+            </Portal>
+        </SafeAreaView >
     );
 }
 
@@ -222,5 +294,31 @@ const styles = StyleSheet.create({
     buttonLabel: {
         fontSize: typography.fontSize.md,
         fontWeight: '600',
+    },
+    modal: {
+        backgroundColor: 'white',
+        padding: spacing.xl,
+        margin: spacing.xl,
+        borderRadius: borderRadius.lg,
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: spacing.md,
+        color: colors.neutral[900],
+    },
+    modalText: {
+        marginBottom: spacing.md,
+        color: colors.neutral[600],
+        lineHeight: 20,
+    },
+    input: {
+        marginBottom: spacing.xs,
+        backgroundColor: 'white',
+    },
+    modalButton: {
+        marginTop: spacing.md,
+        borderRadius: borderRadius.md,
+        backgroundColor: colors.primary[600],
     },
 });

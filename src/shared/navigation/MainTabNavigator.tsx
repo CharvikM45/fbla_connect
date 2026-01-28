@@ -14,7 +14,7 @@ import HomeNavigator from './HomeNavigator';
 import CalendarScreen from '../../features/calendar/screens/CalendarScreen';
 import ResourcesNavigator from './ResourcesNavigator';
 import AIAssistantScreen from '../../features/ai/assistant/screens/AIAssistantScreen';
-import ProfileScreen from '../../features/profile/screens/ProfileScreen';
+import ProfileNavigator from './ProfileNavigator';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -93,8 +93,8 @@ export default function MainTabNavigator() {
             />
             <Tab.Screen
                 name="Profile"
-                component={ProfileScreen}
-                options={{ title: 'My Profile' }}
+                component={ProfileNavigator}
+                options={{ title: 'My Profile', headerShown: false }}
             />
         </Tab.Navigator>
     );

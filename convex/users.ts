@@ -103,3 +103,32 @@ export const getUserByEmail = query({
             .unique();
     },
 });
+// Get members of a specific chapter
+export const getChapterMembers = query({
+    args: { chapterId: v.string() },
+    handler: async (ctx, args) => {
+        // Verify user is an advisor
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Unauthenticated");
+
+        const user = await ctx.db
+            .query("users")
+            .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+            .unique();
+
+        if (!user || user.role !== "adviser") {
+            throw new Error("Only advisors can view chapter members");
+        }
+
+        // Ensure the advisor is viewing their own chapter
+        if (user.chapterName !== args.chapterId) {
+            throw new Error("You can only view members of your own chapter");
+        }
+
+        // Get all users in the chapter
+        return await ctx.db
+            .query("users")
+            .filter((q) => q.eq(q.field("chapterName"), args.chapterId))
+            .collect();
+    },
+});
