@@ -28,7 +28,7 @@ export type OnboardingStackParamList = {
 // Main tab navigator params
 export type MainTabParamList = {
     Home: NavigatorScreenParams<HomeStackParamList>;
-    Calendar: NavigatorScreenParams<CalendarStackParamList>;
+    Events: NavigatorScreenParams<CalendarStackParamList>;
     Resources: NavigatorScreenParams<ResourcesStackParamList>;
     AI: undefined;
     Profile: NavigatorScreenParams<ProfileStackParamList>;

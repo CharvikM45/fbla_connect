@@ -8,27 +8,57 @@ import {
     TouchableOpacity,
     Dimensions,
 } from 'react-native';
-import { Text, Card, Chip, Avatar, Badge } from 'react-native-paper';
-import { View as MotiView } from 'moti';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Text, Avatar, Badge, Card } from 'react-native-paper';
+import { MotiView } from 'moti';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector, useAppDispatch } from '../../../shared/hooks/useRedux';
-import { setNews, markAsRead, NewsItem, addNewsItem } from '../newsSlice';
-import { colors, spacing, typography, borderRadius, shadows, gradients } from '../../../shared/theme';
-import { fetchStateNews } from '../../../shared/services/newsService';
+import { setNews, markAsRead, NewsItem } from '../newsSlice';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
-import { AnimatedButton } from '../../../shared/components/AnimatedButton';
-import { GlassCard } from '../../../shared/components/GlassCard';
-import { GlowView } from '../../../shared/components/GlowView';
-import { StaggeredList } from '../../../shared/components/StaggeredList';
-import { LinearGradient } from 'expo-linear-gradient';
-
+import { colors, spacing, typography, borderRadius } from '../../../shared/theme';
 const { width } = Dimensions.get('window');
 
-// ... (demoNews stays same)
+const demoNews: NewsItem[] = [
+    {
+        id: '1',
+        title: 'National Leadership Conference 2025',
+        content: 'Registration is now open for the 2025 NLC in Anaheim, California!',
+        summary: 'Registration is now open for the 2025 NLC in Anaheim, California!',
+        level: 'national',
+        category: 'announcement',
+        authorId: 'admin',
+        authorName: 'FBLA National',
+        authorRole: 'National Staff',
+        publishedAt: new Date().toISOString(),
+        isPinned: true,
+        priority: 'high',
+        tags: ['NLC', 'Conference'],
+        relatedEventIds: [],
+        isRead: false,
+        isSaved: false,
+    },
+    {
+        id: '2',
+        title: 'State Business Leadership Conference',
+        content: 'Check out the competitive events schedule for SBLC.',
+        summary: 'Check out the competitive events schedule for SBLC.',
+        level: 'state',
+        category: 'event',
+        authorId: 'state_admin',
+        authorName: 'State FBLA',
+        authorRole: 'State Director',
+        publishedAt: new Date().toISOString(),
+        isPinned: false,
+        priority: 'normal',
+        tags: ['SBLC', 'Competition'],
+        relatedEventIds: [],
+        stateId: 'GA',
+        isRead: false,
+        isSaved: false,
+    }
+];
 
 export default function HomeScreen() {
     const dispatch = useAppDispatch();
@@ -39,10 +69,34 @@ export default function HomeScreen() {
     const [refreshing, setRefreshing] = useState(false);
 
     // Convex Query for real-time news
-    const convexNews = useQuery(api.users.currentUser); // Simplified for now to get user context
+    const liveNews = useQuery(api.news.getFilteredNews, {
+        stateId: user?.state,
+        chapterId: user?.chapterName
+    });
 
-    // Filter news based on user's location (Keep demo news as fallback)
     const news = React.useMemo((): NewsItem[] => {
+        if (liveNews && liveNews.length > 0) {
+            return liveNews.map((item: any) => ({
+                id: item._id,
+                title: item.title,
+                content: item.content,
+                summary: item.summary,
+                level: item.level as NewsItem['level'],
+                category: item.category as NewsItem['category'],
+                authorId: item.authorId || 'admin',
+                authorName: item.authorName,
+                authorRole: item.authorRole || 'Staff',
+                publishedAt: item.publishedAt,
+                isPinned: item.isPinned || false,
+                priority: (item.priority || 'normal') as NewsItem['priority'],
+                tags: item.tags || [],
+                relatedEventIds: item.relatedEventIds || [],
+                isRead: false,
+                isSaved: false,
+                imageUrl: item.imageUrl
+            }));
+        }
+
         if (!user) return demoNews;
         return demoNews.filter((item: NewsItem) => {
             if (item.level === 'national') return true;
@@ -50,19 +104,15 @@ export default function HomeScreen() {
             if (item.level === 'chapter') return item.chapterId === user.chapterName;
             return false;
         });
-    }, [user]);
+    }, [liveNews, user]);
 
     useEffect(() => {
-        dispatch(setNews(demoNews));
-    }, []);
+        dispatch(setNews(news));
+    }, [news]);
 
     const onRefresh = async () => {
         setRefreshing(true);
         setTimeout(() => setRefreshing(false), 1000);
-    };
-
-    const handleNewsPress = (newsId: string) => {
-        dispatch(markAsRead(newsId));
     };
 
     const handleQuickAction = (label: string) => {
@@ -77,58 +127,62 @@ export default function HomeScreen() {
 
     return (
         <View style={styles.container}>
-            <LinearGradient colors={['#041333', '#000000']} style={StyleSheet.absoluteFill} />
-
             <ScrollView
                 style={styles.scrollView}
+                showsVerticalScrollIndicator={false}
                 refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FFFFFF" />
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary[600]} />
                 }
             >
-                {/* Header Glow */}
-                <GlowView color="blue" intensity={1.2} style={styles.topGlow} />
-
                 {/* Welcome Section */}
                 <View style={styles.welcomeSection}>
-                    <View style={styles.welcomeHeader}>
-                        <View>
-                            <Text style={styles.welcomeText}>Welcome back,</Text>
-                            <Text style={styles.userName}>{user?.displayName?.split(' ')[0] || 'Member'}!</Text>
-                        </View>
-                        <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-                            <View style={styles.avatarContainer}>
-                                <Avatar.Text
-                                    size={52}
-                                    label={user?.displayName?.charAt(0) || 'U'}
-                                    style={styles.avatar}
-                                />
-                                {profile && (
-                                    <View style={styles.levelBadge}>
-                                        <Text style={styles.levelText}>Lv{profile.level}</Text>
-                                    </View>
-                                )}
+                    <MotiView
+                        from={{ opacity: 0, translateY: -20 }}
+                        animate={{ opacity: 1, translateY: 0 }}
+                        transition={{ type: 'spring', damping: 12 }}
+                    >
+                        <View style={styles.welcomeHeader}>
+                            <View>
+                                <Text style={styles.welcomeText}>Welcome back,</Text>
+                                <Text style={styles.userName}>{user?.displayName?.split(' ')[0] || 'Member'}!</Text>
                             </View>
-                        </TouchableOpacity>
-                    </View>
+                            <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+                                <View style={styles.avatarContainer}>
+                                    <Avatar.Text
+                                        size={56}
+                                        label={user?.displayName?.charAt(0) || 'U'}
+                                        style={styles.avatar}
+                                    />
+                                    {profile && (
+                                        <View style={styles.levelBadge}>
+                                            <Text style={styles.levelText}>Lv{profile.level}</Text>
+                                        </View>
+                                    )}
+                                </View>
+                            </TouchableOpacity>
+                        </View>
 
-                    <GlassCard style={styles.statsCard} intensity={10}>
-                        <View style={styles.statsRow}>
-                            <View style={styles.statItem}>
-                                <Text style={styles.statValue}>{profile?.totalXP || 0}</Text>
-                                <Text style={styles.statLabel}>XP</Text>
-                            </View>
-                            <View style={styles.statDivider} />
-                            <View style={styles.statItem}>
-                                <Text style={styles.statValue}>{profile?.badges?.length || 0}</Text>
-                                <Text style={styles.statLabel}>Badges</Text>
-                            </View>
-                            <View style={styles.statDivider} />
-                            <View style={styles.statItem}>
-                                <Text style={styles.statValue}>3</Text>
-                                <Text style={styles.statLabel}>Events</Text>
-                            </View>
-                        </View>
-                    </GlassCard>
+                        <Card style={styles.statsCard}>
+                            <Card.Content>
+                                <View style={styles.statsRow}>
+                                    <View style={styles.statItem}>
+                                        <Text style={styles.statValue}>{profile?.totalXP || 0}</Text>
+                                        <Text style={styles.statLabel}>XP Points</Text>
+                                    </View>
+                                    <View style={styles.statDivider} />
+                                    <View style={styles.statItem}>
+                                        <Text style={styles.statValue}>{profile?.badges?.length || 0}</Text>
+                                        <Text style={styles.statLabel}>Badges</Text>
+                                    </View>
+                                    <View style={styles.statDivider} />
+                                    <View style={styles.statItem}>
+                                        <Text style={styles.statValue}>3</Text>
+                                        <Text style={styles.statLabel}>Events</Text>
+                                    </View>
+                                </View>
+                            </Card.Content>
+                        </Card>
+                    </MotiView>
                 </View>
 
                 {/* Quick Actions */}
@@ -139,21 +193,16 @@ export default function HomeScreen() {
                             <QuickAction icon="sparkles" label="Ask AI" color="#8B5CF6" onPress={() => handleQuickAction('Ask AI')} />
                             <QuickAction icon="calendar" label="Events" color="#3B82F6" onPress={() => handleQuickAction('Events')} />
                             <QuickAction icon="library" label="Resources" color="#10B981" onPress={() => handleQuickAction('Resources')} />
-                            <QuickAction
-                                icon="trophy"
-                                label="Compete"
-                                color="#F59E0B"
-                                onPress={() => handleQuickAction('Compete')}
-                            />
+                            <QuickAction icon="trophy" label="Compete" color="#F59E0B" onPress={() => handleQuickAction('Compete')} />
                             <QuickAction icon="people" label="Network" color="#EC4899" onPress={() => handleQuickAction('Network')} />
                         </View>
                     </ScrollView>
                 </View>
 
-                {/* News Feed - Now with StaggeredList implicitly or manually handled */}
+                {/* News Feed */}
                 <View style={styles.section}>
                     <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionTitle}>News & Updates</Text>
+                        <Text style={styles.sectionTitle}>News Feed</Text>
                         {unreadCount > 0 && (
                             <Badge style={styles.unreadBadge}>{unreadCount}</Badge>
                         )}
@@ -162,21 +211,16 @@ export default function HomeScreen() {
                     {news.map((item, index) => (
                         <MotiView
                             key={item.id}
-                            from={{ opacity: 0, translateY: 20 }}
+                            from={{ opacity: 0, translateY: 30 }}
                             animate={{ opacity: 1, translateY: 0 }}
-                            transition={{
-                                type: 'spring',
-                                damping: 15,
-                                stiffness: 100,
-                                delay: index * 100,
-                            }}
+                            transition={{ type: 'spring', damping: 15, delay: index * 100 }}
                         >
-                            <NewsCard item={item} onPress={() => handleNewsPress(item.id)} />
+                            <NewsCard item={item} onPress={() => dispatch(markAsRead(item.id))} />
                         </MotiView>
                     ))}
                 </View>
 
-                <View style={{ height: 100 }} />
+                <View style={{ height: 120 }} />
             </ScrollView>
         </View>
     );
@@ -184,122 +228,121 @@ export default function HomeScreen() {
 
 function QuickAction({ icon, label, color, onPress }: { icon: string; label: string; color: string; onPress?: () => void }) {
     return (
-        <AnimatedButton style={styles.actionButton} onPress={onPress}>
-            <GlassCard style={styles.actionGlass} intensity={5}>
-                <View style={[styles.actionIcon, { backgroundColor: color + '20' }]}>
-                    <Ionicons name={icon as any} size={26} color={color} />
-                </View>
-            </GlassCard>
+        <TouchableOpacity style={styles.actionButton} onPress={onPress} activeOpacity={0.7}>
+            <View style={[styles.actionIconContainer, { backgroundColor: color + '15' }]}>
+                <Ionicons name={icon as any} size={28} color={color} />
+            </View>
             <Text style={styles.actionLabel}>{label}</Text>
-        </AnimatedButton>
+        </TouchableOpacity>
     );
 }
 
 function NewsCard({ item, onPress }: { item: NewsItem; onPress: () => void }) {
     const getLevelColor = () => {
         switch (item.level) {
-            case 'national': return '#60A5FA';
+            case 'national': return colors.primary[600];
             case 'state': return '#FBBF24';
             case 'chapter': return '#34D399';
-            default: return '#A1A1AA';
+            default: return colors.neutral[400];
         }
     };
 
     return (
-        <AnimatedButton onPress={onPress} style={{ marginBottom: spacing.md }}>
-            <GlassCard style={[styles.newsCard, item.isPinned && styles.newsCardPinned]}>
-                {item.isPinned && (
-                    <View style={styles.pinnedBadge}>
-                        <Ionicons name="pin" size={12} color="#F59E0B" />
-                        <Text style={styles.pinnedText}>PINNED</Text>
+        <TouchableOpacity onPress={onPress} style={{ marginBottom: spacing.md }} activeOpacity={0.8}>
+            <Card style={[styles.newsCard, item.isPinned && styles.newsCardPinned]}>
+                <Card.Content>
+                    {item.isPinned && (
+                        <View style={styles.pinnedBadge}>
+                            <Ionicons name="pin" size={12} color="#FBBF24" />
+                            <Text style={styles.pinnedText}>PINNED</Text>
+                        </View>
+                    )}
+                    <View style={styles.newsHeader}>
+                        <View style={[styles.levelBadgeMini, { backgroundColor: getLevelColor() + '15' }]}>
+                            <Text style={[styles.levelTextMini, { color: getLevelColor() }]}>
+                                {item.level.toUpperCase()}
+                            </Text>
+                        </View>
+                        {!item.isRead && <View style={styles.unreadDot} />}
                     </View>
-                )}
-                <View style={styles.newsHeader}>
-                    <Chip
-                        style={[styles.levelChip, { backgroundColor: getLevelColor() + '20' }]}
-                        textStyle={[styles.levelChipText, { color: getLevelColor() }]}
-                    >
-                        {item.level.toUpperCase()}
-                    </Chip>
-                    {!item.isRead && <View style={styles.unreadDot} />}
-                </View>
-                <Text style={styles.newsTitle}>{item.title}</Text>
-                <Text style={styles.newsSummary}>{item.summary}</Text>
-                <View style={styles.newsFooter}>
-                    <Text style={styles.newsAuthor}>{item.authorName}</Text>
-                    <Text style={styles.newsTime}>
-                        {new Date(item.publishedAt).toLocaleDateString()}
-                    </Text>
-                </View>
-            </GlassCard>
-        </AnimatedButton>
+                    <Text style={styles.newsTitle}>{item.title}</Text>
+                    <Text style={styles.newsSummary}>{item.summary}</Text>
+
+                    <View style={styles.newsFooter}>
+                        <View style={styles.authorInfo}>
+                            <Avatar.Text size={20} label={item.authorName?.charAt(0) || 'F'} style={styles.authorAvatar} />
+                            <Text style={styles.newsAuthor}>{item.authorName}</Text>
+                        </View>
+                        <Text style={styles.newsTime}>
+                            {new Date(item.publishedAt).toLocaleDateString()}
+                        </Text>
+                    </View>
+                </Card.Content>
+            </Card>
+        </TouchableOpacity>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#000000',
+        backgroundColor: colors.neutral[50],
     },
     scrollView: {
         flex: 1,
     },
-    topGlow: {
-        position: 'absolute',
-        top: -100,
-        left: 0,
-        right: 0,
-        height: 300,
-        opacity: 0.3,
-    },
     welcomeSection: {
-        marginTop: spacing.xl,
+        paddingTop: spacing.xl,
         paddingHorizontal: spacing.md,
-        marginBottom: spacing.lg,
+        paddingBottom: spacing.lg,
+        backgroundColor: colors.primary[600],
+        borderBottomLeftRadius: 30,
+        borderBottomRightRadius: 30,
     },
     welcomeHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: spacing.lg,
+        marginBottom: spacing.xl,
     },
     welcomeText: {
-        fontSize: typography.fontSize.md,
-        color: 'rgba(255, 255, 255, 0.6)',
+        fontSize: 16,
+        color: 'rgba(255, 255, 255, 0.8)',
         fontWeight: '500',
     },
     userName: {
-        fontSize: typography.fontSize.xxxl,
-        fontWeight: '900',
+        fontSize: 32,
+        fontWeight: 'bold',
         color: '#FFFFFF',
-        letterSpacing: -0.5,
     },
     avatarContainer: {
         position: 'relative',
     },
     avatar: {
-        backgroundColor: 'rgba(255,255,255,0.1)',
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.2)',
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        borderWidth: 2,
+        borderColor: 'rgba(255,255,255,0.3)',
     },
     levelBadge: {
         position: 'absolute',
-        bottom: -4,
-        right: -4,
-        backgroundColor: colors.primary[500],
+        bottom: -2,
+        right: -2,
+        backgroundColor: colors.secondary[500],
         paddingHorizontal: 8,
         paddingVertical: 2,
-        borderRadius: 10,
+        borderRadius: 8,
         borderWidth: 2,
-        borderColor: '#000000',
+        borderColor: colors.primary[600],
     },
     levelText: {
         fontSize: 10,
-        fontWeight: '900',
+        fontWeight: 'bold',
         color: '#FFFFFF',
     },
     statsCard: {
-        padding: spacing.md,
+        borderRadius: 20,
+        elevation: 4,
+        backgroundColor: '#FFFFFF',
     },
     statsRow: {
         flexDirection: 'row',
@@ -310,26 +353,25 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     statValue: {
-        fontSize: typography.fontSize.xl,
-        fontWeight: '900',
-        color: '#FFFFFF',
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: colors.neutral[900],
     },
     statLabel: {
         fontSize: 10,
-        color: 'rgba(255, 255, 255, 0.4)',
-        fontWeight: '800',
+        color: colors.neutral[500],
+        fontWeight: '600',
         textTransform: 'uppercase',
-        marginTop: 2,
+        marginTop: 4,
     },
     statDivider: {
         width: 1,
         height: 30,
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-        marginHorizontal: spacing.sm,
+        backgroundColor: colors.neutral[200],
     },
     section: {
         paddingHorizontal: spacing.md,
-        marginBottom: spacing.xl,
+        marginTop: spacing.xl,
     },
     sectionHeader: {
         flexDirection: 'row',
@@ -338,110 +380,112 @@ const styles = StyleSheet.create({
         marginBottom: spacing.md,
     },
     sectionTitle: {
-        fontSize: typography.fontSize.lg,
-        fontWeight: '800',
-        color: '#FFFFFF',
-        letterSpacing: 0.5,
-        marginBottom: spacing.md,
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: colors.neutral[900],
     },
     unreadBadge: {
-        backgroundColor: colors.primary[500],
-        fontWeight: 'bold',
+        backgroundColor: colors.primary[600],
     },
     actionsRow: {
         flexDirection: 'row',
-        gap: spacing.lg,
+        gap: spacing.md,
         paddingBottom: spacing.sm,
     },
     actionButton: {
         alignItems: 'center',
-        width: 80,
+        width: 76,
     },
-    actionGlass: {
-        width: 64,
-        height: 64,
-        borderRadius: 20,
+    actionIconContainer: {
+        width: 60,
+        height: 60,
+        borderRadius: 18,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: spacing.sm,
-        padding: 0,
-    },
-    actionIcon: {
-        width: '100%',
-        height: '100%',
-        justifyContent: 'center',
-        alignItems: 'center',
+        marginBottom: spacing.xs,
     },
     actionLabel: {
         fontSize: 11,
-        color: 'rgba(255, 255, 255, 0.7)',
-        fontWeight: '700',
+        color: colors.neutral[600],
+        fontWeight: '600',
         textAlign: 'center',
     },
     newsCard: {
-        padding: spacing.md,
+        borderRadius: 20,
+        elevation: 2,
+        backgroundColor: '#FFFFFF',
     },
     newsCardPinned: {
-        borderColor: 'rgba(245, 158, 11, 0.3)',
+        borderColor: colors.secondary[200],
+        borderWidth: 1,
     },
     pinnedBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: spacing.xs,
+        marginBottom: 8,
     },
     pinnedText: {
         fontSize: 10,
-        color: '#F59E0B',
+        color: colors.secondary[600],
         marginLeft: 4,
-        fontWeight: '900',
-        letterSpacing: 1,
+        fontWeight: 'bold',
     },
     newsHeader: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: spacing.sm,
+        marginBottom: 10,
     },
-    levelChip: {
-        height: 24,
+    levelBadgeMini: {
+        paddingHorizontal: 8,
+        paddingVertical: 2,
         borderRadius: 6,
     },
-    levelChipText: {
+    levelTextMini: {
         fontSize: 10,
-        fontWeight: '900',
+        fontWeight: 'bold',
     },
     unreadDot: {
         width: 8,
         height: 8,
         borderRadius: 4,
-        backgroundColor: colors.primary[400],
+        backgroundColor: colors.primary[600],
     },
     newsTitle: {
-        fontSize: typography.fontSize.md,
-        fontWeight: '700',
-        color: '#FFFFFF',
-        marginBottom: spacing.xs,
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: colors.neutral[900],
+        marginBottom: 6,
     },
     newsSummary: {
-        fontSize: typography.fontSize.sm,
-        color: 'rgba(255, 255, 255, 0.6)',
+        fontSize: 14,
+        color: colors.neutral[600],
         lineHeight: 20,
-        marginBottom: spacing.md,
+        marginBottom: 12,
     },
     newsFooter: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+        alignItems: 'center',
         borderTopWidth: 1,
-        borderTopColor: 'rgba(255, 255, 255, 0.05)',
-        paddingTop: spacing.sm,
+        borderTopColor: colors.neutral[100],
+        paddingTop: 10,
+    },
+    authorInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    authorAvatar: {
+        backgroundColor: colors.primary[100],
+        marginRight: 6,
     },
     newsAuthor: {
-        fontSize: 11,
-        color: 'rgba(255, 255, 255, 0.4)',
+        fontSize: 12,
+        color: colors.neutral[700],
         fontWeight: '600',
     },
     newsTime: {
         fontSize: 11,
-        color: 'rgba(255, 255, 255, 0.3)',
+        color: colors.neutral[400],
     },
 });

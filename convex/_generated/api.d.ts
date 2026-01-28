@@ -11,7 +11,9 @@
 import type * as competitive_events from "../competitive_events.js";
 import type * as conferences from "../conferences.js";
 import type * as init from "../init.js";
+import type * as meetings from "../meetings.js";
 import type * as news from "../news.js";
+import type * as seed_data from "../seed_data.js";
 import type * as users from "../users.js";
 
 import type {
@@ -24,7 +26,9 @@ declare const fullApi: ApiFromModules<{
   competitive_events: typeof competitive_events;
   conferences: typeof conferences;
   init: typeof init;
+  meetings: typeof meetings;
   news: typeof news;
+  seed_data: typeof seed_data;
   users: typeof users;
 }>;
 

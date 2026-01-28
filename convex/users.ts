@@ -68,6 +68,12 @@ export const updateUser = mutation({
         interests: v.optional(v.array(v.string())),
         displayName: v.optional(v.string()),
         role: v.optional(v.union(v.literal("member"), v.literal("officer"), v.literal("adviser"))),
+        bio: v.optional(v.string()),
+        contactPreferences: v.optional(v.object({
+            push: v.boolean(),
+            email: v.boolean(),
+            sms: v.boolean(),
+        })),
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
@@ -84,5 +90,16 @@ export const updateUser = mutation({
 
         await ctx.db.patch(user._id, args);
         return user._id;
+    },
+});
+
+// Get user by email
+export const getUserByEmail = query({
+    args: { email: v.string() },
+    handler: async (ctx, args) => {
+        return await ctx.db
+            .query("users")
+            .filter((q) => q.eq(q.field("email"), args.email))
+            .unique();
     },
 });

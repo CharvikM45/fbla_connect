@@ -4,7 +4,12 @@
         "title": "Accounting I",
         "category": "Objective Test",
         "division": "High School",
-        "description": "Individual event focused on fundamental accounting principles."
+        "description": "Individual event focused on fundamental accounting principles.",
+        "pdfUrl": "https://www.fbla.org/wp-content/uploads/2024/08/2025-2026-Competitive-Events-Guidelines.pdf",
+        "competitionTypes": [
+            "Objective Test"
+        ],
+        "requirements": "The Accounting I objective test challenges competitors to demonstrate their understanding of fundamental accounting principles. Competitors have 50 minutes to complete 100 multiple-choice questions."
     },
     {
         "id": "event-2",
@@ -291,7 +296,13 @@
         "title": "Mobile Application Development",
         "category": "Production & Presentation",
         "division": "High School",
-        "description": "Individual or team event to design and develop a mobile app."
+        "description": "Individual or team event to design and develop a mobile app.",
+        "pdfUrl": "https://www.fbla.org/wp-content/uploads/2024/08/2025-2026-Competitive-Events-Guidelines.pdf",
+        "competitionTypes": [
+            "Production",
+            "Presentation"
+        ],
+        "requirements": "The objective of this event is to design and develop a mobile application that addresses the current year's topic. For 2025-2026, the application must focus on member engagement and resource accessibility for FBLA chapters."
     },
     {
         "id": "event-43",

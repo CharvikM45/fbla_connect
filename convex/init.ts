@@ -3,7 +3,7 @@ import { v } from "convex/values";
 
 export const seedDatabase = mutation({
     args: {
-        type: v.union(v.literal("news"), v.literal("conferences"), v.literal("events")),
+        type: v.union(v.literal("news"), v.literal("conferences"), v.literal("events"), v.literal("results"), v.literal("meetings")),
         data: v.array(v.any()),
     },
     handler: async (ctx, args) => {
@@ -15,6 +15,23 @@ export const seedDatabase = mutation({
                     category: item.category,
                     division: item.division,
                     description: item.description,
+                    pdfUrl: item.pdfUrl,
+                    competitionTypes: item.competitionTypes,
+                    requirements: item.requirements,
+                    linkUrl: item.linkUrl,
+                    studyLinks: item.studyLinks,
+                });
+            }
+        } else if (args.type === "meetings") {
+            for (const item of args.data) {
+                await ctx.db.insert("meetings", {
+                    ...item,
+                });
+            }
+        } else if (args.type === "results") {
+            for (const item of args.data) {
+                await ctx.db.insert("event_results", {
+                    ...item,
                 });
             }
         } else if (args.type === "conferences") {
@@ -35,6 +52,18 @@ export const seedDatabase = mutation({
                     ...item,
                 });
             }
+        }
+    },
+});
+
+export const deleteTable = mutation({
+    args: {
+        table: v.union(v.literal("competitive_events"), v.literal("event_results")),
+    },
+    handler: async (ctx, args) => {
+        const docs = await ctx.db.query(args.table).collect();
+        for (const doc of docs) {
+            await ctx.db.delete(doc._id);
         }
     },
 });

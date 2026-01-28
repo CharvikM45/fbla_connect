@@ -9,6 +9,8 @@ import { OnboardingStackParamList } from '../../../shared/navigation/types';
 import { useAppDispatch } from '../../../shared/hooks/useRedux';
 import { updateProfile } from '../../profile/profileSlice';
 import { colors, spacing, typography, borderRadius } from '../../../shared/theme';
+import { useMutation } from "convex/react";
+import { api } from "../../../../convex/_generated/api";
 
 type Props = {
     navigation: NativeStackNavigationProp<OnboardingStackParamList, 'Notifications'>;
@@ -16,6 +18,7 @@ type Props = {
 
 export default function NotificationsScreen({ navigation }: Props) {
     const dispatch = useAppDispatch();
+    const updateConvexUser = useMutation(api.users.updateUser);
 
     const [settings, setSettings] = useState({
         events: true,
@@ -24,15 +27,30 @@ export default function NotificationsScreen({ navigation }: Props) {
         social: false,
     });
 
-    const handleContinue = () => {
-        dispatch(updateProfile({
-            contactPreferences: {
-                push: settings.events || settings.deadlines || settings.announcements,
-                email: true,
-                sms: false,
-            },
-        }));
-        navigation.navigate('AIIntro');
+    const handleContinue = async () => {
+        const contactPreferences = {
+            push: settings.events || settings.deadlines || settings.announcements,
+            email: true,
+            sms: false,
+        };
+
+        try {
+            // Only update Convex if we have a valid session/identity
+            // We can check for a user identity or just catch the error gracefully
+            await updateConvexUser({
+                contactPreferences
+            });
+            dispatch(updateProfile({
+                contactPreferences,
+            }));
+            navigation.navigate('AIIntro');
+        } catch (error) {
+            console.error("Failed to update preferences in Convex:", error);
+            dispatch(updateProfile({
+                contactPreferences,
+            }));
+            navigation.navigate('AIIntro');
+        }
     };
 
     const toggleSetting = (key: keyof typeof settings) => {

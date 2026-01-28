@@ -24,3 +24,15 @@ export const getEvents = query({
         return events.sort((a, b) => a.title.localeCompare(b.title));
     },
 });
+
+export const getResults = query({
+    args: {
+        eventId: v.id("competitive_events"),
+    },
+    handler: async (ctx, args) => {
+        return await ctx.db
+            .query("event_results")
+            .withIndex("by_event", (q) => q.eq("eventId", args.eventId))
+            .collect();
+    },
+});

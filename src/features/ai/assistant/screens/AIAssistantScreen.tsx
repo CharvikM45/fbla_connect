@@ -12,7 +12,8 @@ import {
 import { Text, TextInput, IconButton, Card, Chip, ActivityIndicator } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, spacing, typography, borderRadius } from '../../../../shared/theme';
+import { colors, spacing, typography, borderRadius, shadows } from '../../../../shared/theme';
+import { MotiView } from 'moti';
 
 interface Message {
     id: string;
@@ -67,7 +68,7 @@ export default function AIAssistantScreen() {
         setInputText('');
         setIsTyping(true);
 
-        // Simulate AI response (in production, this would call OpenAI API)
+        // Simulate AI response
         setTimeout(() => {
             const response = generateResponse(text);
             const assistantMessage: Message = {
@@ -79,7 +80,7 @@ export default function AIAssistantScreen() {
             };
             setMessages(prev => [...prev, assistantMessage]);
             setIsTyping(false);
-        }, 1000 + Math.random() * 1000);
+        }, 1500);
     };
 
     const generateResponse = (query: string): { content: string; suggestions?: string[] } => {
@@ -87,132 +88,111 @@ export default function AIAssistantScreen() {
 
         if (lowerQuery.includes('mobile app') || lowerQuery.includes('mad')) {
             return {
-                content: "**Mobile Application Development** is a great choice! Here's what you need to know:\n\n📱 **2025-26 Theme**: \"Design the Future of Member Engagement\"\n\n**Requirements:**\n• Member profiles with secure login\n• Event calendar with reminders\n• Access to FBLA resources\n• News feed with announcements\n• Social media integration\n\n**Tips for Success:**\n1. Focus on user experience and accessibility\n2. Include innovative AI features\n3. Ensure code quality and documentation\n4. Practice your presentation\n\nWould you like me to create a prep timeline for you?",
+                content: "**Mobile Application Development** is a great choice! Here's what you need to know:\n\n📱 **2025-26 Theme**: \"Design the Future of Member Engagement\"\n\n**Requirements:**\n• Member profiles with secure login\n• Event calendar with reminders\n• Access to FBLA resources\n• News feed with announcements\n• Social media integration\n\n**Tips for Success:**\n1. Focus on user experience and accessibility\n2. Include innovative AI features\n3. Ensure code quality and documentation\n\nWould you like me to create a prep timeline for you?",
                 suggestions: [
                     'Create a prep timeline',
-                    'What tools should I use?',
                     'Show me the rubric',
                 ],
             };
         }
 
-        if (lowerQuery.includes('dress code')) {
-            return {
-                content: "**FBLA Professional Dress Code** 👔\n\n**For All Members:**\n• Business professional attire required at all competitive events\n• Clean, pressed clothing\n• Closed-toe dress shoes\n\n**Specific Guidelines:**\n• Suits, dress pants, or professional skirts\n• Dress shirts or blouses\n• Ties optional but recommended\n• Conservative colors preferred\n• Minimal jewelry and accessories\n\n**Not Allowed:**\n• Jeans, shorts, or casual wear\n• Sneakers or sandals\n• Excessive accessories\n\nNeed help finding professional attire on a budget?",
-                suggestions: [
-                    'Budget professional wear tips',
-                    'What about regional events?',
-                ],
-            };
-        }
-
-        if (lowerQuery.includes('slc') || lowerQuery.includes('state leadership')) {
-            return {
-                content: "**State Leadership Conference (SLC) Info** 🏆\n\n📅 **Key Dates:**\n• Registration Opens: January 15\n• Early Bird Deadline: February 15\n• Final Registration: March 1\n• Conference: April 10-12\n\n📍 **Location:**\nOmaha Marriott Downtown\n\n**What to Expect:**\n• Competitive events\n• Workshops and sessions\n• Networking opportunities\n• Awards ceremony\n• State officer elections\n\nAre you registered yet?",
-                suggestions: [
-                    'How do I register?',
-                    'What events can I compete in?',
-                    'SLC packing list',
-                ],
-            };
-        }
-
-        if (lowerQuery.includes('event') || lowerQuery.includes('competition')) {
-            return {
-                content: "Based on your interests in **Technology** and **Business**, here are events I recommend:\n\n🥇 **Top Picks for You:**\n\n1. **Mobile Application Development** - Build an app solving a business problem\n\n2. **Coding & Programming** - Demonstrate programming skills\n\n3. **Website Design** - Create a website for a business scenario\n\n4. **Social Media Strategies** - Develop a social media campaign\n\nWant me to tell you more about any of these?",
-                suggestions: [
-                    'Tell me about Mobile App Dev',
-                    'How do I sign up?',
-                    'Study resources for Coding',
-                ],
-            };
-        }
-
-        // Default response
         return {
-            content: "I'd be happy to help with that! While I work on finding the best answer, here are some things I can definitely help you with:\n\n• 📅 Event schedules and deadlines\n• 📚 Competition guidelines and rubrics\n• 🎯 Personalized event recommendations\n• 📝 Study tips and resources\n• 👔 Dress code information\n\nCould you tell me more about what you're looking for?",
+            content: "I'm looking into that for you! FBLA has a lot of great opportunities. Is there a specific division or category you're interested in?",
             suggestions: [
-                'Upcoming deadlines',
-                'Competition prep tips',
-                'FBLA resources',
+                'High School Division',
+                'Middle School Division',
+                'Collegiate Division',
             ],
         };
     };
 
     return (
-        <KeyboardAvoidingView
-            style={styles.container}
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            keyboardVerticalOffset={90}
-        >
-            {/* Messages */}
-            <ScrollView
-                ref={scrollViewRef}
-                style={styles.messagesContainer}
-                contentContainerStyle={styles.messagesContent}
+        <View style={styles.container}>
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
             >
-                {/* Quick Prompts */}
-                {messages.length === 1 && (
-                    <View style={styles.quickPromptsContainer}>
-                        <Text style={styles.quickPromptsTitle}>Quick Questions</Text>
-                        <View style={styles.quickPromptsGrid}>
-                            {quickPrompts.map((prompt, index) => (
-                                <TouchableOpacity
-                                    key={index}
-                                    style={styles.quickPrompt}
-                                    onPress={() => sendMessage(prompt.text)}
-                                >
-                                    <Text style={styles.quickPromptIcon}>{prompt.icon}</Text>
-                                    <Text style={styles.quickPromptText}>{prompt.text}</Text>
-                                </TouchableOpacity>
-                            ))}
+                <ScrollView
+                    ref={scrollViewRef}
+                    style={styles.messagesContainer}
+                    contentContainerStyle={styles.messagesContent}
+                    showsVerticalScrollIndicator={false}
+                >
+                    {messages.length === 1 && (
+                        <View style={styles.quickPromptsContainer}>
+                            <Text style={styles.quickPromptsTitle}>Quick Questions</Text>
+                            <View style={styles.quickPromptsGrid}>
+                                {quickPrompts.map((prompt, index) => (
+                                    <TouchableOpacity
+                                        key={index}
+                                        onPress={() => sendMessage(prompt.text)}
+                                    >
+                                        <Card style={styles.quickPrompt}>
+                                            <Card.Content style={styles.quickPromptContent}>
+                                                <Text style={styles.quickPromptIcon}>{prompt.icon}</Text>
+                                                <Text style={styles.quickPromptText}>{prompt.text}</Text>
+                                            </Card.Content>
+                                        </Card>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
                         </View>
-                    </View>
-                )}
+                    )}
 
-                {/* Messages */}
-                {messages.map(message => (
-                    <MessageBubble
-                        key={message.id}
-                        message={message}
-                        onSuggestionPress={sendMessage}
-                    />
-                ))}
+                    {messages.map((message, index) => (
+                        <MotiView
+                            key={message.id}
+                            from={{ opacity: 0, translateY: 10 }}
+                            animate={{ opacity: 1, translateY: 0 }}
+                            transition={{ type: 'timing', duration: 300 }}
+                        >
+                            <MessageBubble
+                                message={message}
+                                onSuggestionPress={sendMessage}
+                            />
+                        </MotiView>
+                    ))}
 
-                {/* Typing Indicator */}
-                {isTyping && (
-                    <View style={styles.typingContainer}>
-                        <View style={styles.typingBubble}>
-                            <ActivityIndicator size="small" color={colors.primary[600]} />
-                            <Text style={styles.typingText}>AI is thinking...</Text>
+                    {isTyping && (
+                        <View style={styles.typingContainer}>
+                            <View style={styles.typingBubble}>
+                                <ActivityIndicator size={12} color={colors.primary[600]} />
+                                <Text style={styles.typingText}>Thinking...</Text>
+                            </View>
                         </View>
-                    </View>
-                )}
-            </ScrollView>
+                    )}
+                </ScrollView>
 
-            {/* Input Area */}
-            <View style={styles.inputContainer}>
-                <View style={styles.inputWrapper}>
-                    <TextInput
-                        value={inputText}
-                        onChangeText={setInputText}
-                        placeholder="Ask me anything about FBLA..."
-                        style={styles.textInput}
-                        mode="flat"
-                        multiline
-                        maxLength={500}
-                        right={
-                            <TextInput.Icon
+                <View style={styles.inputContainer}>
+                    <Card style={styles.inputWrapper}>
+                        <View style={styles.inputRow}>
+                            <TextInput
+                                value={inputText}
+                                onChangeText={setInputText}
+                                placeholder="Ask FBLA AI..."
+                                placeholderTextColor={colors.neutral[400]}
+                                style={styles.textInput}
+                                textColor={colors.neutral[900]}
+                                mode="flat"
+                                multiline
+                                maxLength={500}
+                                underlineColor="transparent"
+                                activeUnderlineColor="transparent"
+                                dense
+                            />
+                            <IconButton
                                 icon="send"
-                                color={inputText.trim() ? colors.primary[600] : colors.neutral[300]}
+                                iconColor={inputText.trim() ? colors.primary[600] : colors.neutral[300]}
+                                size={24}
                                 onPress={() => sendMessage(inputText)}
                                 disabled={!inputText.trim()}
                             />
-                        }
-                    />
+                        </View>
+                    </Card>
                 </View>
-            </View>
-        </KeyboardAvoidingView>
+            </KeyboardAvoidingView>
+        </View>
     );
 }
 
@@ -227,12 +207,11 @@ function MessageBubble({
 
     return (
         <View style={[styles.messageBubbleContainer, isUser && styles.userBubbleContainer]}>
-            {!isUser && (
-                <View style={styles.assistantAvatar}>
-                    <Ionicons name="sparkles" size={16} color={colors.primary[600]} />
-                </View>
-            )}
-            <View style={[styles.messageBubble, isUser ? styles.userBubble : styles.assistantBubble]}>
+            <View style={[
+                styles.messageBubble,
+                isUser ? styles.userBubble : styles.assistantBubble,
+                shadows.sm
+            ]}>
                 <Text style={[styles.messageText, isUser && styles.userMessageText]}>
                     {message.content}
                 </Text>
@@ -246,7 +225,9 @@ function MessageBubble({
                             style={styles.suggestionChip}
                             onPress={() => onSuggestionPress(suggestion)}
                         >
-                            <Text style={styles.suggestionText}>{suggestion}</Text>
+                            <View style={styles.suggestionInner}>
+                                <Text style={styles.suggestionText}>{suggestion}</Text>
+                            </View>
                         </TouchableOpacity>
                     ))}
                 </View>
@@ -265,14 +246,18 @@ const styles = StyleSheet.create({
     },
     messagesContent: {
         padding: spacing.md,
-        paddingBottom: spacing.xl,
+        paddingBottom: 40,
     },
     quickPromptsContainer: {
-        marginBottom: spacing.lg,
+        marginBottom: spacing.xl,
+        marginTop: spacing.md,
     },
     quickPromptsTitle: {
-        fontSize: typography.fontSize.sm,
-        color: colors.neutral[500],
+        fontSize: 12,
+        fontWeight: 'bold',
+        color: colors.neutral[400],
+        textTransform: 'uppercase',
+        letterSpacing: 1,
         marginBottom: spacing.md,
         textAlign: 'center',
     },
@@ -280,61 +265,55 @@ const styles = StyleSheet.create({
         gap: spacing.sm,
     },
     quickPrompt: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 15,
+        elevation: 2,
+    },
+    quickPromptContent: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#FFFFFF',
-        padding: spacing.md,
-        borderRadius: borderRadius.lg,
-        borderWidth: 1,
-        borderColor: colors.neutral[200],
+        padding: spacing.sm,
     },
     quickPromptIcon: {
         fontSize: 20,
         marginRight: spacing.sm,
     },
     quickPromptText: {
-        fontSize: typography.fontSize.sm,
+        fontSize: 14,
         color: colors.neutral[700],
+        fontWeight: '600',
         flex: 1,
     },
     messageBubbleContainer: {
-        marginBottom: spacing.md,
+        marginBottom: spacing.lg,
         alignItems: 'flex-start',
     },
     userBubbleContainer: {
         alignItems: 'flex-end',
     },
-    assistantAvatar: {
-        width: 28,
-        height: 28,
-        borderRadius: 14,
-        backgroundColor: colors.primary[100],
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: spacing.xs,
-    },
     messageBubble: {
         maxWidth: '85%',
         padding: spacing.md,
-        borderRadius: borderRadius.lg,
+        borderRadius: 18,
     },
     userBubble: {
+        borderBottomRightRadius: 2,
         backgroundColor: colors.primary[600],
-        borderBottomRightRadius: 4,
     },
     assistantBubble: {
+        borderBottomLeftRadius: 2,
         backgroundColor: '#FFFFFF',
-        borderBottomLeftRadius: 4,
         borderWidth: 1,
-        borderColor: colors.neutral[200],
+        borderColor: colors.neutral[100],
     },
     messageText: {
-        fontSize: typography.fontSize.md,
+        fontSize: 15,
         color: colors.neutral[800],
-        lineHeight: 24,
+        lineHeight: 22,
     },
     userMessageText: {
         color: '#FFFFFF',
+        fontWeight: '500',
     },
     suggestionsContainer: {
         marginTop: spacing.sm,
@@ -344,47 +323,64 @@ const styles = StyleSheet.create({
     },
     suggestionChip: {
         backgroundColor: colors.primary[50],
-        paddingHorizontal: spacing.md,
-        paddingVertical: spacing.sm,
-        borderRadius: borderRadius.full,
+        paddingHorizontal: 14,
+        paddingVertical: 8,
+        borderRadius: 20,
         borderWidth: 1,
-        borderColor: colors.primary[200],
+        borderColor: colors.primary[100],
+    },
+    suggestionInner: {
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     suggestionText: {
-        fontSize: typography.fontSize.sm,
-        color: colors.primary[700],
+        fontSize: 13,
+        color: colors.primary[600],
+        fontWeight: '600',
     },
     typingContainer: {
-        alignItems: 'flex-start',
+        marginBottom: spacing.lg,
     },
     typingBubble: {
         flexDirection: 'row',
         alignItems: 'center',
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.sm,
         backgroundColor: '#FFFFFF',
-        padding: spacing.md,
-        borderRadius: borderRadius.lg,
+        borderRadius: 15,
         borderWidth: 1,
-        borderColor: colors.neutral[200],
+        borderColor: colors.neutral[100],
+        alignSelf: 'flex-start',
     },
     typingText: {
-        marginLeft: spacing.sm,
-        fontSize: typography.fontSize.sm,
-        color: colors.neutral[500],
+        marginLeft: spacing.xs,
+        fontSize: 12,
+        color: colors.neutral[400],
+        fontWeight: '600',
     },
     inputContainer: {
-        backgroundColor: '#FFFFFF',
-        borderTopWidth: 1,
-        borderTopColor: colors.neutral[200],
-        padding: spacing.sm,
+        padding: spacing.md,
+        paddingBottom: Platform.OS === 'ios' ? 40 : spacing.md,
+        backgroundColor: colors.neutral[50],
     },
     inputWrapper: {
-        backgroundColor: colors.neutral[100],
-        borderRadius: borderRadius.xl,
-        overflow: 'hidden',
+        borderRadius: 25,
+        backgroundColor: '#FFFFFF',
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+    },
+    inputRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingLeft: spacing.sm,
     },
     textInput: {
+        flex: 1,
         backgroundColor: 'transparent',
-        paddingHorizontal: spacing.md,
-        maxHeight: 100,
+        maxHeight: 120,
+        fontSize: 15,
     },
 });

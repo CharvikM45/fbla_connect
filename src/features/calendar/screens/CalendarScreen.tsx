@@ -7,54 +7,41 @@ import {
     TouchableOpacity,
     Dimensions,
 } from 'react-native';
-import { Text, Card, Chip, FAB, Portal, Modal, Button } from 'react-native-paper';
+import { Text, Card, Chip, Portal, Modal, Button, ActivityIndicator } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector, useAppDispatch } from '../../../shared/hooks/useRedux';
 import { setEvents, toggleRSVP, CalendarEvent, EventType, EventLevel } from '../calendarSlice';
 import { colors, spacing, typography, borderRadius, shadows } from '../../../shared/theme';
-
-// Import datasets
-import CONFERENCES from '../../../assets/data/conferences.json';
+import { MotiView } from 'moti';
 
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 
 const { width } = Dimensions.get('window');
 
-// Initial demo events for chapter-specific local meetings
-const initialChapterEvents: CalendarEvent[] = [
-    {
-        id: 'local-1',
-        title: 'Weekly Chapter Meeting',
-        description: 'Regular chapter meeting with competition prep workshop',
-        type: 'meeting',
-        level: 'chapter',
-        location: 'Room 204',
-        startDate: new Date(Date.now() + 86400000 * 2).toISOString(),
-        endDate: new Date(Date.now() + 86400000 * 2 + 3600000).toISOString(),
-        allDay: false,
-        reminderEnabled: true,
-        isRSVPed: true,
-        organizer: 'Local Chapter',
-        tags: ['Meeting', 'Competition Prep'],
-    },
-];
-
 export default function CalendarScreen() {
     const dispatch = useAppDispatch();
     const user = useAppSelector(state => state.auth.user);
-    const { events: reduxEvents } = useAppSelector(state => state.calendar);
     const [selectedFilter, setSelectedFilter] = useState<EventType | 'all'>('all');
     const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
     const [showEventModal, setShowEventModal] = useState(false);
 
-    // Convex Query
+    // Convex Queries
     const liveConferences = useQuery(api.conferences.getConferences, {
-        stateId: user?.state
+        stateId: user?.state || "NE" // Default to NE for Nebraska focus
+    });
+
+    const liveMeetings = useQuery(api.meetings.getMeetings, {
+        chapterId: user?.chapterName || "lincoln-high" // Fallback for demo
     });
 
     const events = React.useMemo((): CalendarEvent[] => {
-        const liveMapped: CalendarEvent[] = (liveConferences || []).map((conf: any) => ({
+        // Use live data if available, otherwise empty
+        const sourceConferences = (liveConferences && liveConferences.length > 0)
+            ? liveConferences
+            : [];
+
+        const confMapped: CalendarEvent[] = sourceConferences.map((conf: any) => ({
             id: conf._id || conf.id,
             title: conf.name,
             description: `${conf.level} level ${conf.type} conference.`,
@@ -62,42 +49,39 @@ export default function CalendarScreen() {
             level: conf.level.toLowerCase() as EventLevel,
             location: conf.location,
             startDate: new Date(conf.date).toISOString(),
-            endDate: new Date(conf.endDate).toISOString(),
+            endDate: new Date(conf.endDate || conf.date).toISOString(),
             allDay: true,
             reminderEnabled: true,
             isRSVPed: false,
-            organizer: conf.level === 'National' ? 'FBLA National' : `${conf.stateId} FBLA`,
+            organizer: conf.level === 'National' ? 'FBLA National' : `${conf.stateId || 'State'} FBLA`,
             tags: [conf.type, conf.level],
         }));
 
-        if (liveMapped.length > 0) {
-            return [...initialChapterEvents, ...liveMapped];
-        }
+        const meetingMapped: CalendarEvent[] = (liveMeetings || []).map((meeting: any) => ({
+            id: meeting._id,
+            title: meeting.title,
+            description: meeting.description,
+            type: 'meeting',
+            level: 'chapter',
+            location: meeting.location,
+            startDate: meeting.date,
+            endDate: new Date(new Date(meeting.date).getTime() + 3600000).toISOString(),
+            allDay: false,
+            reminderEnabled: true,
+            isRSVPed: false,
+            organizer: `${user?.chapterName || 'Your'} Chapter`,
+            tags: ['Chapter', meeting.type],
+        }));
 
-        // Fallback to local JSON
-        const conferenceEvents: CalendarEvent[] = CONFERENCES
-            .filter((conf) => conf.level === 'National' || conf.stateId === user?.state)
-            .map((conf) => ({
-                id: conf.id,
-                title: conf.name,
-                description: `${conf.level} level ${conf.type} conference.`,
-                type: 'conference',
-                level: conf.level.toLowerCase() as EventLevel,
-                location: conf.location,
-                startDate: new Date(conf.date).toISOString(),
-                endDate: new Date(conf.endDate).toISOString(),
-                allDay: true,
-                reminderEnabled: true,
-                isRSVPed: false,
-                organizer: conf.level === 'National' ? 'FBLA National' : `${conf.stateId} FBLA`,
-                tags: [conf.type, conf.level],
-            }));
-
-        return [...initialChapterEvents, ...conferenceEvents];
-    }, [liveConferences, user?.state]);
+        return [...meetingMapped, ...confMapped].sort((a, b) =>
+            new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+        );
+    }, [liveConferences, liveMeetings, user?.chapterName, user?.state]);
 
     useEffect(() => {
-        dispatch(setEvents(events));
+        if (events.length > 0) {
+            dispatch(setEvents(events));
+        }
     }, [events]);
 
     const filteredEvents = selectedFilter === 'all'
@@ -125,11 +109,11 @@ export default function CalendarScreen() {
     const getTypeColor = (type: EventType) => {
         const colorsMap: Record<EventType, string> = {
             meeting: colors.primary[600],
-            competition: colors.secondary[600],
-            conference: colors.info.main,
-            deadline: colors.error.main,
-            workshop: colors.success.main,
-            social: colors.warning.main,
+            competition: colors.secondary[500],
+            conference: '#8B5CF6',
+            deadline: '#EF4444',
+            workshop: '#10B981',
+            social: '#F472B6',
             service: '#E91E63',
             other: colors.neutral[500],
         };
@@ -146,121 +130,143 @@ export default function CalendarScreen() {
         return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
     };
 
+    const isAdvisor = user?.role === 'officer' || user?.role === 'adviser';
+
     return (
         <View style={styles.container}>
-            {/* Filter Chips */}
+            {/* Header / Tabs */}
             <View style={styles.filterContainer}>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                     <View style={styles.filterRow}>
-                        {(['all', 'meeting', 'competition', 'conference', 'deadline'] as const).map((filter) => (
-                            <Chip
+                        {(['all', 'meeting', 'conference', 'competition'] as const).map((filter) => (
+                            <TouchableOpacity
                                 key={filter}
-                                selected={selectedFilter === filter}
                                 onPress={() => setSelectedFilter(filter)}
-                                style={[
-                                    styles.filterChip,
-                                    selectedFilter === filter && styles.filterChipSelected,
-                                ]}
-                                textStyle={[
-                                    styles.filterChipText,
-                                    selectedFilter === filter && styles.filterChipTextSelected,
-                                ]}
                             >
-                                {filter === 'all' ? 'All Events' : filter.charAt(0).toUpperCase() + filter.slice(1)}
-                            </Chip>
+                                <View
+                                    style={[
+                                        styles.filterChip,
+                                        selectedFilter === filter ? styles.filterChipSelected : styles.filterChipUnselected,
+                                    ]}
+                                >
+                                    <Text style={[
+                                        styles.filterChipText,
+                                        selectedFilter === filter && styles.filterChipTextSelected,
+                                    ]}>
+                                        {filter === 'all' ? 'All Events' : filter === 'conference' ? 'Conferences' : filter.charAt(0).toUpperCase() + filter.slice(1)}
+                                    </Text>
+                                </View>
+                            </TouchableOpacity>
                         ))}
                     </View>
                 </ScrollView>
             </View>
 
             {/* Events List */}
-            <ScrollView style={styles.eventsList}>
-                <Text style={styles.upcomingTitle}>Upcoming Events</Text>
+            <ScrollView style={styles.eventsList} showsVerticalScrollIndicator={false}>
+                {events.length === 0 ? (
+                    <View style={styles.loadingContainer}>
+                        <ActivityIndicator color={colors.primary[600]} />
+                    </View>
+                ) : (
+                    <>
+                        <View style={styles.sectionHeader}>
+                            <Text style={styles.upcomingTitle}>
+                                {selectedFilter === 'meeting' ? 'Chapter Meetings' :
+                                    selectedFilter === 'conference' ? 'FBLA Conferences' :
+                                        'Your Schedule'}
+                            </Text>
+                            {isAdvisor && selectedFilter === 'meeting' && (
+                                <TouchableOpacity style={styles.addMeetingBtn}>
+                                    <Ionicons name="add" size={18} color={colors.primary[600]} />
+                                    <Text style={styles.addMeetingText}>Add Meeting</Text>
+                                </TouchableOpacity>
+                            )}
+                        </View>
 
-                {filteredEvents.map((event) => (
-                    <TouchableOpacity
-                        key={event.id}
-                        onPress={() => {
-                            setSelectedEvent(event);
-                            setShowEventModal(true);
-                        }}
-                    >
-                        <Card style={styles.eventCard}>
-                            <Card.Content style={styles.eventContent}>
-                                <View
-                                    style={[
-                                        styles.eventTypeIndicator,
-                                        { backgroundColor: getTypeColor(event.type) },
-                                    ]}
-                                />
-                                <View style={styles.eventInfo}>
-                                    <View style={styles.eventHeader}>
-                                        <Chip
-                                            style={[
-                                                styles.levelChip,
-                                                { backgroundColor: getTypeColor(event.type) + '20' },
-                                            ]}
-                                            textStyle={[
-                                                styles.levelChipText,
-                                                { color: getTypeColor(event.type) },
-                                            ]}
-                                        >
-                                            {event.level.charAt(0).toUpperCase() + event.level.slice(1)}
-                                        </Chip>
-                                        {event.isRSVPed && (
-                                            <View style={styles.rsvpBadge}>
-                                                <Ionicons name="checkmark-circle" size={16} color={colors.success.main} />
-                                                <Text style={styles.rsvpText}>RSVPed</Text>
+                        {filteredEvents.length === 0 ? (
+                            <View style={styles.emptyState}>
+                                <Ionicons name="calendar-clear-outline" size={64} color={colors.neutral[200]} />
+                                <Text style={styles.emptyStateTitle}>
+                                    {selectedFilter === 'meeting' ? "No meetings scheduled" : "Nothing scheduled here"}
+                                </Text>
+                                <Text style={styles.emptyStateDesc}>
+                                    {selectedFilter === 'meeting'
+                                        ? "No meetings have been added by your advisor yet."
+                                        : "Check back later for updates from FBLA National and Nebraska."}
+                                </Text>
+                            </View>
+                        ) : (
+                            filteredEvents.map((event, index) => (
+                                <MotiView
+                                    key={event.id}
+                                    from={{ opacity: 0, translateY: 20 }}
+                                    animate={{ opacity: 1, translateY: 0 }}
+                                    transition={{ delay: index * 50 }}
+                                >
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            setSelectedEvent(event);
+                                            setShowEventModal(true);
+                                        }}
+                                    >
+                                        <Card style={styles.eventCard}>
+                                            <View style={styles.eventContent}>
+                                                <View
+                                                    style={[
+                                                        styles.eventTypeIndicator,
+                                                        { backgroundColor: getTypeColor(event.type) },
+                                                    ]}
+                                                />
+                                                <View style={styles.eventInfo}>
+                                                    <View style={styles.eventHeader}>
+                                                        <View style={[styles.levelBadge, { backgroundColor: getTypeColor(event.type) + '15' }]}>
+                                                            <Text style={[styles.levelText, { color: getTypeColor(event.type) }]}>
+                                                                {event.level.toUpperCase()}
+                                                            </Text>
+                                                        </View>
+                                                        {event.isRSVPed && (
+                                                            <View style={styles.rsvpBadge}>
+                                                                <Ionicons name="sparkles" size={14} color={colors.secondary[500]} />
+                                                                <Text style={styles.rsvpText}>Going</Text>
+                                                            </View>
+                                                        )}
+                                                    </View>
+
+                                                    <Text style={styles.eventTitle}>{event.title}</Text>
+
+                                                    <View style={styles.eventDetails}>
+                                                        <View style={styles.eventDetail}>
+                                                            <Ionicons name="calendar-outline" size={14} color={colors.neutral[400]} />
+                                                            <Text style={styles.eventDetailText}>{formatDate(event.startDate)}</Text>
+                                                        </View>
+                                                        {!event.allDay && (
+                                                            <View style={styles.eventDetail}>
+                                                                <Ionicons name="time-outline" size={14} color={colors.neutral[400]} />
+                                                                <Text style={styles.eventDetailText}>{formatTime(event.startDate)}</Text>
+                                                            </View>
+                                                        )}
+                                                    </View>
+                                                </View>
+
+                                                <View style={styles.eventIcon}>
+                                                    <View style={[styles.iconCircle, { backgroundColor: getTypeColor(event.type) + '10' }]}>
+                                                        <Ionicons
+                                                            name={getTypeIcon(event.type) as any}
+                                                            size={20}
+                                                            color={getTypeColor(event.type)}
+                                                        />
+                                                    </View>
+                                                </View>
                                             </View>
-                                        )}
-                                    </View>
-
-                                    <Text style={styles.eventTitle}>{event.title}</Text>
-
-                                    <View style={styles.eventDetails}>
-                                        <View style={styles.eventDetail}>
-                                            <Ionicons name="calendar-outline" size={14} color={colors.neutral[500]} />
-                                            <Text style={styles.eventDetailText}>{formatDate(event.startDate)}</Text>
-                                        </View>
-                                        {!event.allDay && (
-                                            <View style={styles.eventDetail}>
-                                                <Ionicons name="time-outline" size={14} color={colors.neutral[500]} />
-                                                <Text style={styles.eventDetailText}>{formatTime(event.startDate)}</Text>
-                                            </View>
-                                        )}
-                                        {event.location && (
-                                            <View style={styles.eventDetail}>
-                                                <Ionicons name="location-outline" size={14} color={colors.neutral[500]} />
-                                                <Text style={styles.eventDetailText}>{event.location}</Text>
-                                            </View>
-                                        )}
-                                    </View>
-
-                                    {event.registrationDeadline && new Date(event.registrationDeadline) > new Date() && (
-                                        <View style={styles.deadlineWarning}>
-                                            <Ionicons name="warning" size={14} color={colors.warning.dark} />
-                                            <Text style={styles.deadlineText}>
-                                                Register by {formatDate(event.registrationDeadline)}
-                                            </Text>
-                                        </View>
-                                    )}
-                                </View>
-
-                                <View style={styles.eventIcon}>
-                                    <View style={[styles.iconCircle, { backgroundColor: getTypeColor(event.type) + '20' }]}>
-                                        <Ionicons
-                                            name={getTypeIcon(event.type) as any}
-                                            size={20}
-                                            color={getTypeColor(event.type)}
-                                        />
-                                    </View>
-                                </View>
-                            </Card.Content>
-                        </Card>
-                    </TouchableOpacity>
-                ))}
-
-                <View style={{ height: 100 }} />
+                                        </Card>
+                                    </TouchableOpacity>
+                                </MotiView>
+                            ))
+                        )}
+                    </>
+                )}
+                <View style={{ height: 120 }} />
             </ScrollView>
 
             {/* Event Detail Modal */}
@@ -268,58 +274,64 @@ export default function CalendarScreen() {
                 <Modal
                     visible={showEventModal}
                     onDismiss={() => setShowEventModal(false)}
-                    contentContainerStyle={styles.modal}
+                    contentContainerStyle={styles.modalContainer}
                 >
                     {selectedEvent && (
-                        <View>
+                        <Card style={styles.modalContent}>
                             <View style={styles.modalHeader}>
                                 <View style={[styles.modalIcon, { backgroundColor: getTypeColor(selectedEvent.type) }]}>
                                     <Ionicons
                                         name={getTypeIcon(selectedEvent.type) as any}
-                                        size={24}
+                                        size={32}
                                         color="#FFFFFF"
                                     />
                                 </View>
                                 <Text style={styles.modalTitle}>{selectedEvent.title}</Text>
+                                <View style={[styles.levelBadge, { backgroundColor: getTypeColor(selectedEvent.type) + '15', alignSelf: 'center' }]}>
+                                    <Text style={[styles.levelText, { color: getTypeColor(selectedEvent.type) }]}>
+                                        {selectedEvent.level.toUpperCase()}
+                                    </Text>
+                                </View>
                             </View>
 
                             <Text style={styles.modalDescription}>{selectedEvent.description}</Text>
 
                             <View style={styles.modalDetails}>
                                 <View style={styles.modalDetailRow}>
-                                    <Ionicons name="calendar" size={18} color={colors.neutral[500]} />
+                                    <Ionicons name="calendar" size={18} color={colors.primary[600]} />
                                     <Text style={styles.modalDetailText}>{formatDate(selectedEvent.startDate)}</Text>
                                 </View>
                                 {!selectedEvent.allDay && (
                                     <View style={styles.modalDetailRow}>
-                                        <Ionicons name="time" size={18} color={colors.neutral[500]} />
+                                        <Ionicons name="time" size={18} color={colors.primary[600]} />
                                         <Text style={styles.modalDetailText}>{formatTime(selectedEvent.startDate)}</Text>
                                     </View>
-                                )}
+                                ) || <View style={styles.modalDetailRow}><Ionicons name="time" size={18} color={colors.primary[600]} /><Text style={styles.modalDetailText}>All Day</Text></View>}
                                 {selectedEvent.location && (
                                     <View style={styles.modalDetailRow}>
-                                        <Ionicons name="location" size={18} color={colors.neutral[500]} />
+                                        <Ionicons name="location" size={18} color={colors.primary[600]} />
                                         <Text style={styles.modalDetailText}>{selectedEvent.location}</Text>
                                     </View>
                                 )}
                             </View>
 
                             <View style={styles.modalActions}>
-                                <Button
-                                    mode={selectedEvent.isRSVPed ? 'outlined' : 'contained'}
+                                <TouchableOpacity
+                                    style={[styles.rsvpButton, { backgroundColor: selectedEvent.isRSVPed ? colors.neutral[100] : colors.primary[600] }]}
                                     onPress={() => handleRSVP(selectedEvent.id)}
-                                    style={styles.rsvpButton}
                                 >
-                                    {selectedEvent.isRSVPed ? 'Cancel RSVP' : 'RSVP'}
-                                </Button>
-                                <Button
-                                    mode="outlined"
+                                    <Text style={[styles.rsvpButtonText, { color: selectedEvent.isRSVPed ? colors.neutral[700] : '#FFFFFF' }]}>
+                                        {selectedEvent.isRSVPed ? 'Cancel RSVP' : 'RSVP Now'}
+                                    </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={styles.closeButton}
                                     onPress={() => setShowEventModal(false)}
                                 >
-                                    Close
-                                </Button>
+                                    <Text style={styles.closeButtonText}>Close</Text>
+                                </TouchableOpacity>
                             </View>
-                        </View>
+                        </Card>
                     )}
                 </Modal>
             </Portal>
@@ -333,8 +345,8 @@ const styles = StyleSheet.create({
         backgroundColor: colors.neutral[50],
     },
     filterContainer: {
+        paddingVertical: spacing.md,
         backgroundColor: '#FFFFFF',
-        paddingVertical: spacing.sm,
         borderBottomWidth: 1,
         borderBottomColor: colors.neutral[100],
     },
@@ -344,13 +356,21 @@ const styles = StyleSheet.create({
         gap: spacing.sm,
     },
     filterChip: {
-        backgroundColor: colors.neutral[100],
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 20,
+    },
+    filterChipUnselected: {
+        backgroundColor: colors.neutral[50],
     },
     filterChipSelected: {
         backgroundColor: colors.primary[600],
+        elevation: 2,
     },
     filterChipText: {
         color: colors.neutral[600],
+        fontWeight: '700',
+        fontSize: 13,
     },
     filterChipTextSelected: {
         color: '#FFFFFF',
@@ -359,24 +379,50 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: spacing.md,
     },
+    sectionHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: spacing.lg,
+    },
     upcomingTitle: {
-        fontSize: typography.fontSize.lg,
-        fontWeight: '600',
-        color: colors.neutral[800],
-        marginBottom: spacing.md,
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: colors.neutral[900],
+        letterSpacing: -0.5,
+    },
+    addMeetingBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: colors.primary[50],
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 10,
+        gap: 4,
+    },
+    addMeetingText: {
+        fontSize: 12,
+        fontWeight: 'bold',
+        color: colors.primary[600],
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 100,
     },
     eventCard: {
         marginBottom: spacing.md,
-        borderRadius: borderRadius.lg,
+        borderRadius: 20,
         backgroundColor: '#FFFFFF',
+        elevation: 2,
         overflow: 'hidden',
     },
     eventContent: {
         flexDirection: 'row',
-        padding: 0,
     },
     eventTypeIndicator: {
-        width: 4,
+        width: 6,
         alignSelf: 'stretch',
     },
     eventInfo: {
@@ -386,14 +432,16 @@ const styles = StyleSheet.create({
     eventHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: spacing.sm,
+        marginBottom: 8,
     },
-    levelChip: {
-        // height: 24,
+    levelBadge: {
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 6,
     },
-    levelChipText: {
-        fontSize: typography.fontSize.xs,
-        fontWeight: '600',
+    levelText: {
+        fontSize: 10,
+        fontWeight: 'bold',
     },
     rsvpBadge: {
         flexDirection: 'row',
@@ -401,16 +449,16 @@ const styles = StyleSheet.create({
         marginLeft: spacing.sm,
     },
     rsvpText: {
-        fontSize: typography.fontSize.xs,
-        color: colors.success.main,
+        fontSize: 10,
+        color: colors.secondary[600],
         marginLeft: 4,
-        fontWeight: '500',
+        fontWeight: 'bold',
     },
     eventTitle: {
-        fontSize: typography.fontSize.md,
-        fontWeight: '600',
+        fontSize: 17,
+        fontWeight: 'bold',
         color: colors.neutral[900],
-        marginBottom: spacing.sm,
+        marginBottom: 8,
     },
     eventDetails: {
         flexDirection: 'row',
@@ -422,23 +470,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     eventDetailText: {
-        fontSize: typography.fontSize.sm,
+        fontSize: 12,
         color: colors.neutral[500],
         marginLeft: 4,
-    },
-    deadlineWarning: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: spacing.sm,
-        backgroundColor: colors.warning.light,
-        padding: spacing.sm,
-        borderRadius: borderRadius.sm,
-    },
-    deadlineText: {
-        fontSize: typography.fontSize.xs,
-        color: colors.warning.dark,
-        marginLeft: 4,
-        fontWeight: '500',
     },
     eventIcon: {
         padding: spacing.md,
@@ -451,54 +485,104 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    modal: {
+    emptyState: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 60,
+        paddingHorizontal: spacing.xl,
+    },
+    emptyStateTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: colors.neutral[400],
+        marginTop: spacing.md,
+    },
+    emptyStateDesc: {
+        fontSize: 14,
+        color: colors.neutral[400],
+        textAlign: 'center',
+        marginTop: 8,
+        lineHeight: 20,
+    },
+    modalContainer: {
+        margin: 20,
+    },
+    modalContent: {
+        borderRadius: 30,
+        padding: spacing.xl,
         backgroundColor: '#FFFFFF',
-        margin: spacing.lg,
-        borderRadius: borderRadius.xl,
-        padding: spacing.lg,
     },
     modalHeader: {
         alignItems: 'center',
-        marginBottom: spacing.lg,
+        marginBottom: spacing.xl,
     },
     modalIcon: {
-        width: 56,
-        height: 56,
-        borderRadius: 28,
+        width: 70,
+        height: 70,
+        borderRadius: 35,
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: spacing.md,
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
     },
     modalTitle: {
-        fontSize: typography.fontSize.xl,
+        fontSize: 22,
         fontWeight: 'bold',
         color: colors.neutral[900],
         textAlign: 'center',
+        marginBottom: 8,
     },
     modalDescription: {
-        fontSize: typography.fontSize.md,
+        fontSize: 15,
         color: colors.neutral[600],
-        lineHeight: 24,
-        marginBottom: spacing.lg,
+        lineHeight: 22,
+        marginBottom: spacing.xl,
+        textAlign: 'center',
     },
     modalDetails: {
-        marginBottom: spacing.lg,
+        marginBottom: spacing.xl,
     },
     modalDetailRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: spacing.sm,
+        marginBottom: spacing.md,
+        backgroundColor: colors.neutral[50],
+        padding: spacing.md,
+        borderRadius: 15,
     },
     modalDetailText: {
-        fontSize: typography.fontSize.md,
-        color: colors.neutral[700],
-        marginLeft: spacing.sm,
+        fontSize: 15,
+        color: colors.neutral[800],
+        marginLeft: spacing.md,
+        fontWeight: '600',
     },
     modalActions: {
-        flexDirection: 'row',
         gap: spacing.md,
     },
     rsvpButton: {
-        flex: 1,
+        height: 54,
+        borderRadius: 16,
+        justifyContent: 'center',
+        alignItems: 'center',
+        elevation: 2,
+    },
+    rsvpButtonText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    closeButton: {
+        height: 54,
+        borderRadius: 16,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    closeButtonText: {
+        fontSize: 16,
+        color: colors.neutral[500],
+        fontWeight: '600',
     },
 });

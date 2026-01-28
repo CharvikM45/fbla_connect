@@ -1,9 +1,13 @@
 // FBLA Connect - Main Tab Navigator
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { MainTabParamList } from './types';
 import { colors } from '../theme';
+import { LinearGradient } from 'expo-linear-gradient';
+
+// Import navigators
 
 // Import navigators
 import HomeNavigator from './HomeNavigator';
@@ -21,7 +25,7 @@ type IconName = 'home' | 'home-outline' | 'calendar' | 'calendar-outline' |
 const getTabIcon = (routeName: string, focused: boolean): IconName => {
     const icons: { [key: string]: { focused: IconName; unfocused: IconName } } = {
         Home: { focused: 'home', unfocused: 'home-outline' },
-        Calendar: { focused: 'calendar', unfocused: 'calendar-outline' },
+        Events: { focused: 'calendar', unfocused: 'calendar-outline' },
         Resources: { focused: 'document-text', unfocused: 'document-text-outline' },
         AI: { focused: 'chatbubbles', unfocused: 'chatbubbles-outline' },
         Profile: { focused: 'person', unfocused: 'person-outline' },
@@ -37,10 +41,15 @@ export default function MainTabNavigator() {
                 headerShown: true,
                 headerStyle: {
                     backgroundColor: colors.primary[600],
+                    borderBottomWidth: 0,
+                    elevation: 0,
+                    shadowOpacity: 0,
                 },
                 headerTintColor: '#FFFFFF',
                 headerTitleStyle: {
-                    fontWeight: '600',
+                    fontWeight: '700',
+                    fontSize: 20,
+                    letterSpacing: 0.5,
                 },
                 tabBarIcon: ({ focused, color, size }) => {
                     const iconName = getTabIcon(route.name, focused);
@@ -50,14 +59,16 @@ export default function MainTabNavigator() {
                 tabBarInactiveTintColor: colors.neutral[400],
                 tabBarStyle: {
                     backgroundColor: '#FFFFFF',
+                    borderTopWidth: 1,
                     borderTopColor: colors.neutral[200],
-                    paddingBottom: 4,
                     height: 60,
+                    paddingBottom: 8,
                 },
                 tabBarLabelStyle: {
-                    fontSize: 12,
-                    fontWeight: '500',
+                    fontSize: 10,
+                    fontWeight: '600',
                 },
+                tabBarHideOnKeyboard: true,
             })}
         >
             <Tab.Screen
@@ -66,7 +77,7 @@ export default function MainTabNavigator() {
                 options={{ title: 'FBLA Connect', headerShown: false }}
             />
             <Tab.Screen
-                name="Calendar"
+                name="Events"
                 component={CalendarScreen}
                 options={{ title: 'Events' }}
             />

@@ -5,11 +5,11 @@ import {
     StyleSheet,
     ScrollView,
     TouchableOpacity,
-    TextInput as RNTextInput,
+    Dimensions,
 } from 'react-native';
-import { Text, Card, Chip, Searchbar, IconButton, ProgressBar } from 'react-native-paper';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Text, Searchbar, IconButton, ProgressBar, Card } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
+import { MotiView } from 'moti';
 import { useAppSelector, useAppDispatch } from '../../../shared/hooks/useRedux';
 import {
     setResources,
@@ -21,80 +21,68 @@ import {
     Resource,
     ResourceCategory,
 } from '../resourcesSlice';
-import { colors, spacing, typography, borderRadius, shadows } from '../../../shared/theme';
+import InAppBrowserModal from '../../../shared/components/InAppBrowserModal';
+import { colors, spacing, typography, borderRadius } from '../../../shared/theme';
 
-// Demo resources
-const demoResources: Resource[] = [
+const { width } = Dimensions.get('window');
+
+const realResources: Resource[] = [
     {
-        id: '1',
+        id: 'res-guidelines-26',
         title: '2025-2026 Competitive Events Guidelines',
-        description: 'Complete guide for all FBLA competitive events',
+        description: 'The official comprehensive guide for all High School competitive events, including rules and format.',
         type: 'pdf',
         category: 'guidelines',
-        url: 'https://fbla.org/guidelines.pdf',
-        fileSize: 2500000,
-        lastUpdated: new Date().toISOString(),
-        tags: ['Competition', 'Guidelines', 'Official'],
-        relatedEvents: ['mobile-app-dev', 'coding-prog'],
+        url: 'https://www.fbla.org/wp-content/uploads/2024/08/2025-2026-Competitive-Events-Guidelines.pdf',
+        fileSize: 3200000,
+        lastUpdated: '2024-08-15T00:00:00Z',
+        tags: ['Competition', 'Guidelines', 'Official', '2025-2026'],
+        relatedEvents: [],
         isFavorite: false,
         isDownloaded: false,
     },
     {
-        id: '2',
-        title: 'Mobile Application Development Rubric',
-        description: 'Scoring rubric for Mobile App Dev competition',
-        type: 'pdf',
-        category: 'rubrics',
-        url: 'https://fbla.org/mad-rubric.pdf',
-        fileSize: 500000,
-        lastUpdated: new Date().toISOString(),
-        tags: ['Mobile App Dev', 'Rubric', 'Scoring'],
-        relatedEvents: ['mobile-app-dev'],
-        isFavorite: true,
-        isDownloaded: true,
-    },
-    {
-        id: '3',
-        title: 'Professional Dress Code',
-        description: 'FBLA dress code requirements for competitions',
+        id: 'res-dress-code',
+        title: 'FBLA Professional Dress Code',
+        description: 'Official National FBLA guidelines for professional attire at conferences and competitions.',
         type: 'pdf',
         category: 'dress-code',
-        url: 'https://fbla.org/dress-code.pdf',
-        fileSize: 300000,
-        lastUpdated: new Date().toISOString(),
-        tags: ['Dress Code', 'Professional', 'Competition'],
+        url: 'https://www.fbla.org/wp-content/uploads/2023/07/FBLA-Dress-Code.pdf',
+        fileSize: 450000,
+        lastUpdated: '2023-07-01T00:00:00Z',
+        tags: ['Dress Code', 'Professional', 'Etiquette'],
+        relatedEvents: [],
+        isFavorite: true,
+        isDownloaded: false,
+    },
+    {
+        id: 'res-format-guide',
+        title: 'Format Guide & Sample Documents',
+        description: 'Standardized formatting for business reports, letters, and production events.',
+        type: 'pdf',
+        category: 'guidelines',
+        url: 'https://www.fbla.org/wp-content/uploads/2023/08/2023-24-Format-Guide.pdf',
+        fileSize: 1200000,
+        lastUpdated: '2023-08-01T00:00:00Z',
+        tags: ['Formatting', 'Reports', 'Production'],
         relatedEvents: [],
         isFavorite: false,
         isDownloaded: false,
     },
     {
-        id: '4',
-        title: 'FBLA Code of Conduct',
-        description: 'Member code of conduct and ethics guidelines',
+        id: 'res-general-rubric',
+        title: 'General Presentation Rubric',
+        description: 'The standard rubric used for most individual and team presentation events.',
         type: 'pdf',
-        category: 'code-of-conduct',
-        url: 'https://fbla.org/code-of-conduct.pdf',
-        fileSize: 200000,
-        lastUpdated: new Date().toISOString(),
-        tags: ['Ethics', 'Conduct', 'Rules'],
+        category: 'rubrics',
+        url: 'https://www.fbla.org/wp-content/uploads/2024/08/2025-2026-Competitive-Events-Guidelines.pdf',
+        fileSize: 500000,
+        lastUpdated: '2024-08-01T00:00:00Z',
+        tags: ['Rubric', 'Presentation', 'Judging'],
         relatedEvents: [],
         isFavorite: false,
         isDownloaded: false,
-    },
-    {
-        id: '5',
-        title: 'Introduction to Business Study Guide',
-        description: 'Study materials for Intro to Business event',
-        type: 'pdf',
-        category: 'study-materials',
-        url: 'https://fbla.org/itb-study.pdf',
-        fileSize: 1500000,
-        lastUpdated: new Date().toISOString(),
-        tags: ['Study Guide', 'Intro to Business'],
-        relatedEvents: ['intro-business'],
-        isFavorite: false,
-        isDownloaded: false,
-    },
+    }
 ];
 
 const categoryFilters: { id: ResourceCategory | 'all'; label: string; icon: string }[] = [
@@ -107,27 +95,23 @@ const categoryFilters: { id: ResourceCategory | 'all'; label: string; icon: stri
 
 export default function ResourcesScreen({ navigation }: any) {
     const dispatch = useAppDispatch();
-    const { resources, searchQuery, downloadProgress, favorites } = useAppSelector(
-        state => state.resources
-    );
+    const { resources, searchQuery, downloadProgress } = useAppSelector(state => state.resources);
     const [selectedCategory, setSelectedCategory] = useState<ResourceCategory | 'all'>('all');
+    const [browserUrl, setBrowserUrl] = useState<string | null>(null);
 
     useEffect(() => {
-        dispatch(setResources(demoResources));
+        dispatch(setResources(realResources));
     }, []);
 
-    const filteredResources = resources.filter(resource => {
+    const filteredResources = (resources.length > 0 ? resources : realResources).filter(resource => {
         const matchesSearch = resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             resource.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
             resource.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-
         const matchesCategory = selectedCategory === 'all' || resource.category === selectedCategory;
-
         return matchesSearch && matchesCategory;
     });
 
     const handleDownload = async (resourceId: string) => {
-        // Simulate download progress
         for (let i = 0; i <= 100; i += 10) {
             dispatch(setDownloadProgress({ resourceId, progress: i }));
             await new Promise(resolve => setTimeout(resolve, 100));
@@ -135,110 +119,111 @@ export default function ResourcesScreen({ navigation }: any) {
         dispatch(markAsDownloaded({ resourceId, localPath: `/local/${resourceId}.pdf` }));
     };
 
-    const formatFileSize = (bytes: number) => {
-        if (bytes < 1024) return bytes + ' B';
-        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-    };
-
-    const getCategoryIcon = (category: ResourceCategory) => {
-        const icons: Record<ResourceCategory, string> = {
-            guidelines: 'document-text',
-            rubrics: 'list',
-            'dress-code': 'shirt',
-            'code-of-conduct': 'shield-checkmark',
-            'study-materials': 'school',
-            forms: 'clipboard',
-            other: 'folder',
-        };
-        return icons[category] || 'document';
+    const handleOpenResource = (url: string) => {
+        setBrowserUrl(url);
     };
 
     return (
         <View style={styles.container}>
-            {/* Search Bar */}
-            <View style={styles.searchContainer}>
-                <Searchbar
-                    placeholder="Search resources..."
-                    onChangeText={text => dispatch(setSearchQuery(text))}
-                    value={searchQuery}
-                    style={styles.searchbar}
-                    inputStyle={styles.searchInput}
-                />
+            {/* Header / Search */}
+            <View style={styles.header}>
+                <View style={styles.searchWrapper}>
+                    <Searchbar
+                        placeholder="Search rubrics, dress code..."
+                        onChangeText={text => dispatch(setSearchQuery(text))}
+                        value={searchQuery}
+                        style={styles.searchbar}
+                        inputStyle={styles.searchInput}
+                        iconColor={colors.neutral[400]}
+                        placeholderTextColor={colors.neutral[400]}
+                    />
+                </View>
             </View>
 
             {/* Quick Access to Competitions */}
-            <TouchableOpacity
-                style={styles.competeCard}
-                onPress={() => navigation.navigate('CompetitiveEvents')}
+            <MotiView
+                from={{ opacity: 0, translateY: -20 }}
+                animate={{ opacity: 1, translateY: 0 }}
+                transition={{ type: 'spring', damping: 12 }}
             >
-                <LinearGradient
-                    colors={[colors.primary[600], colors.primary[800]]}
-                    style={styles.competeGradient}
+                <TouchableOpacity
+                    onPress={() => navigation.navigate('CompetitiveEvents')}
+                    activeOpacity={0.8}
                 >
-                    <View style={styles.competeContent}>
-                        <View>
-                            <Text style={styles.competeTitle}>Competitive Events</Text>
-                            <Text style={styles.competeSubtitle}>Browse 2025-26 guidelines</Text>
+                    <Card style={styles.competeCard}>
+                        <View style={styles.competeContent}>
+                            <View>
+                                <Text style={styles.competeTitle}>Competition Hub</Text>
+                                <Text style={styles.competeSubtitle}>Rubrics & Study Resources</Text>
+                            </View>
+                            <View style={styles.trophyIcon}>
+                                <Ionicons name="ribbon" size={28} color="#FFFFFF" />
+                            </View>
                         </View>
-                        <Ionicons name="trophy" size={32} color="#FFFFFF" opacity={0.8} />
-                    </View>
-                </LinearGradient>
-            </TouchableOpacity>
+                    </Card>
+                </TouchableOpacity>
+            </MotiView>
 
             {/* Category Filters */}
             <View style={styles.filterContainer}>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <View style={styles.filterRow}>
-                        {categoryFilters.map(filter => (
-                            <TouchableOpacity
-                                key={filter.id}
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
+                    {categoryFilters.map(filter => (
+                        <TouchableOpacity key={filter.id} onPress={() => setSelectedCategory(filter.id)}>
+                            <View
                                 style={[
-                                    styles.filterButton,
-                                    selectedCategory === filter.id && styles.filterButtonSelected,
+                                    styles.filterChip,
+                                    selectedCategory === filter.id ? styles.filterChipSelected : styles.filterChipUnselected
                                 ]}
-                                onPress={() => setSelectedCategory(filter.id)}
                             >
                                 <Ionicons
                                     name={filter.icon as any}
-                                    size={18}
-                                    color={selectedCategory === filter.id ? '#FFFFFF' : colors.neutral[600]}
+                                    size={16}
+                                    color={selectedCategory === filter.id ? '#FFFFFF' : colors.neutral[500]}
+                                    style={{ marginRight: 6 }}
                                 />
-                                <Text
-                                    style={[
-                                        styles.filterLabel,
-                                        selectedCategory === filter.id && styles.filterLabelSelected,
-                                    ]}
-                                >
+                                <Text style={[styles.filterLabel, selectedCategory === filter.id && styles.filterLabelSelected]}>
                                     {filter.label}
                                 </Text>
-                            </TouchableOpacity>
-                        ))}
-                    </View>
+                            </View>
+                        </TouchableOpacity>
+                    ))}
                 </ScrollView>
             </View>
 
             {/* Resources List */}
-            <ScrollView style={styles.resourcesList}>
+            <ScrollView style={styles.resourcesList} showsVerticalScrollIndicator={false}>
                 {filteredResources.length === 0 ? (
                     <View style={styles.emptyState}>
-                        <Ionicons name="search" size={48} color={colors.neutral[300]} />
-                        <Text style={styles.emptyText}>No resources found</Text>
+                        <Ionicons name="search-outline" size={48} color={colors.neutral[200]} />
+                        <Text style={styles.emptyText}>No documentation found</Text>
                     </View>
                 ) : (
-                    filteredResources.map(resource => (
-                        <ResourceCard
+                    filteredResources.map((resource, index) => (
+                        <MotiView
                             key={resource.id}
-                            resource={resource}
-                            downloadProgress={downloadProgress[resource.id]}
-                            onDownload={() => handleDownload(resource.id)}
-                            onToggleFavorite={() => dispatch(toggleFavorite(resource.id))}
-                            onPress={() => dispatch(addToRecentlyViewed(resource.id))}
-                        />
+                            from={{ opacity: 0, translateY: 20 }}
+                            animate={{ opacity: 1, translateY: 0 }}
+                            transition={{ delay: index * 50 }}
+                        >
+                            <ResourceCard
+                                resource={resource}
+                                downloadProgress={downloadProgress[resource.id]}
+                                onDownload={() => handleDownload(resource.id)}
+                                onToggleFavorite={() => dispatch(toggleFavorite(resource.id))}
+                                onPress={() => handleOpenResource(resource.url)}
+                            />
+                        </MotiView>
                     ))
                 )}
-                <View style={{ height: 100 }} />
+                <View style={{ height: 120 }} />
             </ScrollView>
+            {/* Browser Modal */}
+            <InAppBrowserModal
+                visible={!!browserUrl}
+                url={browserUrl}
+                onClose={() => setBrowserUrl(null)}
+                title="Resource Preview"
+            />
         </View>
     );
 }
@@ -273,19 +258,19 @@ function ResourceCard({
     };
 
     return (
-        <TouchableOpacity onPress={onPress}>
+        <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
             <Card style={styles.resourceCard}>
                 <Card.Content style={styles.resourceContent}>
                     <View style={styles.resourceIcon}>
                         <Ionicons
                             name={getTypeIcon(resource.type) as any}
                             size={24}
-                            color={colors.primary[600]}
+                            color={resource.category === 'dress-code' ? colors.secondary[500] : colors.primary[600]}
                         />
                     </View>
 
                     <View style={styles.resourceInfo}>
-                        <Text style={styles.resourceTitle} numberOfLines={2}>
+                        <Text style={styles.resourceTitle} numberOfLines={1}>
                             {resource.title}
                         </Text>
                         <Text style={styles.resourceDescription} numberOfLines={2}>
@@ -298,8 +283,8 @@ function ResourceCard({
                             </Text>
                             {resource.isDownloaded && (
                                 <View style={styles.downloadedBadge}>
-                                    <Ionicons name="cloud-done" size={12} color={colors.success.main} />
-                                    <Text style={styles.downloadedText}>Offline</Text>
+                                    <Ionicons name="shield-checkmark" size={10} color={colors.primary[600]} />
+                                    <Text style={styles.downloadedText}>Offline Available</Text>
                                 </View>
                             )}
                         </View>
@@ -316,18 +301,10 @@ function ResourceCard({
                     <View style={styles.resourceActions}>
                         <IconButton
                             icon={resource.isFavorite ? 'heart' : 'heart-outline'}
-                            iconColor={resource.isFavorite ? colors.error.main : colors.neutral[400]}
-                            size={20}
+                            iconColor={resource.isFavorite ? '#EC4899' : colors.neutral[300]}
+                            size={22}
                             onPress={onToggleFavorite}
                         />
-                        {!resource.isDownloaded && (
-                            <IconButton
-                                icon="download"
-                                iconColor={colors.primary[600]}
-                                size={20}
-                                onPress={onDownload}
-                            />
-                        )}
                     </View>
                 </Card.Content>
             </Card>
@@ -340,45 +317,53 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: colors.neutral[50],
     },
-    searchContainer: {
+    header: {
         padding: spacing.md,
+    },
+    searchWrapper: {
+        borderRadius: borderRadius.lg,
         backgroundColor: '#FFFFFF',
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
     },
     searchbar: {
-        borderRadius: borderRadius.lg,
-        backgroundColor: colors.neutral[100],
         elevation: 0,
+        backgroundColor: 'transparent',
     },
     searchInput: {
-        fontSize: typography.fontSize.md,
+        fontSize: 14,
+        color: colors.neutral[900],
     },
     filterContainer: {
-        backgroundColor: '#FFFFFF',
         paddingBottom: spacing.sm,
-        borderBottomWidth: 1,
-        borderBottomColor: colors.neutral[100],
+        marginTop: spacing.sm,
     },
     filterRow: {
-        flexDirection: 'row',
         paddingHorizontal: spacing.md,
         gap: spacing.sm,
     },
-    filterButton: {
+    filterChip: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: spacing.md,
-        paddingVertical: spacing.sm,
-        borderRadius: borderRadius.full,
-        backgroundColor: colors.neutral[100],
-        gap: spacing.xs,
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 20,
     },
-    filterButtonSelected: {
+    filterChipUnselected: {
+        backgroundColor: '#FFFFFF',
+        elevation: 2,
+    },
+    filterChipSelected: {
         backgroundColor: colors.primary[600],
+        elevation: 4,
     },
     filterLabel: {
-        fontSize: typography.fontSize.sm,
+        fontSize: 12,
         color: colors.neutral[600],
-        fontWeight: '500',
+        fontWeight: '700',
     },
     filterLabelSelected: {
         color: '#FFFFFF',
@@ -388,19 +373,20 @@ const styles = StyleSheet.create({
         padding: spacing.md,
     },
     resourceCard: {
-        marginBottom: spacing.md,
-        borderRadius: borderRadius.lg,
+        marginBottom: spacing.sm,
+        borderRadius: 20,
         backgroundColor: '#FFFFFF',
+        elevation: 2,
     },
     resourceContent: {
         flexDirection: 'row',
-        alignItems: 'flex-start',
+        alignItems: 'center',
     },
     resourceIcon: {
         width: 48,
         height: 48,
-        borderRadius: 12,
-        backgroundColor: colors.primary[50],
+        borderRadius: 14,
+        backgroundColor: colors.primary[50], // We can dynamicize this
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: spacing.md,
@@ -409,79 +395,89 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     resourceTitle: {
-        fontSize: typography.fontSize.md,
-        fontWeight: '600',
+        fontSize: 16,
+        fontWeight: 'bold',
         color: colors.neutral[900],
-        marginBottom: 4,
+        marginBottom: 2,
     },
     resourceDescription: {
-        fontSize: typography.fontSize.sm,
+        fontSize: 12,
         color: colors.neutral[500],
-        lineHeight: 20,
-        marginBottom: spacing.sm,
+        lineHeight: 18,
+        marginBottom: 4,
     },
     resourceMeta: {
         flexDirection: 'row',
         alignItems: 'center',
     },
     resourceSize: {
-        fontSize: typography.fontSize.xs,
+        fontSize: 10,
         color: colors.neutral[400],
+        fontWeight: '600',
     },
     downloadedBadge: {
         flexDirection: 'row',
         alignItems: 'center',
         marginLeft: spacing.sm,
-        backgroundColor: colors.success.light,
-        paddingHorizontal: spacing.sm,
-        paddingVertical: 2,
-        borderRadius: borderRadius.full,
+        backgroundColor: colors.primary[50],
+        paddingHorizontal: 6,
+        paddingVertical: 1,
+        borderRadius: 4,
     },
     downloadedText: {
-        fontSize: typography.fontSize.xs,
-        color: colors.success.dark,
+        fontSize: 9,
+        color: colors.primary[600],
         marginLeft: 4,
+        fontWeight: '800',
+        textTransform: 'uppercase',
     },
     progressBar: {
-        marginTop: spacing.sm,
+        marginTop: 6,
+        height: 3,
         borderRadius: 2,
     },
     resourceActions: {
-        flexDirection: 'column',
+        marginLeft: spacing.xs,
     },
     emptyState: {
-        flex: 1,
-        justifyContent: 'center',
         alignItems: 'center',
-        paddingVertical: spacing.xxl,
+        justifyContent: 'center',
+        paddingVertical: 100,
     },
     emptyText: {
-        fontSize: typography.fontSize.md,
+        fontSize: 14,
         color: colors.neutral[400],
         marginTop: spacing.md,
     },
     competeCard: {
         marginHorizontal: spacing.md,
+        borderRadius: 24,
+        backgroundColor: colors.primary[600],
+        elevation: 4,
         marginBottom: spacing.md,
-        borderRadius: borderRadius.lg,
-        overflow: 'hidden',
-        ...shadows.md,
-    },
-    competeGradient: {
-        padding: spacing.lg,
     },
     competeContent: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        padding: spacing.lg,
     },
     competeTitle: {
-        fontSize: typography.fontSize.lg,
+        fontSize: 20,
         fontWeight: 'bold',
         color: '#FFFFFF',
     },
     competeSubtitle: {
-        fontSize: typography.fontSize.sm,
+        fontSize: 13,
         color: 'rgba(255, 255, 255, 0.8)',
+        marginTop: 2,
+    },
+    trophyIcon: {
+        width: 52,
+        height: 52,
+        borderRadius: 16,
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });
