@@ -21,7 +21,7 @@ import {
     Resource,
     ResourceCategory,
 } from '../resourcesSlice';
-import InAppBrowserModal from '../../../shared/components/InAppBrowserModal';
+import PDFViewerModal from '../../../shared/components/PDFViewerModal';
 import { colors, spacing, typography, borderRadius } from '../../../shared/theme';
 
 const { width } = Dimensions.get('window');
@@ -119,24 +119,35 @@ export default function ResourcesScreen({ navigation }: any) {
         dispatch(markAsDownloaded({ resourceId, localPath: `/local/${resourceId}.pdf` }));
     };
 
-    const handleOpenResource = (url: string) => {
-        setBrowserUrl(url);
+    const handleOpenResource = (resource: Resource) => {
+        if (resource.type === 'pdf') {
+            setBrowserUrl(resource.url);
+        } else {
+            // For non-PDF resources, use InAppBrowserModal or Linking
+            setBrowserUrl(resource.url);
+        }
     };
 
     return (
         <View style={styles.container}>
-            {/* Header / Search */}
-            <View style={styles.header}>
-                <View style={styles.searchWrapper}>
-                    <Searchbar
-                        placeholder="Search rubrics, dress code..."
-                        onChangeText={text => dispatch(setSearchQuery(text))}
-                        value={searchQuery}
-                        style={styles.searchbar}
-                        inputStyle={styles.searchInput}
-                        iconColor={colors.neutral[400]}
-                        placeholderTextColor={colors.neutral[400]}
-                    />
+            {/* Enhanced Header */}
+            <View style={styles.headerContainer}>
+                <View style={styles.headerGradient}>
+                    <Text style={styles.headerTitle}>Resources</Text>
+                    <Text style={styles.headerSubtitle}>FBLA Documents & Guidelines</Text>
+                </View>
+                <View style={styles.searchContainer}>
+                    <View style={styles.searchWrapper}>
+                        <Searchbar
+                            placeholder="Search rubrics, dress code..."
+                            onChangeText={text => dispatch(setSearchQuery(text))}
+                            value={searchQuery}
+                            style={styles.searchbar}
+                            inputStyle={styles.searchInput}
+                            iconColor={colors.neutral[400]}
+                            placeholderTextColor={colors.neutral[400]}
+                        />
+                    </View>
                 </View>
             </View>
 
@@ -210,20 +221,22 @@ export default function ResourcesScreen({ navigation }: any) {
                                 downloadProgress={downloadProgress[resource.id]}
                                 onDownload={() => handleDownload(resource.id)}
                                 onToggleFavorite={() => dispatch(toggleFavorite(resource.id))}
-                                onPress={() => handleOpenResource(resource.url)}
+                                onPress={() => handleOpenResource(resource)}
                             />
                         </MotiView>
                     ))
                 )}
                 <View style={{ height: 120 }} />
             </ScrollView>
-            {/* Browser Modal */}
-            <InAppBrowserModal
-                visible={!!browserUrl}
-                url={browserUrl}
-                onClose={() => setBrowserUrl(null)}
-                title="Resource Preview"
-            />
+            {/* PDF Viewer Modal */}
+            {browserUrl && (
+                <PDFViewerModal
+                    visible={!!browserUrl}
+                    url={browserUrl}
+                    onClose={() => setBrowserUrl(null)}
+                    title={filteredResources.find(r => r.url === browserUrl)?.title || "PDF Document"}
+                />
+            )}
         </View>
     );
 }
@@ -239,7 +252,7 @@ function ResourceCard({
     downloadProgress?: number;
     onDownload: () => void;
     onToggleFavorite: () => void;
-    onPress: () => void;
+    onPress: (resource: Resource) => void;
 }) {
     const formatFileSize = (bytes?: number) => {
         if (!bytes) return '';
@@ -258,7 +271,7 @@ function ResourceCard({
     };
 
     return (
-        <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
+        <TouchableOpacity onPress={() => onPress(resource)} activeOpacity={0.8}>
             <Card style={styles.resourceCard}>
                 <Card.Content style={styles.resourceContent}>
                     <View style={styles.resourceIcon}>
@@ -316,6 +329,38 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: colors.neutral[50],
+    },
+    headerContainer: {
+        backgroundColor: colors.primary[600],
+        borderBottomLeftRadius: 30,
+        borderBottomRightRadius: 30,
+        paddingBottom: spacing.md,
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+    },
+    headerGradient: {
+        paddingTop: spacing.xl * 1.5,
+        paddingHorizontal: spacing.lg,
+        paddingBottom: spacing.md,
+    },
+    headerTitle: {
+        fontSize: 32,
+        fontWeight: 'bold',
+        color: '#FFFFFF',
+        letterSpacing: -0.5,
+        marginBottom: 4,
+    },
+    headerSubtitle: {
+        fontSize: 14,
+        color: 'rgba(255, 255, 255, 0.9)',
+        fontWeight: '500',
+    },
+    searchContainer: {
+        paddingHorizontal: spacing.md,
+        marginTop: spacing.sm,
     },
     header: {
         padding: spacing.md,

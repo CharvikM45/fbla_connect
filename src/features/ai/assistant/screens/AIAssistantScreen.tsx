@@ -108,6 +108,17 @@ export default function AIAssistantScreen() {
 
     return (
         <View style={styles.container}>
+            {/* Enhanced Header */}
+            <View style={styles.headerContainer}>
+                <View style={styles.headerContent}>
+                    <View style={styles.headerIconContainer}>
+                        <Ionicons name="sparkles-outline" size={28} color="#FFFFFF" />
+                    </View>
+                    <Text style={styles.headerTitle}>AI Assistant</Text>
+                    <Text style={styles.headerSubtitle}>Get instant answers about FBLA</Text>
+                </View>
+            </View>
+            
             <KeyboardAvoidingView
                 style={{ flex: 1 }}
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -240,6 +251,43 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: colors.neutral[50],
+    },
+    headerContainer: {
+        backgroundColor: colors.primary[600],
+        borderBottomLeftRadius: 30,
+        borderBottomRightRadius: 30,
+        paddingTop: spacing.xl * 1.5,
+        paddingBottom: spacing.md,
+        paddingHorizontal: spacing.lg,
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+    },
+    headerContent: {
+        alignItems: 'center',
+    },
+    headerIconContainer: {
+        width: 56,
+        height: 56,
+        borderRadius: 16,
+        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: spacing.md,
+    },
+    headerTitle: {
+        fontSize: 32,
+        fontWeight: 'bold',
+        color: '#FFFFFF',
+        letterSpacing: -0.5,
+        marginBottom: 4,
+    },
+    headerSubtitle: {
+        fontSize: 14,
+        color: 'rgba(255, 255, 255, 0.9)',
+        fontWeight: '500',
     },
     messagesContainer: {
         flex: 1,

@@ -136,6 +136,14 @@ export default function CalendarScreen() {
 
     return (
         <View style={styles.container}>
+            {/* Enhanced Header */}
+            <View style={styles.headerContainer}>
+                <View style={styles.headerContent}>
+                    <Text style={styles.headerTitle}>Events & Calendar</Text>
+                    <Text style={styles.headerSubtitle}>Upcoming meetings and conferences</Text>
+                </View>
+            </View>
+            
             {/* Header / Tabs */}
             <View style={styles.filterContainer}>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -358,6 +366,34 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: colors.neutral[50],
+    },
+    headerContainer: {
+        backgroundColor: colors.primary[600],
+        borderBottomLeftRadius: 30,
+        borderBottomRightRadius: 30,
+        paddingTop: spacing.xl * 1.5,
+        paddingBottom: spacing.md,
+        paddingHorizontal: spacing.lg,
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+    },
+    headerContent: {
+        marginBottom: spacing.sm,
+    },
+    headerTitle: {
+        fontSize: 32,
+        fontWeight: 'bold',
+        color: '#FFFFFF',
+        letterSpacing: -0.5,
+        marginBottom: 4,
+    },
+    headerSubtitle: {
+        fontSize: 14,
+        color: 'rgba(255, 255, 255, 0.9)',
+        fontWeight: '500',
     },
     filterContainer: {
         paddingVertical: spacing.md,
