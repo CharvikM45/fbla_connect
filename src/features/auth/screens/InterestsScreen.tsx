@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView, FlatList, Platform } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ScrollView, FlatList, Platform, Image } from 'react-native';
 import { Text, Button, Chip, Searchbar, Divider } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,10 +7,12 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { OnboardingStackParamList } from '../../../shared/navigation/types';
 import { useAppDispatch } from '../../../shared/hooks/useRedux';
 import { updateProfile } from '../../profile/profileSlice';
-import { colors, spacing, typography, borderRadius } from '../../../shared/theme';
+import { colors, spacing, typography, borderRadius, gradients } from '../../../shared/theme';
 import { useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import competitiveEventsData from '../../../assets/data/competitive_events.json';
+import { GlassCard } from '../../../shared/components/GlassCard';
+import { GlowView } from '../../../shared/components/GlowView';
 
 type Props = {
     navigation: NativeStackNavigationProp<OnboardingStackParamList, 'Interests'>;
@@ -20,6 +22,7 @@ const interestSubsets = [
     {
         title: 'Technology',
         icon: '💻',
+        image: require('../../../../.gemini/antigravity/brain/544463c5-344b-4ad5-b6b8-29889db63c70/premium_3d_tech_icon_1769545078307.png'),
         items: [
             { id: 'coding', label: 'Coding' },
             { id: 'web-dev', label: 'Web Development' },
@@ -31,6 +34,7 @@ const interestSubsets = [
     {
         title: 'Finance & Accounting',
         icon: '💰',
+        image: require('../../../../.gemini/antigravity/brain/544463c5-344b-4ad5-b6b8-29889db63c70/premium_3d_finance_icon_1769545091058.png'),
         items: [
             { id: 'accounting', label: 'Accounting' },
             { id: 'personal-finance', label: 'Personal Finance' },
@@ -42,6 +46,7 @@ const interestSubsets = [
     {
         title: 'Management & Marketing',
         icon: '📊',
+        image: require('../../../../.gemini/antigravity/brain/544463c5-344b-4ad5-b6b8-29889db63c70/premium_3d_feature_networking_1769545065045.png'),
         items: [
             { id: 'business-mgmt', label: 'Business Mgmt' },
             { id: 'marketing', label: 'Marketing' },
@@ -53,6 +58,7 @@ const interestSubsets = [
     {
         title: 'Healthcare & Other',
         icon: '🏥',
+        image: require('../../../../.gemini/antigravity/brain/544463c5-344b-4ad5-b6b8-29889db63c70/premium_3d_healthcare_icon_abstract_1769545105043.png'),
         items: [
             { id: 'healthcare', label: 'Healthcare Admin' },
             { id: 'human-resources', label: 'Human Resources' },
@@ -131,26 +137,31 @@ export default function InterestsScreen({ navigation }: Props) {
         <SafeAreaView style={styles.container}>
             <ScrollView style={styles.content} nestedScrollEnabled={true}>
                 {/* Header */}
-                <View style={styles.header}>
-                    <TouchableOpacity
-                        style={styles.backButton}
-                        onPress={() => navigation.goBack()}
-                    >
-                        <Ionicons name="arrow-back" size={24} color={colors.neutral[900]} />
-                    </TouchableOpacity>
-                    <Text style={styles.stepText}>Step 3 of 5</Text>
-                    <Text style={styles.title}>Your Interests</Text>
-                    <Text style={styles.subtitle}>
-                        Select topics and competitive events
-                    </Text>
-                </View>
+                <GlowView color="blue" intensity={1.5} style={styles.headerGlow}>
+                    <View style={styles.header}>
+                        <TouchableOpacity
+                            style={styles.backButton}
+                            onPress={() => navigation.goBack()}
+                        >
+                            <Ionicons name="arrow-back" size={24} color={colors.neutral[900]} />
+                        </TouchableOpacity>
+                        <Text style={styles.stepText}>Step 3 of 5</Text>
+                        <Text style={styles.title}>Your Interests</Text>
+                        <Text style={styles.subtitle}>
+                            Select topics and competitive events
+                        </Text>
+                    </View>
+                </GlowView>
 
                 {/* Interests Subsets */}
                 {interestSubsets.map((subset, index) => (
-                    <View key={index} style={styles.section}>
+                    <GlassCard key={index} style={styles.sectionCard}>
                         <View style={styles.sectionHeader}>
-                            <Text style={styles.sectionEmoji}>{subset.icon}</Text>
-                            <Text style={styles.sectionTitle}>{subset.title}</Text>
+                            <Image source={subset.image} style={styles.sectionImage} />
+                            <View>
+                                <Text style={styles.sectionTitle}>{subset.title}</Text>
+                                <Text style={[styles.sectionSubtitle, { marginBottom: 0 }]}>Explore {subset.title} topics</Text>
+                            </View>
                         </View>
                         <View style={styles.chipContainer}>
                             {subset.items.map(item => (
@@ -172,15 +183,14 @@ export default function InterestsScreen({ navigation }: Props) {
                                 </Chip>
                             ))}
                         </View>
-                        {index < interestSubsets.length - 1 && <Divider style={styles.divider} />}
-                    </View>
+                    </GlassCard>
                 ))}
 
                 {/* Events Section */}
-                <View style={[styles.section, { marginBottom: 100 }]}>
+                <GlassCard style={[styles.sectionCard, { marginBottom: 120 }]}>
                     <Text style={styles.sectionTitle}>Event Discovery</Text>
                     <Text style={styles.sectionSubtitle}>
-                        Search and select competitive events you're interested in
+                        Search and select FBLA events
                     </Text>
 
                     <Searchbar
@@ -190,59 +200,60 @@ export default function InterestsScreen({ navigation }: Props) {
                         style={styles.searchBar}
                         inputStyle={styles.searchBarInput}
                         iconColor={colors.primary[600]}
+                        placeholderTextColor={colors.neutral[400]}
                     />
 
                     <View style={styles.eventsContainer}>
-                        {filteredEvents.length > 0 ? (
-                            filteredEvents.map(event => (
-                                <TouchableOpacity
-                                    key={event.id}
-                                    style={[
-                                        styles.eventCard,
-                                        selectedEvents.includes(event.id) && styles.eventCardSelected
-                                    ]}
-                                    onPress={() => toggleEvent(event.id)}
-                                >
-                                    <View style={styles.eventInfo}>
-                                        <Text style={[
-                                            styles.eventTitle,
-                                            selectedEvents.includes(event.id) && styles.eventTitleSelected
-                                        ]}>
-                                            {event.title}
-                                        </Text>
-                                        <Text style={styles.eventCategory}>{event.category}</Text>
-                                    </View>
-                                    <Ionicons
-                                        name={selectedEvents.includes(event.id) ? "checkbox" : "square-outline"}
-                                        size={24}
-                                        color={selectedEvents.includes(event.id) ? colors.primary[600] : colors.neutral[300]}
-                                    />
-                                </TouchableOpacity>
-                            ))
-                        ) : (
-                            <Text style={styles.noResults}>No events found matching "{searchQuery}"</Text>
-                        )}
+                        {filteredEvents.slice(0, 10).map(event => (
+                            <TouchableOpacity
+                                key={event.id}
+                                style={[
+                                    styles.eventCard,
+                                    selectedEvents.includes(event.id) && styles.eventCardSelected
+                                ]}
+                                onPress={() => toggleEvent(event.id)}
+                            >
+                                <View style={styles.eventInfo}>
+                                    <Text style={[
+                                        styles.eventTitle,
+                                        selectedEvents.includes(event.id) && styles.eventTitleSelected
+                                    ]}>
+                                        {event.title}
+                                    </Text>
+                                    <Text style={styles.eventCategory}>{event.category}</Text>
+                                </View>
+                                <Ionicons
+                                    name={selectedEvents.includes(event.id) ? "checkbox" : "square-outline"}
+                                    size={24}
+                                    color={selectedEvents.includes(event.id) ? colors.primary[600] : colors.neutral[400]}
+                                />
+                            </TouchableOpacity>
+                        ))}
                     </View>
-                </View>
+                </GlassCard>
             </ScrollView>
 
-            {/* Footer */}
+            {/* Premium Footer */}
             <View style={styles.footer}>
-                <View style={styles.footerStats}>
-                    <Text style={styles.selectionCount}>
-                        {selectedInterests.length} Topics • {selectedEvents.length} Events
-                    </Text>
+                <Divider style={{ marginBottom: spacing.md, opacity: 0.5 }} />
+                <View style={styles.footerContent}>
+                    <View>
+                        <Text style={styles.footerLabel}>SELECTIONS</Text>
+                        <Text style={styles.selectionCount}>
+                            {selectedInterests.length} Topics • {selectedEvents.length} Events
+                        </Text>
+                    </View>
+                    <Button
+                        mode="contained"
+                        onPress={handleContinue}
+                        disabled={selectedInterests.length === 0 && selectedEvents.length === 0}
+                        style={styles.continueButton}
+                        contentStyle={styles.buttonContent}
+                        labelStyle={styles.buttonLabel}
+                    >
+                        Continue
+                    </Button>
                 </View>
-                <Button
-                    mode="contained"
-                    onPress={handleContinue}
-                    disabled={selectedInterests.length === 0 && selectedEvents.length === 0}
-                    style={styles.continueButton}
-                    contentStyle={styles.buttonContent}
-                    labelStyle={styles.buttonLabel}
-                >
-                    Continue
-                </Button>
             </View>
         </SafeAreaView>
     );
@@ -251,62 +262,77 @@ export default function InterestsScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: colors.neutral[900], // Dark theme for premium feel
     },
     content: {
         flex: 1,
-        paddingHorizontal: spacing.lg,
+        paddingHorizontal: spacing.md,
+    },
+    headerGlow: {
+        width: '100%',
+        marginBottom: spacing.lg,
     },
     header: {
-        paddingTop: spacing.md,
-        paddingBottom: spacing.lg,
+        paddingTop: spacing.xl,
+        paddingBottom: spacing.md,
+        alignItems: 'center',
     },
     backButton: {
-        marginBottom: spacing.lg,
+        position: 'absolute',
+        top: spacing.xl,
+        left: 0,
         width: 40,
         height: 40,
         borderRadius: 20,
-        backgroundColor: colors.neutral[100],
+        backgroundColor: 'rgba(255,255,255,0.1)',
         justifyContent: 'center',
         alignItems: 'center',
     },
     stepText: {
-        fontSize: typography.fontSize.sm,
-        color: colors.primary[600],
-        fontWeight: '600',
-        marginBottom: spacing.sm,
+        fontSize: typography.fontSize.xs,
+        color: colors.primary[400],
+        fontWeight: '800',
+        textTransform: 'uppercase',
+        letterSpacing: 1.5,
+        marginBottom: spacing.xs,
     },
     title: {
         fontSize: typography.fontSize.xxxl,
-        fontWeight: 'bold',
-        color: colors.neutral[900],
-        marginBottom: spacing.sm,
+        fontWeight: '900',
+        color: '#FFFFFF',
+        textAlign: 'center',
     },
     subtitle: {
         fontSize: typography.fontSize.md,
-        color: colors.neutral[500],
+        color: colors.neutral[400],
+        textAlign: 'center',
+        marginTop: spacing.xs,
     },
-    section: {
+    sectionCard: {
         marginBottom: spacing.lg,
+        padding: spacing.md,
     },
     sectionHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: spacing.sm,
+        marginBottom: spacing.lg,
     },
-    sectionEmoji: {
-        fontSize: 20,
-        marginRight: spacing.sm,
+    sectionImage: {
+        width: 60,
+        height: 60,
+        borderRadius: 12,
+        marginRight: spacing.md,
     },
     sectionTitle: {
-        fontSize: typography.fontSize.lg,
-        fontWeight: '700',
-        color: colors.neutral[800],
+        fontSize: typography.fontSize.xl,
+        fontWeight: '800',
+        color: '#FFFFFF',
     },
     sectionSubtitle: {
-        fontSize: typography.fontSize.sm,
+        fontSize: typography.fontSize.xs,
         color: colors.neutral[500],
-        marginBottom: spacing.md,
+        textTransform: 'uppercase',
+        letterSpacing: 1,
     },
     chipContainer: {
         flexDirection: 'row',
@@ -314,117 +340,92 @@ const styles = StyleSheet.create({
         gap: spacing.sm,
     },
     chip: {
-        marginBottom: spacing.xs,
-        backgroundColor: colors.neutral[100],
-        borderWidth: 1,
-        borderColor: colors.neutral[200],
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(255,255,255,0.1)',
     },
     chipSelected: {
-        backgroundColor: colors.primary[100],
-        borderColor: colors.primary[600],
+        backgroundColor: colors.primary[600],
+        borderColor: colors.primary[400],
     },
     chipText: {
-        color: colors.neutral[700],
-        fontSize: typography.fontSize.sm,
+        color: colors.neutral[300],
     },
     chipTextSelected: {
-        color: colors.primary[700],
-        fontWeight: '600',
-    },
-    divider: {
-        marginTop: spacing.lg,
-        height: 1,
-        backgroundColor: colors.neutral[100],
+        color: '#FFFFFF',
+        fontWeight: '700',
     },
     searchBar: {
-        marginBottom: spacing.md,
-        backgroundColor: colors.neutral[100],
-        borderRadius: borderRadius.md,
-        elevation: 0,
-        borderWidth: 1,
-        borderColor: colors.neutral[200],
+        backgroundColor: 'rgba(0,0,0,0.2)',
+        borderRadius: borderRadius.lg,
+        marginVertical: spacing.md,
     },
     searchBarInput: {
-        fontSize: typography.fontSize.md,
+        color: '#FFFFFF',
     },
     eventsContainer: {
-        gap: spacing.sm,
+        gap: spacing.xs,
     },
     eventCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
         padding: spacing.md,
         borderRadius: borderRadius.md,
-        backgroundColor: '#FFFFFF',
-        borderWidth: 1,
-        borderColor: colors.neutral[200],
+        backgroundColor: 'rgba(255,255,255,0.03)',
     },
     eventCardSelected: {
+        backgroundColor: 'rgba(29, 82, 188, 0.2)',
+        borderWidth: 1,
         borderColor: colors.primary[500],
-        backgroundColor: colors.primary[50],
     },
     eventInfo: {
         flex: 1,
-        marginRight: spacing.md,
     },
     eventTitle: {
         fontSize: typography.fontSize.md,
         fontWeight: '600',
-        color: colors.neutral[800],
-        marginBottom: 2,
+        color: '#FFFFFF',
     },
     eventTitleSelected: {
-        color: colors.primary[800],
+        color: colors.primary[300],
     },
     eventCategory: {
         fontSize: typography.fontSize.xs,
         color: colors.neutral[500],
-        textTransform: 'uppercase',
-        letterSpacing: 0.5,
-    },
-    noResults: {
-        textAlign: 'center',
-        marginTop: spacing.xl,
-        color: colors.neutral[400],
-        fontSize: typography.fontSize.md,
-        fontStyle: 'italic',
     },
     footer: {
         position: 'absolute',
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: 'rgba(24, 24, 27, 0.95)',
         padding: spacing.lg,
-        paddingBottom: Platform.OS === 'ios' ? spacing.xl + 10 : spacing.xl,
-        borderTopWidth: 1,
-        borderTopColor: colors.neutral[100],
-        elevation: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: -3 },
-        shadowOpacity: 0.05,
-        shadowRadius: 5,
+        paddingBottom: Platform.OS === 'ios' ? spacing.xxl : spacing.xl,
     },
-    footerStats: {
-        marginBottom: spacing.md,
+    footerContent: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    footerLabel: {
+        fontSize: 10,
+        color: colors.neutral[500],
+        fontWeight: '900',
+        letterSpacing: 1,
     },
     selectionCount: {
-        textAlign: 'center',
-        color: colors.neutral[600],
+        color: '#FFFFFF',
         fontSize: typography.fontSize.sm,
-        fontWeight: '500',
+        fontWeight: '700',
     },
     continueButton: {
-        borderRadius: borderRadius.lg,
-        backgroundColor: colors.primary[600],
+        borderRadius: borderRadius.full,
+        paddingHorizontal: spacing.lg,
     },
     buttonContent: {
-        paddingVertical: spacing.sm,
+        height: 50,
     },
     buttonLabel: {
         fontSize: typography.fontSize.md,
-        fontWeight: '700',
-        color: '#FFFFFF',
+        fontWeight: '800',
     },
 });

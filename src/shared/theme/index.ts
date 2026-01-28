@@ -118,25 +118,57 @@ export const shadows = {
   },
   md: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
     elevation: 3,
   },
   lg: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  xl: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.12,
     shadowRadius: 16,
     elevation: 8,
   },
+  xl: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 20 },
+    shadowOpacity: 0.15,
+    shadowRadius: 30,
+    elevation: 12,
+  },
+};
+
+export const glows = {
+  blue: {
+    shadowColor: '#3B82F6',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  gold: {
+    shadowColor: '#F59E0B',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.4,
+    shadowRadius: 15,
+    elevation: 8,
+  },
+  purple: {
+    shadowColor: '#8B5CF6',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+};
+
+export const gradients = {
+  premium: ['#1d52bc', '#0a2e7f'] as const,
+  surface: ['rgba(255,255,255,0.8)', 'rgba(255,255,255,0.4)'] as const,
+  darkSurface: ['rgba(24,24,27,0.8)', 'rgba(24,24,27,0.5)'] as const,
+  glowBlue: ['#3B82F6', '#1D4ED8'] as const,
+  glowGold: ['#FBBF24', '#F59E0B'] as const,
 };
 
 // React Native Paper theme configuration
@@ -207,6 +239,8 @@ export default {
   borderRadius,
   typography,
   shadows,
+  glows,
+  gradients,
   paperTheme,
   darkPaperTheme,
   navigationLightTheme,

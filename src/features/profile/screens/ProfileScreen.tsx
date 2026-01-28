@@ -12,7 +12,7 @@ import { Text, Avatar, Card, Button, ProgressBar, Chip, Portal, Modal, Switch } 
 import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector, useAppDispatch } from '../../../shared/hooks/useRedux';
 import { logout } from '../../auth/authSlice';
-import { colors, spacing, typography, borderRadius, shadows } from '../../../shared/theme';
+import { colors, spacing, typography, borderRadius, shadows, glows, gradients } from '../../../shared/theme';
 import Animated, {
     useAnimatedStyle,
     useSharedValue,
@@ -24,6 +24,10 @@ import Animated, {
 import { View as MotiView } from 'moti';
 import { AnimatedButton } from '../../../shared/components/AnimatedButton';
 import { LinearGradient } from 'expo-linear-gradient';
+import { GlassCard } from '../../../shared/components/GlassCard';
+import { GlowView } from '../../../shared/components/GlowView';
+import { StaggeredList } from '../../../shared/components/StaggeredList';
+import { Image } from 'react-native';
 
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
@@ -128,21 +132,21 @@ export default function ProfileScreen() {
     return (
         <View style={styles.container}>
             <ScrollView showsVerticalScrollIndicator={false}>
-                {/* Profile Header with Lava Gradient */}
+                {/* Profile Header with Glow and 3D feel */}
                 <MotiView
-                    from={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ type: 'timing', duration: 800 }}
+                    from={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 1000 }}
                 >
                     <LinearGradient
-                        colors={[colors.primary[600], colors.secondary[600], colors.primary[700]]}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
+                        colors={['#041333', '#000000']}
                         style={styles.header}
                     >
+                        <GlowView color="gold" intensity={1.5} style={styles.profileGlow} />
+
                         <View style={styles.avatarContainer}>
                             <Avatar.Text
-                                size={80}
+                                size={90}
                                 label={user?.displayName?.charAt(0) || 'U'}
                                 style={styles.avatar}
                             />
@@ -158,10 +162,10 @@ export default function ProfileScreen() {
                         </Text>
 
                         {user?.chapterName && (
-                            <View style={styles.chapterInfo}>
+                            <GlassCard intensity={10} style={styles.chapterInfoCard}>
                                 <Ionicons name="people" size={14} color="#FFFFFF" />
                                 <Text style={styles.chapterText}>{user.chapterName}</Text>
-                            </View>
+                            </GlassCard>
                         )}
                     </LinearGradient>
                 </MotiView>
@@ -172,22 +176,18 @@ export default function ProfileScreen() {
                     onTouchMove={handleTilt}
                     onTouchEnd={resetTilt}
                 >
-                    <Card style={styles.xpCard}>
-                        <Card.Content>
-                            <View style={styles.xpHeader}>
-                                <Text style={styles.xpTitle}>Experience Points</Text>
-                                <Text style={styles.xpValue}>{profile?.totalXP || 0} XP</Text>
-                            </View>
-                            <ProgressBar
-                                progress={xpProgress}
-                                color={colors.primary[600]}
-                                style={styles.xpBar}
-                            />
-                            <Text style={styles.xpSubtext}>
-                                {xpToNextLevel - currentLevelXP} XP to Level {(profile?.level || 1) + 1}
-                            </Text>
-                        </Card.Content>
-                    </Card>
+                    <GlassCard style={styles.xpCard} intensity={15}>
+                        <View style={styles.xpHeader}>
+                            <Text style={styles.xpTitle}>Progress</Text>
+                            <Text style={styles.xpValue}>{profile?.totalXP || 0} XP</Text>
+                        </View>
+                        <View style={styles.progressBarContainer}>
+                            <View style={[styles.progressBarFill, { width: `${xpProgress * 100}%` }]} />
+                        </View>
+                        <Text style={styles.xpSubtext}>
+                            {xpToNextLevel - currentLevelXP} XP to Level {(profile?.level || 1) + 1}
+                        </Text>
+                    </GlassCard>
                 </Animated.View>
 
                 {/* Stats */}
@@ -200,7 +200,7 @@ export default function ProfileScreen() {
                 {/* Badges Section */}
                 <View style={styles.section}>
                     <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionTitle}>Badges</Text>
+                        <Text style={styles.sectionTitle}>Achievements</Text>
                         <TouchableOpacity onPress={() => setShowAllBadgesModal(true)}>
                             <Text style={styles.seeAllText}>See All</Text>
                         </TouchableOpacity>
@@ -208,30 +208,44 @@ export default function ProfileScreen() {
 
                     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                         <View style={styles.badgesRow}>
-                            {demoBadges.map(badge => (
-                                <View key={badge.id} style={styles.badgeItem}>
-                                    <View style={[styles.badgeIcon, getRarityStyle(badge.rarity)]}>
-                                        <Text style={styles.badgeEmoji}>{badge.icon}</Text>
+                            {demoBadges.map((badge, index) => (
+                                <MotiView
+                                    key={badge.id}
+                                    from={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ type: 'spring', delay: index * 100 }}
+                                >
+                                    <View style={styles.badgeItem}>
+                                        <GlassCard intensity={8} style={styles.badgeGlass}>
+                                            <Text style={styles.badgeEmoji}>{badge.icon}</Text>
+                                        </GlassCard>
+                                        <Text style={styles.badgeName} numberOfLines={1}>{badge.name}</Text>
                                     </View>
-                                    <Text style={styles.badgeName} numberOfLines={1}>{badge.name}</Text>
-                                </View>
+                                </MotiView>
                             ))}
-                            <View style={styles.moreBadges}>
-                                <Ionicons name="add" size={24} color={colors.neutral[400]} />
+                            <TouchableOpacity style={styles.moreBadges} onPress={() => setShowAllBadgesModal(true)}>
+                                <Ionicons name="add" size={24} color="rgba(255,255,255,0.4)" />
                                 <Text style={styles.moreBadgesText}>12 more</Text>
-                            </View>
+                            </TouchableOpacity>
                         </View>
                     </ScrollView>
                 </View>
 
                 {/* Interests */}
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Interests</Text>
+                    <Text style={styles.sectionTitle}>Interests & Topics</Text>
                     <View style={styles.interestsContainer}>
                         {(profile?.interests || ['Business', 'Technology', 'Leadership']).map((interest: string, index: number) => (
-                            <Chip key={index} style={styles.interestChip} textStyle={styles.interestChipText}>
-                                {interest}
-                            </Chip>
+                            <MotiView
+                                key={index}
+                                from={{ opacity: 0, translateX: -10 }}
+                                animate={{ opacity: 1, translateX: 0 }}
+                                transition={{ delay: index * 50 }}
+                            >
+                                <GlassCard intensity={5} style={styles.interestChipGlass}>
+                                    <Text style={styles.interestChipText}>{interest}</Text>
+                                </GlassCard>
+                            </MotiView>
                         ))}
                     </View>
                 </View>
@@ -536,55 +550,65 @@ function getRarityStyle(rarity: string) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: colors.neutral[50],
+        backgroundColor: '#000000',
     },
     header: {
-        paddingTop: spacing.xl,
+        paddingTop: spacing.xl * 2,
         paddingBottom: spacing.xxl,
         alignItems: 'center',
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
+        borderBottomLeftRadius: 40,
+        borderBottomRightRadius: 40,
         overflow: 'hidden',
+    },
+    profileGlow: {
+        position: 'absolute',
+        top: -50,
+        width: '100%',
+        height: 200,
+        opacity: 0.5,
     },
     avatarContainer: {
         position: 'relative',
         marginBottom: spacing.md,
     },
     avatar: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        borderWidth: 2,
+        borderColor: 'rgba(255,255,255,0.2)',
     },
     levelBadge: {
         position: 'absolute',
         bottom: -4,
         right: -4,
-        backgroundColor: colors.secondary[500],
-        paddingHorizontal: 10,
+        backgroundColor: '#F59E0B',
+        paddingHorizontal: 12,
         paddingVertical: 4,
-        borderRadius: 12,
-        borderWidth: 3,
-        borderColor: colors.primary[600],
+        borderRadius: 14,
+        borderWidth: 2,
+        borderColor: '#000000',
     },
     levelText: {
         fontSize: 12,
-        fontWeight: 'bold',
+        fontWeight: '900',
         color: '#FFFFFF',
     },
     userName: {
-        fontSize: typography.fontSize.xxl,
-        fontWeight: 'bold',
+        fontSize: typography.fontSize.xxxl,
+        fontWeight: '900',
         color: '#FFFFFF',
         marginBottom: 4,
+        letterSpacing: -0.5,
     },
     userRole: {
         fontSize: typography.fontSize.md,
-        color: 'rgba(255, 255, 255, 0.9)',
-        marginBottom: spacing.sm,
+        color: 'rgba(255, 255, 255, 0.6)',
+        fontWeight: '600',
+        marginBottom: spacing.md,
     },
-    chapterInfo: {
+    chapterInfoCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: 'rgba(255, 255, 255, 0.2)',
-        paddingHorizontal: spacing.md,
+        paddingHorizontal: spacing.lg,
         paddingVertical: spacing.xs,
         borderRadius: borderRadius.full,
     },
@@ -592,77 +616,85 @@ const styles = StyleSheet.create({
         fontSize: typography.fontSize.sm,
         color: '#FFFFFF',
         marginLeft: spacing.xs,
+        fontWeight: '700',
     },
     xpCardContainer: {
         margin: spacing.md,
-        marginTop: -spacing.xl,
+        marginTop: -spacing.xl * 1.5,
         zIndex: 10,
     },
     xpCard: {
-        borderRadius: borderRadius.lg,
-        backgroundColor: '#FFFFFF',
-        ...shadows.md,
+        padding: spacing.lg,
     },
     xpHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: spacing.sm,
+        marginBottom: spacing.md,
     },
     xpTitle: {
         fontSize: typography.fontSize.md,
-        fontWeight: '600',
-        color: colors.neutral[800],
+        fontWeight: '800',
+        color: 'rgba(255,255,255,0.7)',
+        textTransform: 'uppercase',
+        letterSpacing: 1,
     },
     xpValue: {
-        fontSize: typography.fontSize.lg,
-        fontWeight: 'bold',
-        color: colors.primary[600],
+        fontSize: typography.fontSize.xl,
+        fontWeight: '900',
+        color: '#FFFFFF',
     },
-    xpBar: {
-        height: 8,
-        borderRadius: 4,
-        backgroundColor: colors.neutral[200],
+    progressBarContainer: {
+        height: 10,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        borderRadius: 5,
+        overflow: 'hidden',
+        marginBottom: spacing.sm,
+    },
+    progressBarFill: {
+        height: '100%',
+        backgroundColor: colors.primary[500],
+        borderRadius: 5,
     },
     xpSubtext: {
         fontSize: typography.fontSize.sm,
-        color: colors.neutral[500],
-        marginTop: spacing.sm,
+        color: 'rgba(255, 255, 255, 0.4)',
+        marginTop: spacing.xs,
         textAlign: 'center',
+        fontWeight: '600',
     },
     statsContainer: {
         flexDirection: 'row',
         paddingHorizontal: spacing.md,
         gap: spacing.md,
+        marginBottom: spacing.lg,
     },
     statCard: {
         flex: 1,
-        backgroundColor: '#FFFFFF',
-        padding: spacing.md,
-        borderRadius: borderRadius.lg,
         alignItems: 'center',
-        ...shadows.sm,
     },
     statIconContainer: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: 48,
+        height: 48,
+        borderRadius: 16,
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: spacing.sm,
     },
     statValue: {
-        fontSize: typography.fontSize.xl,
-        fontWeight: 'bold',
-        color: colors.neutral[900],
+        fontSize: typography.fontSize.lg,
+        fontWeight: '900',
+        color: '#FFFFFF',
     },
     statLabel: {
-        fontSize: typography.fontSize.xs,
-        color: colors.neutral[500],
+        fontSize: 10,
+        color: 'rgba(255, 255, 255, 0.4)',
+        fontWeight: '800',
+        textTransform: 'uppercase',
     },
     section: {
-        padding: spacing.md,
-        paddingTop: spacing.lg,
+        paddingHorizontal: spacing.md,
+        marginBottom: spacing.xl,
     },
     sectionHeader: {
         flexDirection: 'row',
@@ -672,73 +704,83 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: typography.fontSize.lg,
-        fontWeight: '600',
-        color: colors.neutral[800],
-        marginBottom: spacing.md,
+        fontWeight: '800',
+        color: '#FFFFFF',
+        letterSpacing: 0.5,
     },
     seeAllText: {
         fontSize: typography.fontSize.sm,
-        color: colors.primary[600],
-        fontWeight: '500',
+        color: colors.primary[400],
+        fontWeight: '700',
     },
     badgesRow: {
         flexDirection: 'row',
         gap: spacing.md,
+        paddingBottom: spacing.sm,
     },
     badgeItem: {
         alignItems: 'center',
         width: 70,
     },
-    badgeIcon: {
-        width: 56,
-        height: 56,
-        borderRadius: 28,
+    badgeGlass: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: spacing.xs,
+        padding: 0,
     },
     badgeEmoji: {
         fontSize: 28,
     },
     badgeName: {
-        fontSize: typography.fontSize.xs,
-        color: colors.neutral[600],
+        fontSize: 10,
+        color: 'rgba(255,255,255,0.6)',
         textAlign: 'center',
+        fontWeight: '600',
     },
     moreBadges: {
-        width: 56,
-        height: 56,
-        borderRadius: 28,
-        backgroundColor: colors.neutral[100],
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        backgroundColor: 'rgba(255,255,255,0.05)',
         justifyContent: 'center',
         alignItems: 'center',
-        borderWidth: 2,
+        borderWidth: 1,
         borderStyle: 'dashed',
-        borderColor: colors.neutral[300],
+        borderColor: 'rgba(255,255,255,0.2)',
     },
     moreBadgesText: {
-        fontSize: 10,
-        color: colors.neutral[400],
+        fontSize: 9,
+        color: 'rgba(255,255,255,0.4)',
+        fontWeight: '800',
     },
     interestsContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
         gap: spacing.sm,
     },
-    interestChip: {
-        backgroundColor: colors.primary[50],
+    interestChipGlass: {
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.xs,
+        borderRadius: 20,
     },
     interestChipText: {
-        color: colors.primary[700],
+        color: '#FFFFFF',
+        fontSize: 12,
+        fontWeight: '700',
     },
     menuItem: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        backgroundColor: '#FFFFFF',
-        padding: spacing.md,
-        borderRadius: borderRadius.md,
+        padding: spacing.lg,
+        backgroundColor: 'rgba(255,255,255,0.03)',
+        borderRadius: 20,
         marginBottom: spacing.sm,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.05)',
     },
     menuItemLeft: {
         flexDirection: 'row',
@@ -746,8 +788,9 @@ const styles = StyleSheet.create({
     },
     menuItemText: {
         fontSize: typography.fontSize.md,
-        color: colors.neutral[700],
+        color: 'rgba(255, 255, 255, 0.8)',
         marginLeft: spacing.md,
+        fontWeight: '600',
     },
     logoutItem: {
         marginTop: spacing.md,
@@ -756,25 +799,28 @@ const styles = StyleSheet.create({
         fontSize: typography.fontSize.md,
         color: colors.error.main,
         marginLeft: spacing.md,
+        fontWeight: '700',
     },
     modal: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: '#18181B',
         margin: spacing.lg,
-        borderRadius: borderRadius.xl,
-        padding: spacing.lg,
+        borderRadius: 30,
+        padding: spacing.xl,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
     },
     modalTitle: {
         fontSize: typography.fontSize.xl,
-        fontWeight: 'bold',
-        color: colors.neutral[900],
-        marginBottom: spacing.sm,
+        fontWeight: '900',
+        color: '#FFFFFF',
+        marginBottom: spacing.md,
         textAlign: 'center',
     },
     modalText: {
         fontSize: typography.fontSize.md,
-        color: colors.neutral[600],
+        color: 'rgba(255, 255, 255, 0.6)',
         textAlign: 'center',
-        marginBottom: spacing.lg,
+        marginBottom: spacing.xl,
     },
     modalActions: {
         flexDirection: 'row',
@@ -782,24 +828,48 @@ const styles = StyleSheet.create({
     },
     modalButton: {
         flex: 1,
+        borderRadius: 15,
+    },
+    helpItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: spacing.md,
+        marginBottom: spacing.sm,
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderRadius: 12,
+    },
+    helpText: {
+        color: '#FFFFFF',
+        marginLeft: spacing.md,
+        fontWeight: '600',
+    },
+    versionInfo: {
+        alignItems: 'center',
+        marginTop: spacing.md,
+    },
+    versionText: {
+        color: 'rgba(255,255,255,0.3)',
+        fontSize: 12,
     },
     formGroup: {
         marginBottom: spacing.md,
     },
     formLabel: {
         fontSize: typography.fontSize.sm,
-        fontWeight: '600',
-        color: colors.neutral[700],
+        fontWeight: '700',
+        color: colors.neutral[400],
         marginBottom: spacing.xs,
+        textTransform: 'uppercase',
+        letterSpacing: 1,
     },
     textInput: {
-        borderWidth: 1,
-        borderColor: colors.neutral[300],
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
         borderRadius: borderRadius.md,
         padding: spacing.md,
+        color: '#FFFFFF',
         fontSize: typography.fontSize.md,
-        color: colors.neutral[900],
-        backgroundColor: '#FFFFFF',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.1)',
     },
     textArea: {
         height: 100,
@@ -811,54 +881,46 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: spacing.md,
         borderBottomWidth: 1,
-        borderBottomColor: colors.neutral[100],
+        borderBottomColor: 'rgba(255, 255, 255, 0.05)',
     },
     settingLabel: {
         fontSize: typography.fontSize.md,
-        color: colors.neutral[700],
+        color: '#FFFFFF',
+        fontWeight: '600',
     },
     settingSubtext: {
         fontSize: typography.fontSize.sm,
-        color: colors.neutral[500],
-        marginTop: spacing.xs,
-    },
-    helpItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: spacing.md,
-        borderBottomWidth: 1,
-        borderBottomColor: colors.neutral[100],
-    },
-    helpText: {
-        fontSize: typography.fontSize.md,
-        color: colors.neutral[700],
-        marginLeft: spacing.md,
-    },
-    versionInfo: {
-        marginTop: spacing.lg,
-        alignItems: 'center',
-    },
-    versionText: {
-        fontSize: typography.fontSize.sm,
-        color: colors.neutral[400],
+        color: 'rgba(255, 255, 255, 0.4)',
+        marginTop: 2,
     },
     badgesGrid: {
         maxHeight: 400,
+        marginTop: spacing.md,
     },
     badgesGridContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
         gap: spacing.md,
+        justifyContent: 'center',
     },
     badgeGridItem: {
-        width: '45%',
+        width: width * 0.35,
         alignItems: 'center',
-        marginBottom: spacing.md,
+        marginBottom: spacing.lg,
+    },
+    badgeIcon: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: spacing.sm,
     },
     badgeDescription: {
         fontSize: 10,
-        color: colors.neutral[500],
+        color: 'rgba(255, 255, 255, 0.4)',
         textAlign: 'center',
         marginTop: spacing.xs,
+        lineHeight: 14,
     },
 });
