@@ -43,13 +43,13 @@ export default function AdvisorDashboardScreen() {
     const [showAnnouncementModal, setShowAnnouncementModal] = React.useState(false);
     const [showStatsModal, setShowStatsModal] = React.useState(false);
 
-    if (!user || user.role !== 'adviser') {
+    if (!user || (user.role !== 'adviser' && user.role !== 'officer')) {
         return (
             <View style={styles.container}>
                 <View style={styles.errorContainer}>
                     <Ionicons name="lock-closed" size={48} color={colors.error.main} />
                     <Text style={styles.errorText}>Access Denied</Text>
-                    <Text style={styles.errorSubtext}>Only advisors can access this page.</Text>
+                    <Text style={styles.errorSubtext}>Only advisors and officers can access this page.</Text>
                 </View>
             </View>
         );
@@ -72,7 +72,7 @@ export default function AdvisorDashboardScreen() {
                 setShowMeetingModal(true);
             },
         },
-        {
+        ...(user.role === 'adviser' ? [{
             id: 'create-announcement',
             title: 'Create Announcement',
             icon: 'megaphone-outline',
@@ -80,7 +80,7 @@ export default function AdvisorDashboardScreen() {
             onPress: () => {
                 setShowAnnouncementModal(true);
             },
-        },
+        }] : []),
         {
             id: 'manage-members',
             title: 'Manage Members',
@@ -118,7 +118,7 @@ export default function AdvisorDashboardScreen() {
                     <View>
                         <Text style={styles.greeting}>Welcome back,</Text>
                         <Text style={styles.name}>{user.displayName}</Text>
-                        <Text style={styles.chapterName}>{user.chapterName || 'Your Chapter'}</Text>
+                        <Text style={styles.chapterName}>{user.role === 'adviser' ? 'Advisor' : 'Officer'} • {user.chapterName || 'Your Chapter'}</Text>
                     </View>
                     <Avatar.Text
                         size={64}

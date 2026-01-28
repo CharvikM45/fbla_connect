@@ -19,6 +19,7 @@ import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { colors, spacing, typography, borderRadius } from '../../../shared/theme';
 import AddAnnouncementModal from '../components/AddAnnouncementModal';
+import AddMeetingModal from '../../calendar/components/AddMeetingModal';
 const { width } = Dimensions.get('window');
 
 const demoNews: NewsItem[] = [
@@ -69,6 +70,7 @@ export default function HomeScreen() {
     const { unreadCount } = useAppSelector(state => state.news);
     const [refreshing, setRefreshing] = useState(false);
     const [showAddAnnouncementModal, setShowAddAnnouncementModal] = useState(false);
+    const [showAddMeetingModal, setShowAddMeetingModal] = useState(false);
 
     // Convex Query for real-time news
     const liveNews = useQuery(api.news.getFilteredNews, {
@@ -206,10 +208,16 @@ export default function HomeScreen() {
                     <View style={styles.sectionHeader}>
                         <Text style={styles.sectionTitle}>News Feed</Text>
                         <View style={styles.sectionHeaderRight}>
-                            {user?.role === 'adviser' && (
+                            {(user?.role === 'adviser' || user?.role === 'officer') && (
                                 <TouchableOpacity
                                     style={styles.addAnnouncementBtn}
-                                    onPress={() => setShowAddAnnouncementModal(true)}
+                                    onPress={() => {
+                                        if (user?.role === 'adviser') {
+                                            setShowAddAnnouncementModal(true);
+                                        } else {
+                                            setShowAddMeetingModal(true);
+                                        }
+                                    }}
                                 >
                                     <Ionicons name="add-circle" size={20} color={colors.primary[600]} />
                                     <Text style={styles.addAnnouncementText}>Create</Text>
@@ -243,6 +251,15 @@ export default function HomeScreen() {
                 onSuccess={() => {
                     // Refetch handled automatically by Convex
                     setShowAddAnnouncementModal(false);
+                }}
+            />
+
+            {/* Add Meeting Modal */}
+            <AddMeetingModal
+                visible={showAddMeetingModal}
+                onDismiss={() => setShowAddMeetingModal(false)}
+                onSuccess={() => {
+                    setShowAddMeetingModal(false);
                 }}
             />
         </View>
