@@ -80,13 +80,14 @@ export const seed = action({
                 category: "Objective Test",
                 division: "High School",
                 description: "Individual event focused on fundamental accounting principles.",
-                pdfUrl: "https://www.fbla.org/wp-content/uploads/2024/08/2025-2026-Competitive-Events-Guidelines.pdf",
+                pdfUrl: "https://connect.fbla.org/headquarters/files/High%20School%20Competitive%20Events%20Resources/Individual%20Guidelines/Objective%20Tests/Accounting-I.pdf",
                 competitionTypes: ["Objective Test"],
                 requirements: "50-minute test, 100 multiple-choice questions.",
-                linkUrl: "https://www.fbla.org/competitive-events/accounting-i-high-school/",
+                linkUrl: "https://www.fbla.org/competitive-events/accounting-i/",
                 studyLinks: [
-                    { title: "Sample Test 1", url: "https://www.fblatests.org/accounting-i" },
-                    { title: "Quizlet: Accounting Basics", url: "https://quizlet.com/search?query=fbla-accounting-i" }
+                    { title: "Quizlet: Accounting I", url: "https://quizlet.com/search?query=fbla-accounting-i&type=sets" },
+                    { title: "FBLA Practice Tests", url: "https://www.fbla-pbl.org/competitive-event-study-guides/" },
+                    { title: "Khan Academy: Finance & Economics", url: "https://www.khanacademy.org/economics-finance-domain" }
                 ]
             },
             {
@@ -94,13 +95,13 @@ export const seed = action({
                 category: "Production & Presentation",
                 division: "High School",
                 description: "Create a mobile app project and present it to judges.",
-                pdfUrl: "https://www.fbla.org/wp-content/uploads/2024/08/2025-2026-Competitive-Events-Guidelines.pdf",
+                pdfUrl: "https://connect.fbla.org/headquarters/files/High%20School%20Competitive%20Events%20Resources/Individual%20Guidelines/Presentation%20Events/Mobile-Application-Development.pdf",
                 competitionTypes: ["Project", "Presentation"],
                 requirements: "Pre-judged project + live presentation.",
                 linkUrl: "https://www.fbla.org/competitive-events/mobile-application-development/",
                 studyLinks: [
-                    { title: "Official Topic 2025", url: "https://www.fbla.org/competitive-events/topics/" },
-                    { title: "React Native Tutorial", url: "https://reactnative.dev/docs/getting-started" }
+                    { title: "Quizlet: Mobile Application Development", url: "https://quizlet.com/search?query=fbla-mobile-application-development&type=sets" },
+                    { title: "Codecademy Resources", url: "https://www.codecademy.com/" }
                 ]
             },
             {
@@ -108,11 +109,14 @@ export const seed = action({
                 category: "Objective Test",
                 division: "High School",
                 description: "Test your skills in written and oral business communication.",
-                pdfUrl: "https://www.fbla.org/wp-content/uploads/2024/08/2025-2026-Competitive-Events-Guidelines.pdf",
+                pdfUrl: "https://connect.fbla.org/headquarters/files/High%20School%20Competitive%20Events%20Resources/Individual%20Guidelines/Objective%20Tests/Business-Communication.pdf",
                 competitionTypes: ["Objective Test"],
                 requirements: "100 multiple-choice questions.",
+                linkUrl: "https://www.fbla.org/competitive-events/business-communication/",
                 studyLinks: [
-                    { title: "Communication Skills Guide", url: "https://www.fbla.org/resources/communication" }
+                    { title: "Quizlet: Business Communication", url: "https://quizlet.com/search?query=fbla-business-communication&type=sets" },
+                    { title: "FBLA Practice Tests", url: "https://www.fbla-pbl.org/competitive-event-study-guides/" },
+                    { title: "Khan Academy: Business", url: "https://www.khanacademy.org/college-careers-more/entrepreneurship2" }
                 ]
             }
         ];

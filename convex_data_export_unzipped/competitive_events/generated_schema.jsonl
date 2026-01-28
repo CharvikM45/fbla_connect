@@ -1,0 +1,1 @@
+"{\"_creationTime\": normalfloat64, \"_id\": id<10005>, \"category\": field_name, \"description\": field_name, \"division\": field_name, \"linkUrl\": field_name, \"pdfUrl\": field_name, \"studyLinks\": array<{\"title\": field_name, \"url\": field_name}>, \"title\": field_name}"
