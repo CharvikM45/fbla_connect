@@ -15,7 +15,7 @@ FBLA Connect is a comprehensive mobile application designed to revolutionize mem
 
 - **👤 Member Profiles** - Secure accounts with role-based access (Member, Officer, Adviser)
 - **📅 Event Calendar** - Global and chapter calendars with smart reminders
-- **📚 Resources Library** - FBLA documents with offline caching
+- **📚 Resources Library** - FBLA documents with real-time sync
 - **📰 News Feed** - Personalized announcements and updates
 - **📱 Social Integration** - Aggregated chapter social media feeds
 - **🤖 AI Assistant** - Smart chatbot for FBLA questions and recommendations
@@ -28,20 +28,36 @@ FBLA Connect is a comprehensive mobile application designed to revolutionize mem
 - Node.js 18+ and npm
 - Expo CLI (`npm install -g expo-cli`)
 - iOS Simulator (Mac) or Android Studio/Emulator
+- Convex account (free tier available at [convex.dev](https://convex.dev))
 
 ### Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/fbla-connect.git
+git clone https://github.com/CharvikM45/fbla_connect.git
 cd fbla-connect
 
 # Install dependencies
 npm install
 
+# Set up Convex (if not already configured)
+# Create a .env file in the root directory
+echo "EXPO_PUBLIC_CONVEX_URL=your-convex-url-here" > .env
+
 # Start the development server
 npm start
 ```
+
+### Convex Setup
+
+1. Create a Convex account at [convex.dev](https://convex.dev)
+2. Create a new project
+3. Copy your Convex deployment URL
+4. Create a `.env` file in the project root:
+   ```
+   EXPO_PUBLIC_CONVEX_URL=https://your-project.convex.cloud
+   ```
+5. The app will automatically connect to your Convex backend
 
 ### Running the App
 
@@ -94,8 +110,8 @@ fbla-connect/
 | State Management | Redux Toolkit |
 | Navigation | React Navigation 6 |
 | UI Components | React Native Paper |
-| Storage | AsyncStorage + SQLite |
-| Authentication | Firebase Auth (planned) |
+| Database | Convex (Real-time Backend) |
+| Authentication | Convex Auth (Built-in) |
 | AI | OpenAI API (planned) |
 
 ## 📋 Competition Compliance
