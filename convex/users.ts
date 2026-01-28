@@ -81,8 +81,6 @@ export const updateUser = mutation({
         const identity = await ctx.auth.getUserIdentity();
         const tokenIdentifier = identity?.tokenIdentifier ?? "guest";
 
-        if (!identity) throw new Error("Unauthenticated");
-
         const user = await ctx.db
             .query("users")
             .withIndex("by_token", (q) => q.eq("tokenIdentifier", tokenIdentifier))
