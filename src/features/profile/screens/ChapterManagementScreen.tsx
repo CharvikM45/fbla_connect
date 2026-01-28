@@ -10,16 +10,70 @@ import { Text, Card, Avatar, ActivityIndicator } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector } from '../../../shared/hooks/useRedux';
 import { colors, spacing, borderRadius } from '../../../shared/theme';
-import { useQuery } from 'convex/react';
+import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
+import { Button, TextInput, Portal, Modal, Dialog } from 'react-native-paper';
 
 export default function ChapterManagementScreen() {
     const user = useAppSelector(state => state.auth.user);
     const chapterId = user?.chapterName || '';
 
-    const chapterMembers = useQuery(api.users.getChapterMembers, {
-        chapterId: chapterId,
-    });
+    const chapterMembers = useQuery(api.users.getChapterMembers);
+
+    const removeMember = useMutation(api.users.removeMemberFromChapter);
+    const addMember = useMutation(api.users.addMemberToChapter);
+    const seedMembers = useMutation(api.init.seedChapterMembers);
+
+    const [showAddModal, setShowAddModal] = React.useState(false);
+    const [emailToAdd, setEmailToAdd] = React.useState('');
+    const [isSubmitting, setIsSubmitting] = React.useState(false);
+    const [addError, setAddError] = React.useState<string | null>(null);
+
+    const [memberToRemove, setMemberToRemove] = React.useState<any>(null);
+    const [showConfirmDelete, setShowConfirmDelete] = React.useState(false);
+
+    const handleAddMember = async () => {
+        if (!emailToAdd) return;
+        setIsSubmitting(true);
+        setAddError(null);
+        try {
+            await addMember({
+                email: emailToAdd,
+                chapterName: user!.chapterName || '',
+                schoolName: user!.schoolName || '',
+                state: user!.state || '',
+            });
+            setEmailToAdd('');
+            setShowAddModal(false);
+        } catch (error) {
+            setAddError(error instanceof Error ? error.message : 'Failed to add member');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleRemoveMember = async () => {
+        if (!memberToRemove) return;
+        try {
+            await removeMember({ userId: memberToRemove._id });
+            setShowConfirmDelete(false);
+            setMemberToRemove(null);
+        } catch (error) {
+            console.error("Failed to remove member:", error);
+        }
+    };
+
+    const handleSeedData = async () => {
+        try {
+            await seedMembers({
+                chapterName: user!.chapterName || '',
+                schoolName: user!.schoolName || '',
+                state: user!.state || '',
+            });
+        } catch (error) {
+            console.error("Failed to seed data:", error);
+        }
+    };
 
     if (!user || user.role !== 'adviser') {
         return (
@@ -48,31 +102,49 @@ export default function ChapterManagementScreen() {
         <View style={styles.container}>
             <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
                 <View style={styles.header}>
-                    <Text style={styles.title}>Chapter Management</Text>
-                    <Text style={styles.subtitle}>{user.chapterName || 'Your Chapter'}</Text>
+                    <View style={styles.headerTop}>
+                        <View>
+                            <Text style={styles.title}>Chapter Management</Text>
+                            <Text style={styles.subtitle}>{user.chapterName || 'Your Chapter'}</Text>
+                        </View>
+                        <View style={styles.headerActions}>
+                            <TouchableOpacity
+                                style={styles.headerActionButton}
+                                onPress={handleSeedData}
+                            >
+                                <Ionicons name="flask-outline" size={24} color="#FFFFFF" />
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.addButton}
+                                onPress={() => setShowAddModal(true)}
+                            >
+                                <Ionicons name="person-add" size={24} color="#FFFFFF" />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
                 </View>
 
                 <View style={styles.statsContainer}>
                     <View style={styles.statCard}>
-                        <Text style={styles.statValue}>{chapterMembers.length}</Text>
+                        <Text style={styles.statValue}>{chapterMembers?.length || 0}</Text>
                         <Text style={styles.statLabel}>Total Members</Text>
                     </View>
                     <View style={styles.statCard}>
                         <Text style={styles.statValue}>
-                            {chapterMembers.filter(m => m.role === 'officer').length}
+                            {chapterMembers?.filter((m: any) => m.role === 'officer').length || 0}
                         </Text>
                         <Text style={styles.statLabel}>Officers</Text>
                     </View>
                     <View style={styles.statCard}>
                         <Text style={styles.statValue}>
-                            {chapterMembers.filter(m => m.role === 'member').length}
+                            {chapterMembers?.filter((m: any) => m.role === 'member').length || 0}
                         </Text>
                         <Text style={styles.statLabel}>Members</Text>
                     </View>
                 </View>
 
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Chapter Members</Text>
+                    <Text style={styles.sectionTitle}>Member List</Text>
                     {chapterMembers.length === 0 ? (
                         <View style={styles.emptyState}>
                             <Ionicons name="people-outline" size={48} color={colors.neutral[300]} />
@@ -92,15 +164,27 @@ export default function ChapterManagementScreen() {
                                             style={styles.avatar}
                                         />
                                         <View style={styles.memberDetails}>
-                                            <Text style={styles.memberName}>{member.displayName}</Text>
+                                            <View style={styles.nameRow}>
+                                                <Text style={styles.memberName}>{member.displayName}</Text>
+                                                {member.role !== 'adviser' && (
+                                                    <TouchableOpacity
+                                                        onPress={() => {
+                                                            setMemberToRemove(member);
+                                                            setShowConfirmDelete(true);
+                                                        }}
+                                                    >
+                                                        <Ionicons name="trash-outline" size={20} color={colors.error.main} />
+                                                    </TouchableOpacity>
+                                                )}
+                                            </View>
                                             <View style={styles.memberMeta}>
                                                 <View style={[
                                                     styles.roleBadge,
                                                     {
                                                         backgroundColor:
                                                             member.role === 'adviser' ? colors.primary[100] :
-                                                            member.role === 'officer' ? colors.secondary[100] :
-                                                            colors.neutral[100]
+                                                                member.role === 'officer' ? colors.secondary[100] :
+                                                                    colors.neutral[100]
                                                     }
                                                 ]}>
                                                     <Text style={[
@@ -108,8 +192,8 @@ export default function ChapterManagementScreen() {
                                                         {
                                                             color:
                                                                 member.role === 'adviser' ? colors.primary[700] :
-                                                                member.role === 'officer' ? colors.secondary[700] :
-                                                                colors.neutral[700]
+                                                                    member.role === 'officer' ? colors.secondary[700] :
+                                                                        colors.neutral[700]
                                                         }
                                                     ]}>
                                                         {member.role === 'adviser' ? 'Adviser' :
@@ -134,6 +218,75 @@ export default function ChapterManagementScreen() {
 
                 <View style={{ height: 100 }} />
             </ScrollView>
+
+            <Portal>
+                {/* Add Member Modal */}
+                <Modal
+                    visible={showAddModal}
+                    onDismiss={() => setShowAddModal(false)}
+                    contentContainerStyle={styles.modal}
+                >
+                    <Text style={styles.modalTitle}>Add Member</Text>
+                    <Text style={styles.modalSubtext}>
+                        Enter the email address of the student you want to add to your chapter.
+                    </Text>
+                    <TextInput
+                        mode="outlined"
+                        label="Student Email"
+                        value={emailToAdd}
+                        onChangeText={setEmailToAdd}
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                        style={styles.input}
+                        activeOutlineColor={colors.primary[600]}
+                        error={!!addError}
+                    />
+                    {addError ? (
+                        <Text style={styles.errorTextSmall}>{addError}</Text>
+                    ) : null}
+                    <View style={styles.modalActions}>
+                        <Button
+                            mode="outlined"
+                            onPress={() => setShowAddModal(false)}
+                            style={styles.modalButton}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            mode="contained"
+                            onPress={handleAddMember}
+                            loading={isSubmitting}
+                            disabled={isSubmitting || !emailToAdd}
+                            style={styles.modalButton}
+                        >
+                            Add
+                        </Button>
+                    </View>
+                </Modal>
+
+                {/* Confirm Removal Dialog */}
+                <Dialog
+                    visible={showConfirmDelete}
+                    onDismiss={() => setShowConfirmDelete(false)}
+                    style={styles.dialog}
+                >
+                    <Dialog.Title>Remove Member?</Dialog.Title>
+                    <Dialog.Content>
+                        <Text style={styles.dialogText}>
+                            Are you sure you want to remove {memberToRemove?.displayName} from your chapter?
+                        </Text>
+                    </Dialog.Content>
+                    <Dialog.Actions>
+                        <Button onPress={() => setShowConfirmDelete(false)}>Cancel</Button>
+                        <Button
+                            textColor={colors.error.main}
+                            onPress={handleRemoveMember}
+                        >
+                            Remove
+                        </Button>
+                    </Dialog.Actions>
+                </Dialog>
+            </Portal>
         </View>
     );
 }
@@ -161,6 +314,31 @@ const styles = StyleSheet.create({
     subtitle: {
         fontSize: 16,
         color: 'rgba(255,255,255,0.9)',
+    },
+    headerTop: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    headerActions: {
+        flexDirection: 'row',
+        gap: spacing.sm,
+    },
+    headerActionButton: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    addButton: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     statsContainer: {
         flexDirection: 'row',
@@ -222,6 +400,11 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
         color: colors.neutral[900],
+    },
+    nameRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         marginBottom: spacing.xs,
     },
     memberMeta: {
@@ -299,5 +482,49 @@ const styles = StyleSheet.create({
         color: colors.neutral[600],
         textAlign: 'center',
         marginTop: spacing.xs,
+    },
+    modal: {
+        backgroundColor: 'white',
+        padding: spacing.xl,
+        margin: spacing.xl,
+        borderRadius: borderRadius.lg,
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: spacing.sm,
+        color: colors.neutral[900],
+    },
+    modalSubtext: {
+        fontSize: 14,
+        color: colors.neutral[600],
+        marginBottom: spacing.lg,
+        lineHeight: 20,
+    },
+    input: {
+        marginBottom: spacing.md,
+        backgroundColor: '#FFFFFF',
+    },
+    errorTextSmall: {
+        color: colors.error.main,
+        fontSize: 12,
+        marginBottom: spacing.md,
+    },
+    modalActions: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        gap: spacing.md,
+    },
+    modalButton: {
+        borderRadius: borderRadius.md,
+    },
+    dialog: {
+        backgroundColor: 'white',
+        borderRadius: borderRadius.lg,
+    },
+    dialogText: {
+        fontSize: 16,
+        color: colors.neutral[700],
+        lineHeight: 24,
     },
 });

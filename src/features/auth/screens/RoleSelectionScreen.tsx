@@ -31,8 +31,8 @@ const roles: { id: UserRole; title: string; description: string; icon: string }[
     },
     {
         id: 'adviser',
-        title: 'Adviser',
-        description: 'Faculty adviser supporting an FBLA chapter',
+        title: 'Advisor',
+        description: 'Faculty advisor supporting an FBLA chapter',
         icon: 'school',
     },
 ];

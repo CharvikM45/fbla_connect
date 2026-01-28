@@ -105,32 +105,142 @@ export const getUserByEmail = query({
             .unique();
     },
 });
-// Get members of a specific chapter
+// Get members of the authenticated advisor's chapter
 export const getChapterMembers = query({
-    args: { chapterId: v.string() },
-    handler: async (ctx, args) => {
-        // Verify user is an advisor
+    args: {},
+    handler: async (ctx) => {
         const identity = await ctx.auth.getUserIdentity();
-        if (!identity) throw new Error("Unauthenticated");
+        if (!identity) return [];
 
         const user = await ctx.db
             .query("users")
             .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
             .unique();
 
-        if (!user || user.role !== "adviser") {
-            throw new Error("Only advisors can view chapter members");
+        if (!user || user.role !== "adviser" || !user.chapterName) {
+            return [];
         }
 
-        // Ensure the advisor is viewing their own chapter
-        if (user.chapterName !== args.chapterId) {
-            throw new Error("You can only view members of your own chapter");
-        }
-
-        // Get all users in the chapter
+        // Get all users in the chapter using the index
         return await ctx.db
             .query("users")
-            .filter((q) => q.eq(q.field("chapterName"), args.chapterId))
+            .withIndex("by_chapter", (q) => q.eq("chapterName", user.chapterName))
             .collect();
+    },
+});
+
+// Aggregate competitive event status for a chapter
+export const getChapterEventsStatus = query({
+    args: {},
+    handler: async (ctx) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) return [];
+
+        const user = await ctx.db
+            .query("users")
+            .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+            .unique();
+
+        if (!user || user.role !== "adviser" || !user.chapterName) {
+            return [];
+        }
+
+        const members = await ctx.db
+            .query("users")
+            .withIndex("by_chapter", (q) => q.eq("chapterName", user.chapterName))
+            .collect();
+
+        const eventCounts: Record<string, number> = {};
+        members.forEach(member => {
+            if (member.competitiveEvents) {
+                member.competitiveEvents.forEach(event => {
+                    eventCounts[event] = (eventCounts[event] || 0) + 1;
+                });
+            }
+        });
+
+        // Convert to sorted array
+        return Object.entries(eventCounts)
+            .map(([title, count]) => ({ title, count }))
+            .sort((a, b) => b.count - a.count);
+    },
+});
+
+// Add a member to a chapter (by email)
+export const addMemberToChapter = mutation({
+    args: {
+        email: v.string(),
+        chapterName: v.string(),
+        schoolName: v.string(),
+        state: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Unauthenticated");
+
+        const advisor = await ctx.db
+            .query("users")
+            .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+            .unique();
+
+        if (!advisor || advisor.role !== "adviser") {
+            throw new Error("Only advisors can add members");
+        }
+
+        if (advisor.chapterName !== args.chapterName) {
+            throw new Error("You can only add members to your own chapter");
+        }
+
+        const userToAdd = await ctx.db
+            .query("users")
+            .withIndex("by_email", (q) => q.eq("email", args.email))
+            .unique();
+
+        if (!userToAdd) throw new Error("User not found with that email");
+
+        await ctx.db.patch(userToAdd._id, {
+            chapterName: args.chapterName,
+            schoolName: args.schoolName,
+            state: args.state,
+        });
+
+        return userToAdd._id;
+    },
+});
+
+// Remove a member from a chapter
+export const removeMemberFromChapter = mutation({
+    args: {
+        userId: v.id("users"),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Unauthenticated");
+
+        const advisor = await ctx.db
+            .query("users")
+            .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+            .unique();
+
+        if (!advisor || advisor.role !== "adviser") {
+            throw new Error("Only advisors can remove members");
+        }
+
+        const userToRemove = await ctx.db.get(args.userId);
+        if (!userToRemove) throw new Error("Member not found");
+
+        if (userToRemove.chapterName !== advisor.chapterName) {
+            throw new Error("You can only remove members from your own chapter");
+        }
+
+        // Using ctx.db.patch doesn't allow unsetting a field by passing undefined in literal,
+        // but it works if the field is omitted. Since we want to clear it, 
+        // we'll explicitly clear chapterName and schoolName.
+        await ctx.db.patch(userToRemove._id, {
+            chapterName: undefined,
+            schoolName: undefined
+        });
+
+        return userToRemove._id;
     },
 });

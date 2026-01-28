@@ -15,6 +15,9 @@ import { api } from '../../../../convex/_generated/api';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from '../../../shared/navigation/types';
+import AddAnnouncementModal from '../../news/components/AddAnnouncementModal';
+import AddMeetingModal from '../../calendar/components/AddMeetingModal';
+import { Portal, Modal, Button } from 'react-native-paper';
 
 type NavigationProp = NativeStackNavigationProp<ProfileStackParamList>;
 
@@ -23,9 +26,7 @@ export default function AdvisorDashboardScreen() {
     const user = useAppSelector(state => state.auth.user);
     const chapterId = user?.chapterName || '';
 
-    const chapterMembers = useQuery(api.users.getChapterMembers, {
-        chapterId: chapterId,
-    });
+    const chapterMembers = useQuery(api.users.getChapterMembers);
 
     const meetings = useQuery(api.meetings.getMeetings, {
         chapterId: chapterId,
@@ -33,7 +34,14 @@ export default function AdvisorDashboardScreen() {
 
     const announcements = useQuery(api.news.getFilteredNews, {
         chapterId: chapterId,
+        stateId: user?.state || '',
     });
+
+    const eventsStatus = useQuery(api.users.getChapterEventsStatus);
+
+    const [showMeetingModal, setShowMeetingModal] = React.useState(false);
+    const [showAnnouncementModal, setShowAnnouncementModal] = React.useState(false);
+    const [showStatsModal, setShowStatsModal] = React.useState(false);
 
     if (!user || user.role !== 'adviser') {
         return (
@@ -47,11 +55,12 @@ export default function AdvisorDashboardScreen() {
         );
     }
 
-    const chapterAnnouncements = announcements?.filter(a => a.level === 'chapter') || [];
+    const chapterAnnouncements = announcements?.filter(a => (a as any).level === 'chapter') || [];
+    const nationalStateNews = announcements?.filter(a => (a as any).level === 'national' || (a as any).level === 'state') || [];
     const totalMembers = chapterMembers?.length || 0;
-    const totalOfficers = chapterMembers?.filter(m => m.role === 'officer').length || 0;
+    const totalOfficers = chapterMembers?.filter(m => (m as any).role === 'officer').length || 0;
     const totalMeetings = meetings?.length || 0;
-    const upcomingMeetings = meetings?.filter(m => new Date(m.date) >= new Date()).length || 0;
+    const upcomingMeetings = meetings?.filter(m => new Date((m as any).date) >= new Date()).length || 0;
 
     const quickActions = [
         {
@@ -60,8 +69,7 @@ export default function AdvisorDashboardScreen() {
             icon: 'calendar',
             color: colors.primary[600],
             onPress: () => {
-                // Navigate to calendar with add meeting modal
-                navigation.getParent()?.navigate('Events');
+                setShowMeetingModal(true);
             },
         },
         {
@@ -70,7 +78,7 @@ export default function AdvisorDashboardScreen() {
             icon: 'megaphone-outline',
             color: colors.secondary[500],
             onPress: () => {
-                navigation.getParent()?.navigate('Home');
+                setShowAnnouncementModal(true);
             },
         },
         {
@@ -86,7 +94,7 @@ export default function AdvisorDashboardScreen() {
             icon: 'bar-chart-outline',
             color: '#8B5CF6',
             onPress: () => {
-                // Could navigate to detailed stats screen
+                setShowStatsModal(true);
             },
         },
     ];
@@ -171,6 +179,74 @@ export default function AdvisorDashboardScreen() {
                     </View>
                 </View>
 
+                {/* Competitive Events Snapshot */}
+                <View style={styles.section}>
+                    <View style={styles.sectionHeader}>
+                        <Text style={styles.sectionTitle}>Competitive Events</Text>
+                        <TouchableOpacity onPress={() => navigation.getParent()?.navigate('Resources')}>
+                            <Text style={styles.seeAllText}>Manage</Text>
+                        </TouchableOpacity>
+                    </View>
+                    {eventsStatus && eventsStatus.length > 0 ? (
+                        <View style={styles.eventsGrid}>
+                            {eventsStatus.slice(0, 4).map((event: any, index: number) => (
+                                <View key={index} style={styles.eventMiniCard}>
+                                    <View style={styles.eventCountBadge}>
+                                        <Text style={styles.eventCountText}>{event.count}</Text>
+                                    </View>
+                                    <Text style={styles.eventMiniTitle} numberOfLines={1}>{event.title}</Text>
+                                </View>
+                            ))}
+                        </View>
+                    ) : (
+                        <Card style={styles.emptyCardMini}>
+                            <Card.Content style={styles.emptyContentMini}>
+                                <Text style={styles.emptyTextMini}>No student registrations yet</Text>
+                            </Card.Content>
+                        </Card>
+                    )}
+                </View>
+
+                {/* National & State Updates */}
+                {nationalStateNews.length > 0 && (
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>Organization Updates</Text>
+                        {nationalStateNews.slice(0, 2).map((item: any, index: number) => (
+                            <TouchableOpacity key={item._id} activeOpacity={0.8} style={styles.newsItem}>
+                                <View style={[
+                                    styles.newsLevelTag,
+                                    { backgroundColor: item.level === 'national' ? colors.primary[100] : colors.secondary[100] }
+                                ]}>
+                                    <Text style={[
+                                        styles.newsLevelText,
+                                        { color: item.level === 'national' ? colors.primary[700] : colors.secondary[700] }
+                                    ]}>
+                                        {item.level.toUpperCase()}
+                                    </Text>
+                                </View>
+                                <View style={styles.newsTextContent}>
+                                    <Text style={styles.newsItemTitle} numberOfLines={1}>{item.title}</Text>
+                                    <Text style={styles.newsItemDate}>
+                                        {new Date(item.publishedAt).toLocaleDateString()}
+                                    </Text>
+                                </View>
+                                <Ionicons name="chevron-forward" size={16} color={colors.neutral[400]} />
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                )}
+
+                {/* Useful Resources */}
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Advisor Resources</Text>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.resourcesRow}>
+                        <ResourceLink icon="book-outline" label="Chapter Guide" color="#3B82F6" />
+                        <ResourceLink icon="document-text-outline" label="CE Guidelines" color="#10B981" />
+                        <ResourceLink icon="briefcase-outline" label="Career Path" color="#F59E0B" />
+                        <ResourceLink icon="ribbon-outline" label="Awards" color="#EC4899" />
+                    </ScrollView>
+                </View>
+
                 {/* Recent Activity */}
                 <View style={styles.section}>
                     <View style={styles.sectionHeader}>
@@ -237,7 +313,71 @@ export default function AdvisorDashboardScreen() {
 
                 <View style={{ height: 100 }} />
             </ScrollView>
+
+            <AddMeetingModal
+                visible={showMeetingModal}
+                onDismiss={() => setShowMeetingModal(false)}
+                onSuccess={() => setShowMeetingModal(false)}
+            />
+
+            <AddAnnouncementModal
+                visible={showAnnouncementModal}
+                onDismiss={() => setShowAnnouncementModal(false)}
+                onSuccess={() => setShowAnnouncementModal(false)}
+            />
+
+            {/* Stats Modal */}
+            <Portal>
+                <Modal
+                    visible={showStatsModal}
+                    onDismiss={() => setShowStatsModal(false)}
+                    contentContainerStyle={styles.statsModal}
+                >
+                    <View style={styles.modalHeader}>
+                        <Text style={styles.modalTitle}>Chapter Stats</Text>
+                        <TouchableOpacity onPress={() => setShowStatsModal(false)}>
+                            <Ionicons name="close" size={24} color={colors.neutral[500]} />
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.statsList}>
+                        <View style={styles.statDetailRow}>
+                            <Text style={styles.statDetailLabel}>Total Members</Text>
+                            <Text style={styles.statDetailValue}>{totalMembers}</Text>
+                        </View>
+                        <View style={styles.statDetailRow}>
+                            <Text style={styles.statDetailLabel}>Chapter Officers</Text>
+                            <Text style={styles.statDetailValue}>{totalOfficers}</Text>
+                        </View>
+                        <View style={styles.statDetailRow}>
+                            <Text style={styles.statDetailLabel}>Scheduled Meetings</Text>
+                            <Text style={styles.statDetailValue}>{totalMeetings}</Text>
+                        </View>
+                        <View style={styles.statDetailRow}>
+                            <Text style={styles.statDetailLabel}>Active Announcements</Text>
+                            <Text style={styles.statDetailValue}>{chapterAnnouncements.length}</Text>
+                        </View>
+                    </View>
+                    <Button
+                        mode="contained"
+                        onPress={() => setShowStatsModal(false)}
+                        style={styles.closeBtn}
+                    >
+                        Close
+                    </Button>
+                </Modal>
+            </Portal>
         </View>
+    );
+}
+
+function ResourceLink({ icon, label, color }: { icon: string, label: string, color: string }) {
+    return (
+        <TouchableOpacity style={styles.resourceCard}>
+            <View style={[styles.resourceIcon, { backgroundColor: color + '15' }]}>
+                <Ionicons name={icon as any} size={24} color={color} />
+            </View>
+            <Text style={styles.resourceLabel}>{label}</Text>
+        </TouchableOpacity>
     );
 }
 
@@ -433,5 +573,151 @@ const styles = StyleSheet.create({
         color: colors.neutral[600],
         textAlign: 'center',
         marginTop: spacing.xs,
+    },
+    statsModal: {
+        backgroundColor: 'white',
+        margin: 20,
+        borderRadius: borderRadius.lg,
+        padding: spacing.lg,
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: spacing.lg,
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: colors.neutral[900],
+    },
+    statsList: {
+        gap: spacing.md,
+        marginBottom: spacing.xl,
+    },
+    statDetailRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: spacing.sm,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.neutral[100],
+    },
+    statDetailLabel: {
+        fontSize: 16,
+        color: colors.neutral[600],
+    },
+    statDetailValue: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: colors.primary[600],
+    },
+    closeBtn: {
+        backgroundColor: colors.primary[600],
+        borderRadius: borderRadius.md,
+    },
+    eventsGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: spacing.sm,
+    },
+    eventMiniCard: {
+        width: '48%',
+        backgroundColor: '#FFFFFF',
+        borderRadius: borderRadius.md,
+        padding: spacing.sm,
+        flexDirection: 'row',
+        alignItems: 'center',
+        elevation: 1,
+    },
+    eventCountBadge: {
+        backgroundColor: colors.primary[100],
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: spacing.sm,
+    },
+    eventCountText: {
+        fontSize: 12,
+        fontWeight: 'bold',
+        color: colors.primary[700],
+    },
+    eventMiniTitle: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: colors.neutral[800],
+        flex: 1,
+    },
+    emptyCardMini: {
+        backgroundColor: 'rgba(255,255,255,0.5)',
+        borderStyle: 'dashed',
+        borderWidth: 1,
+        borderColor: colors.neutral[200],
+        elevation: 0,
+    },
+    emptyContentMini: {
+        alignItems: 'center',
+        paddingVertical: spacing.md,
+    },
+    emptyTextMini: {
+        fontSize: 12,
+        color: colors.neutral[400],
+        fontStyle: 'italic',
+    },
+    newsItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#FFFFFF',
+        padding: spacing.md,
+        borderRadius: borderRadius.md,
+        marginBottom: spacing.sm,
+        elevation: 1,
+    },
+    newsLevelTag: {
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 6,
+        marginRight: spacing.md,
+    },
+    newsLevelText: {
+        fontSize: 10,
+        fontWeight: 'bold',
+    },
+    newsTextContent: {
+        flex: 1,
+    },
+    newsItemTitle: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: colors.neutral[900],
+        marginBottom: 2,
+    },
+    newsItemDate: {
+        fontSize: 11,
+        color: colors.neutral[500],
+    },
+    resourcesRow: {
+        paddingVertical: spacing.xs,
+        gap: spacing.md,
+    },
+    resourceCard: {
+        width: 100,
+        alignItems: 'center',
+    },
+    resourceIcon: {
+        width: 48,
+        height: 48,
+        borderRadius: 14,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    resourceLabel: {
+        fontSize: 12,
+        color: colors.neutral[700],
+        fontWeight: '500',
+        textAlign: 'center',
     },
 });

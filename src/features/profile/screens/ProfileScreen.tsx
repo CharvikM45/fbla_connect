@@ -21,6 +21,7 @@ import { GlassCard } from '../../../shared/components/GlassCard';
 import { GlowView } from '../../../shared/components/GlowView';
 import { StaggeredList } from '../../../shared/components/StaggeredList';
 import { Image } from 'react-native';
+import { interestSubsets } from '../../../shared/constants/interests';
 
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
@@ -41,21 +42,6 @@ interface Chapter {
 }
 
 const { width } = Dimensions.get('window');
-
-const eventOptions = [
-    { id: 'accounting-i', label: 'Accounting I' },
-    { id: 'business-comm', label: 'Business Communication' },
-    { id: 'coding-prog', label: 'Coding & Programming' },
-    { id: 'mobile-app-dev', label: 'Mobile Application Development' },
-    { id: 'public-speaking', label: 'Public Speaking' },
-    { id: 'website-design', label: 'Website Design' },
-    { id: 'social-media', label: 'Social Media Strategies' },
-    { id: 'marketing', label: 'Marketing' },
-    { id: 'entrepreneurship', label: 'Entrepreneurship' },
-    { id: 'graphic-design', label: 'Graphic Design' },
-    { id: 'intro-business', label: 'Introduction to Business' },
-    { id: 'sports-mgmt', label: 'Sports & Entertainment Management' },
-];
 
 // Demo badges
 const demoBadges = [
@@ -79,6 +65,7 @@ export default function ProfileScreen() {
     // Convex Queries
     const convexUser = useQuery(api.users.currentUser);
     const convexProfile = useQuery(api.profiles.getCurrentUserProfile);
+    const allEvents = useQuery(api.competitive_events.getEvents, {});
     const updateConvexUser = useMutation(api.users.updateUser);
 
     const navigation = useNavigation<NavigationProp>();
@@ -102,6 +89,7 @@ export default function ProfileScreen() {
         chapterName: (user as any)?.chapterName || '',
         state: (user as any)?.state || '',
         competitiveEvents: (user as any)?.competitiveEvents || [],
+        interests: (user as any)?.interests || [],
     });
 
     // Chapter search state
@@ -137,7 +125,9 @@ export default function ProfileScreen() {
             ...prev,
             schoolName: '',
             chapterName: '',
-            state: ''
+            state: '',
+            interests: prev.interests,
+            competitiveEvents: prev.competitiveEvents,
         }));
         setSearchQuery('');
     };
@@ -152,6 +142,7 @@ export default function ProfileScreen() {
                 chapterName: (user as any)?.chapterName || '',
                 state: (user as any)?.state || '',
                 competitiveEvents: (user as any)?.competitiveEvents || [],
+                interests: (user as any)?.interests || [],
             });
         }
     }, [showEditModal, user, profile]);
@@ -188,6 +179,7 @@ export default function ProfileScreen() {
                 chapterName: editForm.chapterName,
                 state: editForm.state,
                 competitiveEvents: editForm.competitiveEvents,
+                interests: editForm.interests,
             });
             setShowEditModal(false);
         } catch (error) {
@@ -232,10 +224,11 @@ export default function ProfileScreen() {
                     transition={{ duration: 1000 }}
                 >
                     <LinearGradient
-                        colors={['#041333', '#000000']}
+                        colors={['#F8FAFC', '#FFFFFF']}
                         style={styles.header}
                     >
-                        <GlowView color="gold" intensity={1.5} style={styles.profileGlow} />
+                        {/* Softened glow for light mode */}
+                        <GlowView color="blue" intensity={0.5} style={styles.profileGlow} />
 
                         <View style={styles.avatarContainer}>
                             <Avatar.Text
@@ -255,10 +248,10 @@ export default function ProfileScreen() {
                         </Text>
 
                         {user?.chapterName && (
-                            <GlassCard intensity={10} style={styles.chapterInfoCard}>
-                                <Ionicons name="people" size={14} color="#FFFFFF" />
+                            <View style={styles.chapterInfoCard}>
+                                <Ionicons name="people" size={14} color={colors.primary[600]} />
                                 <Text style={styles.chapterText}>{user.chapterName}</Text>
-                            </GlassCard>
+                            </View>
                         )}
                     </LinearGradient>
                 </MotiView>
@@ -269,18 +262,20 @@ export default function ProfileScreen() {
                     onTouchMove={handleTilt}
                     onTouchEnd={resetTilt}
                 >
-                    <GlassCard style={styles.xpCard} intensity={15}>
-                        <View style={styles.xpHeader}>
-                            <Text style={styles.xpTitle}>Progress</Text>
-                            <Text style={styles.xpValue}>{profile?.totalXP || 0} XP</Text>
+                    <View style={styles.xpCardShadow}>
+                        <View style={styles.xpCard}>
+                            <View style={styles.xpHeader}>
+                                <Text style={styles.xpTitle}>Progress</Text>
+                                <Text style={styles.xpValue}>{profile?.totalXP || 0} XP</Text>
+                            </View>
+                            <View style={styles.progressBarContainer}>
+                                <View style={[styles.progressBarFill, { width: `${xpProgress * 100}%` }]} />
+                            </View>
+                            <Text style={styles.xpSubtext}>
+                                {xpToNextLevel - currentLevelXP} XP to Level {(profile?.level || 1) + 1}
+                            </Text>
                         </View>
-                        <View style={styles.progressBarContainer}>
-                            <View style={[styles.progressBarFill, { width: `${xpProgress * 100}%` }]} />
-                        </View>
-                        <Text style={styles.xpSubtext}>
-                            {xpToNextLevel - currentLevelXP} XP to Level {(profile?.level || 1) + 1}
-                        </Text>
-                    </GlassCard>
+                    </View>
                 </Animated.View>
 
                 {/* Stats */}
@@ -309,9 +304,9 @@ export default function ProfileScreen() {
                                     transition={{ type: 'spring', delay: index * 100 }}
                                 >
                                     <View style={styles.badgeItem}>
-                                        <GlassCard intensity={8} style={styles.badgeGlass}>
+                                        <View style={[styles.badgeGlass, getRarityStyle(badge.rarity)]}>
                                             <Text style={styles.badgeEmoji}>{badge.icon}</Text>
-                                        </GlassCard>
+                                        </View>
                                         <Text style={styles.badgeName} numberOfLines={1}>{badge.name}</Text>
                                     </View>
                                 </MotiView>
@@ -335,9 +330,9 @@ export default function ProfileScreen() {
                                 animate={{ opacity: 1, translateX: 0 }}
                                 transition={{ delay: index * 50 }}
                             >
-                                <GlassCard intensity={5} style={styles.interestChipGlass}>
+                                <View style={styles.interestChipCard}>
                                     <Text style={styles.interestChipText}>{interest}</Text>
-                                </GlassCard>
+                                </View>
                             </MotiView>
                         ))}
                     </View>
@@ -591,7 +586,59 @@ export default function ProfileScreen() {
 
                                 <Divider style={styles.divider} />
 
-                                {/* Competitive Events Section */}
+                                {/* Interests & Topics Section */}
+                                <List.Accordion
+                                    title="Interests & Topics"
+                                    id="interests"
+                                    left={props => <List.Icon {...props} icon="lightbulb" />}
+                                >
+                                    <View style={{ paddingHorizontal: 0 }}>
+                                        <List.AccordionGroup>
+                                            {interestSubsets.map((subset) => (
+                                                <List.Accordion
+                                                    key={subset.title}
+                                                    title={subset.title}
+                                                    id={`interest-${subset.title}`}
+                                                    left={props => <Ionicons name={subset.icon as any} size={20} color={subset.color} style={{ marginRight: spacing.sm, marginLeft: spacing.xs }} />}
+                                                    titleStyle={{ fontSize: 14, fontWeight: '700', color: colors.neutral[700] }}
+                                                    style={{ backgroundColor: 'transparent', paddingVertical: 0 }}
+                                                >
+                                                    <View style={[styles.accordionContent, { paddingTop: 0 }]}>
+                                                        <View style={styles.chipContainer}>
+                                                            {subset.items.map(item => (
+                                                                <Chip
+                                                                    key={item.id}
+                                                                    selected={editForm.interests.includes(item.label)}
+                                                                    onPress={() => {
+                                                                        setEditForm(prev => ({
+                                                                            ...prev,
+                                                                            interests: prev.interests.includes(item.label)
+                                                                                ? prev.interests.filter((i: string) => i !== item.label)
+                                                                                : [...prev.interests, item.label]
+                                                                        }));
+                                                                    }}
+                                                                    style={[
+                                                                        styles.chip,
+                                                                        editForm.interests.includes(item.label) && { backgroundColor: subset.color },
+                                                                    ]}
+                                                                    textStyle={[
+                                                                        styles.chipText,
+                                                                        editForm.interests.includes(item.label) && { color: '#FFFFFF', fontWeight: 'bold' },
+                                                                    ]}
+                                                                    showSelectedCheck={false}
+                                                                >
+                                                                    {item.label}
+                                                                </Chip>
+                                                            ))}
+                                                        </View>
+                                                    </View>
+                                                </List.Accordion>
+                                            ))}
+                                        </List.AccordionGroup>
+                                    </View>
+                                </List.Accordion>
+
+                                <Divider style={styles.divider} />
                                 <List.Accordion
                                     title="Competitive Events"
                                     id="events"
@@ -600,31 +647,34 @@ export default function ProfileScreen() {
                                     <View style={styles.accordionContent}>
                                         <Text style={styles.formLabel}>Select Competitive Events</Text>
                                         <View style={styles.chipContainer}>
-                                            {eventOptions.map(event => (
+                                            {allEvents?.map(event => (
                                                 <Chip
-                                                    key={event.id}
-                                                    selected={editForm.competitiveEvents.includes(event.id)}
+                                                    key={event._id}
+                                                    selected={editForm.competitiveEvents.includes(event._id)}
                                                     onPress={() => {
                                                         setEditForm(prev => ({
                                                             ...prev,
-                                                            competitiveEvents: prev.competitiveEvents.includes(event.id)
-                                                                ? prev.competitiveEvents.filter((id: string) => id !== event.id)
-                                                                : [...prev.competitiveEvents, event.id]
+                                                            competitiveEvents: prev.competitiveEvents.includes(event._id)
+                                                                ? prev.competitiveEvents.filter((id: string) => id !== event._id)
+                                                                : [...prev.competitiveEvents, event._id]
                                                         }));
                                                     }}
                                                     style={[
                                                         styles.chip,
-                                                        editForm.competitiveEvents.includes(event.id) && styles.chipSelected,
+                                                        editForm.competitiveEvents.includes(event._id) && styles.chipSelected,
                                                     ]}
                                                     textStyle={[
                                                         styles.chipText,
-                                                        editForm.competitiveEvents.includes(event.id) && styles.chipTextSelected,
+                                                        editForm.competitiveEvents.includes(event._id) && styles.chipTextSelected,
                                                     ]}
                                                     showSelectedCheck={false}
                                                 >
-                                                    {event.label}
+                                                    {event.title}
                                                 </Chip>
                                             ))}
+                                            {(!allEvents || allEvents.length === 0) && (
+                                                <Text style={{ color: colors.neutral[400], fontStyle: 'italic', padding: spacing.sm }}>No events found.</Text>
+                                            )}
                                         </View>
                                     </View>
                                 </List.Accordion>
@@ -790,7 +840,7 @@ export default function ProfileScreen() {
                     </Button>
                 </Modal>
             </Portal>
-        </View>
+        </View >
     );
 }
 
@@ -825,7 +875,7 @@ function getRarityStyle(rarity: string) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#000000',
+        backgroundColor: '#FFFFFF',
     },
     header: {
         paddingTop: spacing.xl * 2,
@@ -840,16 +890,16 @@ const styles = StyleSheet.create({
         top: -50,
         width: '100%',
         height: 200,
-        opacity: 0.5,
+        opacity: 0.3,
     },
     avatarContainer: {
         position: 'relative',
         marginBottom: spacing.md,
     },
     avatar: {
-        backgroundColor: 'rgba(255,255,255,0.1)',
+        backgroundColor: colors.neutral[100],
         borderWidth: 2,
-        borderColor: 'rgba(255,255,255,0.2)',
+        borderColor: colors.neutral[200],
     },
     levelBadge: {
         position: 'absolute',
@@ -860,7 +910,7 @@ const styles = StyleSheet.create({
         paddingVertical: 4,
         borderRadius: 14,
         borderWidth: 2,
-        borderColor: '#000000',
+        borderColor: '#FFFFFF',
     },
     levelText: {
         fontSize: 12,
@@ -870,13 +920,13 @@ const styles = StyleSheet.create({
     userName: {
         fontSize: typography.fontSize.xxxl,
         fontWeight: '900',
-        color: '#FFFFFF',
+        color: colors.neutral[900],
         marginBottom: 4,
         letterSpacing: -0.5,
     },
     userRole: {
         fontSize: typography.fontSize.md,
-        color: 'rgba(255, 255, 255, 0.6)',
+        color: colors.neutral[500],
         fontWeight: '600',
         marginBottom: spacing.md,
     },
@@ -886,10 +936,13 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.lg,
         paddingVertical: spacing.xs,
         borderRadius: borderRadius.full,
+        backgroundColor: colors.neutral[100],
+        borderWidth: 1,
+        borderColor: colors.neutral[200],
     },
     chapterText: {
         fontSize: typography.fontSize.sm,
-        color: '#FFFFFF',
+        color: colors.neutral[700],
         marginLeft: spacing.xs,
         fontWeight: '700',
     },
@@ -898,8 +951,17 @@ const styles = StyleSheet.create({
         marginTop: -spacing.xl * 1.5,
         zIndex: 10,
     },
+    xpCardShadow: {
+        borderRadius: 24,
+        ...shadows.md,
+        backgroundColor: '#FFFFFF',
+    },
     xpCard: {
         padding: spacing.lg,
+        borderRadius: 24,
+        backgroundColor: '#FFFFFF',
+        borderWidth: 1,
+        borderColor: colors.neutral[100],
     },
     xpHeader: {
         flexDirection: 'row',
@@ -910,18 +972,18 @@ const styles = StyleSheet.create({
     xpTitle: {
         fontSize: typography.fontSize.md,
         fontWeight: '800',
-        color: 'rgba(255,255,255,0.7)',
+        color: colors.neutral[400],
         textTransform: 'uppercase',
         letterSpacing: 1,
     },
     xpValue: {
         fontSize: typography.fontSize.xl,
         fontWeight: '900',
-        color: '#FFFFFF',
+        color: colors.neutral[900],
     },
     progressBarContainer: {
         height: 10,
-        backgroundColor: 'rgba(255,255,255,0.1)',
+        backgroundColor: colors.neutral[100],
         borderRadius: 5,
         overflow: 'hidden',
         marginBottom: spacing.sm,
@@ -933,7 +995,7 @@ const styles = StyleSheet.create({
     },
     xpSubtext: {
         fontSize: typography.fontSize.sm,
-        color: 'rgba(255, 255, 255, 0.4)',
+        color: colors.neutral[400],
         marginTop: spacing.xs,
         textAlign: 'center',
         fontWeight: '600',
@@ -947,23 +1009,29 @@ const styles = StyleSheet.create({
     statCard: {
         flex: 1,
         alignItems: 'center',
+        padding: spacing.md,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: colors.neutral[100],
+        ...shadows.sm,
     },
     statIconContainer: {
-        width: 48,
-        height: 48,
-        borderRadius: 16,
+        width: 44,
+        height: 44,
+        borderRadius: 14,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: spacing.sm,
+        marginBottom: spacing.xs,
     },
     statValue: {
         fontSize: typography.fontSize.lg,
         fontWeight: '900',
-        color: '#FFFFFF',
+        color: colors.neutral[900],
     },
     statLabel: {
         fontSize: 10,
-        color: 'rgba(255, 255, 255, 0.4)',
+        color: colors.neutral[500],
         fontWeight: '800',
         textTransform: 'uppercase',
     },
@@ -980,12 +1048,12 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: typography.fontSize.lg,
         fontWeight: '800',
-        color: '#FFFFFF',
+        color: colors.neutral[900],
         letterSpacing: 0.5,
     },
     seeAllText: {
         fontSize: typography.fontSize.sm,
-        color: colors.primary[400],
+        color: colors.primary[600],
         fontWeight: '700',
     },
     badgesRow: {
@@ -1005,13 +1073,18 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: spacing.xs,
         padding: 0,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
     },
     badgeEmoji: {
         fontSize: 28,
     },
     badgeName: {
         fontSize: 10,
-        color: 'rgba(255,255,255,0.6)',
+        color: colors.neutral[600],
         textAlign: 'center',
         fontWeight: '600',
     },
@@ -1019,16 +1092,16 @@ const styles = StyleSheet.create({
         width: 60,
         height: 60,
         borderRadius: 30,
-        backgroundColor: 'rgba(255,255,255,0.05)',
+        backgroundColor: colors.neutral[50],
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 1,
         borderStyle: 'dashed',
-        borderColor: 'rgba(255,255,255,0.2)',
+        borderColor: colors.neutral[200],
     },
     moreBadgesText: {
         fontSize: 9,
-        color: 'rgba(255,255,255,0.4)',
+        color: colors.neutral[400],
         fontWeight: '800',
     },
     interestsContainer: {
@@ -1036,13 +1109,16 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         gap: spacing.sm,
     },
-    interestChipGlass: {
+    interestChipCard: {
         paddingHorizontal: spacing.md,
         paddingVertical: spacing.xs,
         borderRadius: 20,
+        backgroundColor: colors.neutral[100],
+        borderWidth: 1,
+        borderColor: colors.neutral[200],
     },
     interestChipText: {
-        color: '#FFFFFF',
+        color: colors.neutral[700],
         fontSize: 12,
         fontWeight: '700',
     },
@@ -1051,11 +1127,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: spacing.lg,
-        backgroundColor: 'rgba(255,255,255,0.03)',
+        backgroundColor: colors.neutral[50],
         borderRadius: 20,
         marginBottom: spacing.sm,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: colors.neutral[100],
     },
     menuItemLeft: {
         flexDirection: 'row',
@@ -1063,12 +1139,14 @@ const styles = StyleSheet.create({
     },
     menuItemText: {
         fontSize: typography.fontSize.md,
-        color: 'rgba(255, 255, 255, 0.8)',
+        color: colors.neutral[700],
         marginLeft: spacing.md,
         fontWeight: '600',
     },
     logoutItem: {
         marginTop: spacing.md,
+        backgroundColor: '#FFF5F5',
+        borderColor: '#FFEBEB',
     },
     logoutText: {
         fontSize: typography.fontSize.md,
@@ -1077,23 +1155,24 @@ const styles = StyleSheet.create({
         fontWeight: '700',
     },
     modal: {
-        backgroundColor: '#18181B',
+        backgroundColor: '#FFFFFF',
         margin: spacing.lg,
         borderRadius: 30,
         padding: spacing.xl,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
+        borderColor: colors.neutral[200],
+        ...shadows.lg,
     },
     modalTitle: {
         fontSize: typography.fontSize.xl,
         fontWeight: '900',
-        color: '#FFFFFF',
+        color: colors.neutral[900],
         marginBottom: spacing.md,
         textAlign: 'center',
     },
     modalText: {
         fontSize: typography.fontSize.md,
-        color: 'rgba(255, 255, 255, 0.6)',
+        color: colors.neutral[600],
         textAlign: 'center',
         marginBottom: spacing.xl,
     },
@@ -1110,11 +1189,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: spacing.md,
         marginBottom: spacing.sm,
-        backgroundColor: 'rgba(255,255,255,0.05)',
+        backgroundColor: colors.neutral[50],
         borderRadius: 12,
+        borderWidth: 1,
+        borderColor: colors.neutral[100],
     },
     helpText: {
-        color: '#FFFFFF',
+        color: colors.neutral[700],
         marginLeft: spacing.md,
         fontWeight: '600',
     },
@@ -1123,7 +1204,7 @@ const styles = StyleSheet.create({
         marginTop: spacing.md,
     },
     versionText: {
-        color: 'rgba(255,255,255,0.3)',
+        color: colors.neutral[400],
         fontSize: 12,
     },
     formGroup: {
@@ -1161,7 +1242,7 @@ const styles = StyleSheet.create({
     settingLabel: {
         fontSize: typography.fontSize.md,
         color: colors.neutral[700],
-        fontWeight: '500', // Reverting to a standard weight if needed or keeping consistent
+        fontWeight: '500',
     },
     settingSubtext: {
         fontSize: typography.fontSize.sm,
@@ -1193,7 +1274,7 @@ const styles = StyleSheet.create({
     },
     badgeDescription: {
         fontSize: 10,
-        color: 'rgba(255, 255, 255, 0.4)',
+        color: colors.neutral[500],
         textAlign: 'center',
         marginTop: spacing.xs,
         lineHeight: 14,
