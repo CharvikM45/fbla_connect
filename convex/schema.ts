@@ -11,6 +11,7 @@ export default defineSchema({
         chapterName: v.optional(v.string()),
         state: v.optional(v.string()),
         interests: v.optional(v.array(v.string())),
+        competitiveEvents: v.optional(v.array(v.string())),
         clerkId: v.optional(v.string()), // For future Clerk integration
         tokenIdentifier: v.optional(v.string()), // For built-in auth
         bio: v.optional(v.string()),

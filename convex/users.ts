@@ -10,6 +10,7 @@ export const storeUser = mutation({
         schoolName: v.optional(v.string()),
         chapterName: v.optional(v.string()),
         state: v.optional(v.string()),
+        competitiveEvents: v.optional(v.array(v.string())),
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
@@ -66,6 +67,7 @@ export const updateUser = mutation({
         chapterName: v.optional(v.string()),
         state: v.optional(v.string()),
         interests: v.optional(v.array(v.string())),
+        competitiveEvents: v.optional(v.array(v.string())),
         displayName: v.optional(v.string()),
         role: v.optional(v.union(v.literal("member"), v.literal("officer"), v.literal("adviser"))),
         bio: v.optional(v.string()),

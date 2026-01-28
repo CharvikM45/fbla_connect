@@ -61,8 +61,9 @@ export default function MainTabNavigator() {
                     backgroundColor: '#FFFFFF',
                     borderTopWidth: 1,
                     borderTopColor: colors.neutral[200],
-                    height: 60,
                     paddingBottom: 8,
+                    paddingTop: 8,
+                    height: 65,
                 },
                 tabBarLabelStyle: {
                     fontSize: 10,
@@ -74,7 +75,7 @@ export default function MainTabNavigator() {
             <Tab.Screen
                 name="Home"
                 component={HomeNavigator}
-                options={{ title: 'FBLA Connect', headerShown: false }}
+                options={{ title: 'Home', headerShown: false }}
             />
             <Tab.Screen
                 name="Events"
