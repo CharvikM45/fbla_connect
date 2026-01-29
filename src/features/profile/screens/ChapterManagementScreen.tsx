@@ -22,6 +22,7 @@ export default function ChapterManagementScreen() {
 
     const removeMember = useMutation(api.users.removeMemberFromChapter);
     const addMember = useMutation(api.users.addMemberToChapter);
+    const updateRole = useMutation(api.users.updateUserRole);
     const seedMembers = useMutation(api.init.seedChapterMembers);
 
     const [showAddModal, setShowAddModal] = React.useState(false);
@@ -31,6 +32,10 @@ export default function ChapterManagementScreen() {
 
     const [memberToRemove, setMemberToRemove] = React.useState<any>(null);
     const [showConfirmDelete, setShowConfirmDelete] = React.useState(false);
+
+    const [selectedStudent, setSelectedStudent] = React.useState<any>(null);
+    const [showDetailModal, setShowDetailModal] = React.useState(false);
+    const [isUpdatingRole, setIsUpdatingRole] = React.useState(false);
 
     const handleAddMember = async () => {
         if (!emailToAdd) return;
@@ -72,6 +77,22 @@ export default function ChapterManagementScreen() {
             });
         } catch (error) {
             console.error("Failed to seed data:", error);
+        }
+    };
+
+    const handleUpdateRole = async (newRole: 'member' | 'officer') => {
+        if (!selectedStudent) return;
+        setIsUpdatingRole(true);
+        try {
+            await updateRole({
+                userId: selectedStudent._id,
+                role: newRole,
+            });
+            setSelectedStudent({ ...selectedStudent, role: newRole });
+        } catch (error) {
+            console.error("Failed to update role:", error);
+        } finally {
+            setIsUpdatingRole(false);
         }
     };
 
@@ -155,64 +176,73 @@ export default function ChapterManagementScreen() {
                         </View>
                     ) : (
                         chapterMembers.map((member: any) => (
-                            <Card key={member._id} style={styles.memberCard}>
-                                <Card.Content style={styles.memberContent}>
-                                    <View style={styles.memberInfo}>
-                                        <Avatar.Text
-                                            size={48}
-                                            label={member.displayName?.charAt(0) || 'U'}
-                                            style={styles.avatar}
-                                        />
-                                        <View style={styles.memberDetails}>
-                                            <View style={styles.nameRow}>
-                                                <Text style={styles.memberName}>{member.displayName}</Text>
-                                                {member.role !== 'adviser' && (
-                                                    <TouchableOpacity
-                                                        onPress={() => {
-                                                            setMemberToRemove(member);
-                                                            setShowConfirmDelete(true);
-                                                        }}
-                                                    >
-                                                        <Ionicons name="trash-outline" size={20} color={colors.error.main} />
-                                                    </TouchableOpacity>
-                                                )}
-                                            </View>
-                                            <View style={styles.memberMeta}>
-                                                <View style={[
-                                                    styles.roleBadge,
-                                                    {
-                                                        backgroundColor:
-                                                            member.role === 'adviser' ? colors.primary[100] :
-                                                                member.role === 'officer' ? colors.secondary[100] :
-                                                                    colors.neutral[100]
-                                                    }
-                                                ]}>
-                                                    <Text style={[
-                                                        styles.roleText,
+                            <TouchableOpacity
+                                key={member._id}
+                                activeOpacity={0.7}
+                                onPress={() => {
+                                    setSelectedStudent(member);
+                                    setShowDetailModal(true);
+                                }}
+                            >
+                                <Card style={styles.memberCard}>
+                                    <Card.Content style={styles.memberContent}>
+                                        <View style={styles.memberInfo}>
+                                            <Avatar.Text
+                                                size={48}
+                                                label={member.displayName?.charAt(0) || 'U'}
+                                                style={styles.avatar}
+                                            />
+                                            <View style={styles.memberDetails}>
+                                                <View style={styles.nameRow}>
+                                                    <Text style={styles.memberName}>{member.displayName}</Text>
+                                                    {member.role !== 'adviser' && (
+                                                        <TouchableOpacity
+                                                            onPress={() => {
+                                                                setMemberToRemove(member);
+                                                                setShowConfirmDelete(true);
+                                                            }}
+                                                        >
+                                                            <Ionicons name="trash-outline" size={20} color={colors.error.main} />
+                                                        </TouchableOpacity>
+                                                    )}
+                                                </View>
+                                                <View style={styles.memberMeta}>
+                                                    <View style={[
+                                                        styles.roleBadge,
                                                         {
-                                                            color:
-                                                                member.role === 'adviser' ? colors.primary[700] :
-                                                                    member.role === 'officer' ? colors.secondary[700] :
-                                                                        colors.neutral[700]
+                                                            backgroundColor:
+                                                                member.role === 'adviser' ? colors.primary[100] :
+                                                                    member.role === 'officer' ? colors.secondary[100] :
+                                                                        colors.neutral[100]
                                                         }
                                                     ]}>
-                                                        {member.role === 'adviser' ? 'Adviser' :
-                                                            member.role === 'officer' ? 'Officer' : 'Member'}
-                                                    </Text>
+                                                        <Text style={[
+                                                            styles.roleText,
+                                                            {
+                                                                color:
+                                                                    member.role === 'adviser' ? colors.primary[700] :
+                                                                        member.role === 'officer' ? colors.secondary[700] :
+                                                                            colors.neutral[700]
+                                                            }
+                                                        ]}>
+                                                            {member.role === 'adviser' ? 'Adviser' :
+                                                                member.role === 'officer' ? 'Officer' : 'Member'}
+                                                        </Text>
+                                                    </View>
+                                                    <View style={styles.xpBadge}>
+                                                        <Ionicons name="sparkles" size={12} color={colors.secondary[600]} />
+                                                        <Text style={styles.xpText}>{member.totalXP || 0} XP</Text>
+                                                    </View>
                                                 </View>
-                                                <View style={styles.xpBadge}>
-                                                    <Ionicons name="sparkles" size={12} color={colors.secondary[600]} />
-                                                    <Text style={styles.xpText}>{member.totalXP || 0} XP</Text>
+                                                <View style={styles.emailRow}>
+                                                    <Ionicons name="mail-outline" size={14} color={colors.neutral[500]} />
+                                                    <Text style={styles.email}>{member.email}</Text>
                                                 </View>
-                                            </View>
-                                            <View style={styles.emailRow}>
-                                                <Ionicons name="mail-outline" size={14} color={colors.neutral[500]} />
-                                                <Text style={styles.email}>{member.email}</Text>
                                             </View>
                                         </View>
-                                    </View>
-                                </Card.Content>
-                            </Card>
+                                    </Card.Content>
+                                </Card>
+                            </TouchableOpacity>
                         ))
                     )}
                 </View>
@@ -263,6 +293,96 @@ export default function ChapterManagementScreen() {
                             Add
                         </Button>
                     </View>
+                </Modal>
+
+                {/* Student Detail Modal */}
+                <Modal
+                    visible={showDetailModal}
+                    onDismiss={() => setShowDetailModal(false)}
+                    contentContainerStyle={styles.modal}
+                >
+                    {selectedStudent && (
+                        <>
+                            <View style={styles.detailHeader}>
+                                <Avatar.Text
+                                    size={64}
+                                    label={selectedStudent.displayName?.charAt(0) || 'U'}
+                                    style={styles.avatarLarge}
+                                />
+                                <View style={styles.detailTitleContainer}>
+                                    <Text style={styles.detailName}>{selectedStudent.displayName}</Text>
+                                    <Text style={styles.detailEmail}>{selectedStudent.email}</Text>
+                                </View>
+                            </View>
+
+                            <View style={styles.detailStats}>
+                                <View style={styles.detailStatItem}>
+                                    <Text style={styles.detailStatValue}>{selectedStudent.totalXP || 0}</Text>
+                                    <Text style={styles.detailStatLabel}>Total XP</Text>
+                                </View>
+                                <View style={styles.detailStatDivider} />
+                                <View style={styles.detailStatItem}>
+                                    <Text style={styles.detailStatValue}>{selectedStudent.level || 1}</Text>
+                                    <Text style={styles.detailStatLabel}>Level</Text>
+                                </View>
+                            </View>
+
+                            <View style={styles.detailSection}>
+                                <Text style={styles.detailSectionTitle}>Competitive Events</Text>
+                                <View style={styles.eventsList}>
+                                    {selectedStudent.competitiveEvents && selectedStudent.competitiveEvents.length > 0 ? (
+                                        selectedStudent.competitiveEvents.map((event: string, idx: number) => (
+                                            <View key={idx} style={styles.eventBadge}>
+                                                <Text style={styles.eventBadgeText}>{event}</Text>
+                                            </View>
+                                        ))
+                                    ) : (
+                                        <Text style={styles.noEventsText}>No events selected</Text>
+                                    )}
+                                </View>
+                            </View>
+
+                            <View style={styles.detailSection}>
+                                <Text style={styles.detailSectionTitle}>Manage Role</Text>
+                                <View style={styles.roleToggle}>
+                                    <TouchableOpacity
+                                        style={[
+                                            styles.roleOption,
+                                            selectedStudent.role === 'member' && styles.roleOptionSelected
+                                        ]}
+                                        onPress={() => handleUpdateRole('member')}
+                                        disabled={isUpdatingRole}
+                                    >
+                                        <Text style={[
+                                            styles.roleOptionText,
+                                            selectedStudent.role === 'member' && styles.roleOptionTextSelected
+                                        ]}>Member</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        style={[
+                                            styles.roleOption,
+                                            selectedStudent.role === 'officer' && styles.roleOptionSelected
+                                        ]}
+                                        onPress={() => handleUpdateRole('officer')}
+                                        disabled={isUpdatingRole}
+                                    >
+                                        <Text style={[
+                                            styles.roleOptionText,
+                                            selectedStudent.role === 'officer' && styles.roleOptionTextSelected
+                                        ]}>Officer</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+
+                            <Button
+                                mode="contained"
+                                onPress={() => setShowDetailModal(false)}
+                                style={styles.closeModalButton}
+                            >
+                                Close
+                            </Button>
+                        </>
+                    )}
                 </Modal>
 
                 {/* Confirm Removal Dialog */}
@@ -541,5 +661,115 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: colors.neutral[700],
         lineHeight: 24,
+    },
+    detailHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: spacing.lg,
+    },
+    avatarLarge: {
+        backgroundColor: colors.primary[100],
+    },
+    detailTitleContainer: {
+        marginLeft: spacing.md,
+        flex: 1,
+    },
+    detailName: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: colors.neutral[900],
+    },
+    detailEmail: {
+        fontSize: 14,
+        color: colors.neutral[600],
+        marginTop: 2,
+    },
+    detailStats: {
+        flexDirection: 'row',
+        backgroundColor: colors.neutral[100],
+        borderRadius: borderRadius.md,
+        padding: spacing.md,
+        marginBottom: spacing.lg,
+    },
+    detailStatItem: {
+        flex: 1,
+        alignItems: 'center',
+    },
+    detailStatValue: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: colors.primary[600],
+    },
+    detailStatLabel: {
+        fontSize: 12,
+        color: colors.neutral[600],
+        fontWeight: '600',
+    },
+    detailStatDivider: {
+        width: 1,
+        backgroundColor: colors.neutral[300],
+    },
+    detailSection: {
+        marginBottom: spacing.lg,
+    },
+    detailSectionTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: colors.neutral[800],
+        marginBottom: spacing.sm,
+    },
+    eventsList: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: spacing.xs,
+    },
+    eventBadge: {
+        backgroundColor: colors.secondary[50],
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: colors.secondary[100],
+    },
+    eventBadgeText: {
+        fontSize: 12,
+        color: colors.secondary[700],
+        fontWeight: '500',
+    },
+    noEventsText: {
+        color: colors.neutral[400],
+        fontStyle: 'italic',
+    },
+    roleToggle: {
+        flexDirection: 'row',
+        backgroundColor: colors.neutral[100],
+        borderRadius: borderRadius.md,
+        padding: 4,
+    },
+    roleOption: {
+        flex: 1,
+        paddingVertical: 10,
+        alignItems: 'center',
+        borderRadius: borderRadius.sm,
+    },
+    roleOptionSelected: {
+        backgroundColor: '#FFFFFF',
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+    },
+    roleOptionText: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: colors.neutral[500],
+    },
+    roleOptionTextSelected: {
+        color: colors.primary[600],
+    },
+    closeModalButton: {
+        marginTop: spacing.sm,
+        backgroundColor: colors.primary[600],
     },
 });

@@ -259,3 +259,37 @@ export const removeMemberFromChapter = mutation({
         return userToRemove._id;
     },
 });
+
+// Update a user's role (Advisor only)
+export const updateUserRole = mutation({
+    args: {
+        userId: v.id("users"),
+        role: v.union(v.literal("member"), v.literal("officer")),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Unauthenticated");
+
+        const advisor = await ctx.db
+            .query("users")
+            .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+            .unique();
+
+        if (!advisor || advisor.role !== "adviser") {
+            throw new Error("Only advisors can update roles");
+        }
+
+        const userToUpdate = await ctx.db.get(args.userId);
+        if (!userToUpdate) throw new Error("User not found");
+
+        if (userToUpdate.chapterName !== advisor.chapterName) {
+            throw new Error("You can only update roles for students in your chapter");
+        }
+
+        await ctx.db.patch(userToUpdate._id, {
+            role: args.role,
+        });
+
+        return userToUpdate._id;
+    },
+});
