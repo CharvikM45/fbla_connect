@@ -238,9 +238,11 @@ export default function ProfileScreen() {
                                 label={user?.displayName?.charAt(0) || 'U'}
                                 style={styles.avatar}
                             />
-                            <View style={styles.levelBadge}>
-                                <Text style={styles.levelText}>Lv {profile?.level || 1}</Text>
-                            </View>
+                            {user?.role !== 'adviser' && (
+                                <View style={styles.levelBadge}>
+                                    <Text style={styles.levelText}>Lv {profile?.level || 1}</Text>
+                                </View>
+                            )}
                         </View>
 
                         <Text style={styles.userName}>{user?.displayName || 'FBLA Member'}</Text>
@@ -259,67 +261,75 @@ export default function ProfileScreen() {
                 </MotiView>
 
                 {/* 3D XP Card */}
-                <Animated.View
-                    style={[styles.xpCardContainer, animatedTiltStyle]}
-                    onTouchMove={handleTilt}
-                    onTouchEnd={resetTilt}
-                >
-                    <View style={styles.xpCardShadow}>
-                        <View style={styles.xpCard}>
-                            <View style={styles.xpHeader}>
-                                <Text style={styles.xpTitle}>Progress</Text>
-                                <Text style={styles.xpValue}>{profile?.totalXP || 0} XP</Text>
+                {user?.role !== 'adviser' && (
+                    <Animated.View
+                        style={[styles.xpCardContainer, animatedTiltStyle]}
+                        onTouchMove={handleTilt}
+                        onTouchEnd={resetTilt}
+                    >
+                        <View style={styles.xpCardShadow}>
+                            <View style={styles.xpCard}>
+                                <View style={styles.xpHeader}>
+                                    <Text style={styles.xpTitle}>Progress</Text>
+                                    <Text style={styles.xpValue}>{profile?.totalXP || 0} XP</Text>
+                                </View>
+                                <View style={styles.progressBarContainer}>
+                                    <View style={[styles.progressBarFill, { width: `${xpProgress * 100}%` }]} />
+                                </View>
+                                <Text style={styles.xpSubtext}>
+                                    {xpToNextLevel - currentLevelXP} XP to Level {(profile?.level || 1) + 1}
+                                </Text>
                             </View>
-                            <View style={styles.progressBarContainer}>
-                                <View style={[styles.progressBarFill, { width: `${xpProgress * 100}%` }]} />
-                            </View>
-                            <Text style={styles.xpSubtext}>
-                                {xpToNextLevel - currentLevelXP} XP to Level {(profile?.level || 1) + 1}
-                            </Text>
                         </View>
-                    </View>
-                </Animated.View>
+                    </Animated.View>
+                )}
 
                 {/* Stats */}
                 <View style={styles.statsContainer}>
                     <StatCard icon="trophy" value={profile?.competitiveEvents.length || 0} label="Events" color={colors.secondary[500]} delay={100} />
-                    <StatCard icon="ribbon" value={demoBadges.length} label="Badges" color={colors.primary[600]} delay={200} />
-                    <StatCard icon="flame" value={3} label="Streak" color={colors.warning.main} delay={300} />
+                    {user?.role !== 'adviser' && (
+                        <>
+                            <StatCard icon="ribbon" value={demoBadges.length} label="Badges" color={colors.primary[600]} delay={200} />
+                            <StatCard icon="flame" value={3} label="Streak" color={colors.warning.main} delay={300} />
+                        </>
+                    )}
                 </View>
 
                 {/* Badges Section */}
-                <View style={styles.section}>
-                    <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionTitle}>Achievements</Text>
-                        <TouchableOpacity onPress={() => setShowAllBadgesModal(true)}>
-                            <Text style={styles.seeAllText}>See All</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                        <View style={styles.badgesRow}>
-                            {demoBadges.map((badge, index) => (
-                                <MotiView
-                                    key={badge.id}
-                                    from={{ opacity: 0, scale: 0.8 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ type: 'spring', delay: index * 100 }}
-                                >
-                                    <View style={styles.badgeItem}>
-                                        <View style={[styles.badgeGlass, getRarityStyle(badge.rarity)]}>
-                                            <Text style={styles.badgeEmoji}>{badge.icon}</Text>
-                                        </View>
-                                        <Text style={styles.badgeName} numberOfLines={1}>{badge.name}</Text>
-                                    </View>
-                                </MotiView>
-                            ))}
-                            <TouchableOpacity style={styles.moreBadges} onPress={() => setShowAllBadgesModal(true)}>
-                                <Ionicons name="add" size={24} color="rgba(255,255,255,0.4)" />
-                                <Text style={styles.moreBadgesText}>12 more</Text>
+                {user?.role !== 'adviser' && (
+                    <View style={styles.section}>
+                        <View style={styles.sectionHeader}>
+                            <Text style={styles.sectionTitle}>Achievements</Text>
+                            <TouchableOpacity onPress={() => setShowAllBadgesModal(true)}>
+                                <Text style={styles.seeAllText}>See All</Text>
                             </TouchableOpacity>
                         </View>
-                    </ScrollView>
-                </View>
+
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                            <View style={styles.badgesRow}>
+                                {demoBadges.map((badge, index) => (
+                                    <MotiView
+                                        key={badge.id}
+                                        from={{ opacity: 0, scale: 0.8 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ type: 'spring', delay: index * 100 }}
+                                    >
+                                        <View style={styles.badgeItem}>
+                                            <View style={[styles.badgeGlass, getRarityStyle(badge.rarity)]}>
+                                                <Text style={styles.badgeEmoji}>{badge.icon}</Text>
+                                            </View>
+                                            <Text style={styles.badgeName} numberOfLines={1}>{badge.name}</Text>
+                                        </View>
+                                    </MotiView>
+                                ))}
+                                <TouchableOpacity style={styles.moreBadges} onPress={() => setShowAllBadgesModal(true)}>
+                                    <Ionicons name="add" size={24} color="rgba(255,255,255,0.4)" />
+                                    <Text style={styles.moreBadgesText}>12 more</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </ScrollView>
+                    </View>
+                )}
 
                 {/* Interests */}
                 <View style={styles.section}>

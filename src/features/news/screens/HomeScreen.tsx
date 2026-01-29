@@ -88,7 +88,7 @@ export default function HomeScreen() {
     useEffect(() => {
         // Daily Login XP Award
         const checkDailyXP = async () => {
-            if (!user) return;
+            if (!user || user.role === 'adviser') return;
             const lastLoginDate = await SecureStore.getItemAsync('last_login_date');
             const today = new Date().toDateString();
 
@@ -215,7 +215,7 @@ export default function HomeScreen() {
                                         label={user?.displayName?.charAt(0) || 'U'}
                                         style={styles.avatar}
                                     />
-                                    {profile && (
+                                    {profile && user?.role !== 'adviser' && (
                                         <View style={styles.levelBadge}>
                                             <Text style={styles.levelText}>Lv{profile.level}</Text>
                                         </View>
@@ -224,32 +224,40 @@ export default function HomeScreen() {
                             </TouchableOpacity>
                         </View>
 
-                        <View style={styles.statsOverview}>
-                            <View style={styles.statMini}>
-                                <Text style={styles.statMiniValue}>{profile?.totalXP || 0}</Text>
-                                <Text style={styles.statMiniLabel}>XP</Text>
+                        {user?.role !== 'adviser' && (
+                            <View style={styles.statsOverview}>
+                                <View style={styles.statMini}>
+                                    <Text style={styles.statMiniValue}>{profile?.totalXP || 0}</Text>
+                                    <Text style={styles.statMiniLabel}>XP</Text>
+                                </View>
+                                <View style={styles.statMiniDivider} />
+                                <View style={styles.statMini}>
+                                    <Text style={styles.statMiniValue}>{profile?.badges?.length || 0}</Text>
+                                    <Text style={styles.statMiniLabel}>Badges</Text>
+                                </View>
+                                <View style={styles.statMiniDivider} />
+                                <View style={styles.statMini}>
+                                    <Text style={styles.statMiniValue}>3</Text>
+                                    <Text style={styles.statMiniLabel}>Events</Text>
+                                </View>
                             </View>
-                            <View style={styles.statMiniDivider} />
-                            <View style={styles.statMini}>
-                                <Text style={styles.statMiniValue}>{profile?.badges?.length || 0}</Text>
-                                <Text style={styles.statMiniLabel}>Badges</Text>
-                            </View>
-                            <View style={styles.statMiniDivider} />
-                            <View style={styles.statMini}>
-                                <Text style={styles.statMiniValue}>3</Text>
-                                <Text style={styles.statMiniLabel}>Events</Text>
-                            </View>
-                        </View>
+                        )}
                     </MotiView>
                 </View>
 
                 {/* Quick Actions Grid */}
                 <View style={styles.section}>
                     <View style={styles.quickActionsGrid}>
-                        <QuickAction icon="sparkles" label="Ask AI" color="#8B5CF6" onPress={() => handleQuickAction('Ask AI')} />
+                        {user?.role !== 'adviser' && (
+                            <QuickAction icon="sparkles" label="Ask AI" color="#8B5CF6" onPress={() => handleQuickAction('Ask AI')} />
+                        )}
                         <QuickAction icon="calendar" label="Events" color="#3B82F6" onPress={() => handleQuickAction('Events')} />
                         <QuickAction icon="book" label="Resources" color="#10B981" onPress={() => handleQuickAction('Resources')} />
-                        <QuickAction icon="trophy" label="Compete" color="#F59E0B" onPress={() => handleQuickAction('Compete')} />
+                        {user?.role !== 'adviser' ? (
+                            <QuickAction icon="trophy" label="Compete" color="#F59E0B" onPress={() => handleQuickAction('Compete')} />
+                        ) : (
+                            <QuickAction icon="people" label="Chapter" color="#F59E0B" onPress={() => navigation.navigate('Management')} />
+                        )}
                     </View>
                 </View>
 

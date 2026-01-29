@@ -32,6 +32,7 @@ export type MainTabParamList = {
     Resources: NavigatorScreenParams<ResourcesStackParamList>;
     AI: undefined;
     Profile: NavigatorScreenParams<ProfileStackParamList>;
+    Management: undefined;
 };
 
 // Home stack params

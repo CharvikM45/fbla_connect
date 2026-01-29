@@ -15,12 +15,14 @@ import CalendarScreen from '../../features/calendar/screens/CalendarScreen';
 import ResourcesNavigator from './ResourcesNavigator';
 import AIAssistantScreen from '../../features/ai/assistant/screens/AIAssistantScreen';
 import ProfileNavigator from './ProfileNavigator';
+import { useAppSelector } from '../hooks/useRedux';
+import AdvisorDashboardScreen from '../../features/profile/screens/AdvisorDashboardScreen';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 type IconName = 'home' | 'home-outline' | 'calendar' | 'calendar-outline' |
     'document-text' | 'document-text-outline' | 'chatbubbles' | 'chatbubbles-outline' |
-    'person' | 'person-outline';
+    'person' | 'person-outline' | 'grid' | 'grid-outline';
 
 const getTabIcon = (routeName: string, focused: boolean): IconName => {
     const icons: { [key: string]: { focused: IconName; unfocused: IconName } } = {
@@ -29,12 +31,16 @@ const getTabIcon = (routeName: string, focused: boolean): IconName => {
         Resources: { focused: 'document-text', unfocused: 'document-text-outline' },
         AI: { focused: 'chatbubbles', unfocused: 'chatbubbles-outline' },
         Profile: { focused: 'person', unfocused: 'person-outline' },
+        Management: { focused: 'grid', unfocused: 'grid-outline' },
     };
 
     return focused ? icons[routeName].focused : icons[routeName].unfocused;
 };
 
 export default function MainTabNavigator() {
+    const user = useAppSelector(state => state.auth.user);
+    const isAdvisor = user?.role === 'adviser';
+
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
@@ -75,7 +81,10 @@ export default function MainTabNavigator() {
             <Tab.Screen
                 name="Home"
                 component={HomeNavigator}
-                options={{ title: 'Home', headerShown: false }}
+                options={{
+                    title: isAdvisor ? 'Hub' : 'Home',
+                    headerShown: false
+                }}
             />
             <Tab.Screen
                 name="Events"
@@ -87,16 +96,28 @@ export default function MainTabNavigator() {
                 component={ResourcesNavigator}
                 options={{ title: 'Resources' }}
             />
-            <Tab.Screen
-                name="AI"
-                component={AIAssistantScreen}
-                options={{ title: 'AI Assistant' }}
-            />
-            <Tab.Screen
-                name="Profile"
-                component={ProfileNavigator}
-                options={{ title: 'My Profile', headerShown: false }}
-            />
+
+            {!isAdvisor && (
+                <Tab.Screen
+                    name="AI"
+                    component={AIAssistantScreen}
+                    options={{ title: 'AI Assistant' }}
+                />
+            )}
+
+            {isAdvisor ? (
+                <Tab.Screen
+                    name="Management"
+                    component={AdvisorDashboardScreen}
+                    options={{ title: 'Management' }}
+                />
+            ) : (
+                <Tab.Screen
+                    name="Profile"
+                    component={ProfileNavigator}
+                    options={{ title: 'My Profile', headerShown: false }}
+                />
+            )}
         </Tab.Navigator>
     );
 }
