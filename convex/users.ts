@@ -103,7 +103,7 @@ export const getUserByEmail = query({
             .unique();
     },
 });
-// Get members of the authenticated advisor's chapter
+// Get members of the authenticated advisor's chapter with their XP
 export const getChapterMembers = query({
     args: {},
     handler: async (ctx) => {
@@ -115,15 +115,32 @@ export const getChapterMembers = query({
             .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
             .unique();
 
-        if (!user || user.role !== "adviser" || !user.chapterName) {
+        if (!user || (user.role !== "adviser" && user.role !== "officer") || !user.chapterName) {
             return [];
         }
 
         // Get all users in the chapter using the index
-        return await ctx.db
+        const members = await ctx.db
             .query("users")
             .withIndex("by_chapter", (q) => q.eq("chapterName", user.chapterName))
             .collect();
+
+        // Join with profiles to get XP
+        const membersWithXP = await Promise.all(
+            members.map(async (member) => {
+                const profile = await ctx.db
+                    .query("profiles")
+                    .withIndex("by_userId", (q) => q.eq("userId", member._id))
+                    .unique();
+                return {
+                    ...member,
+                    totalXP: profile?.totalXP || 0,
+                    level: profile?.level || 1,
+                };
+            })
+        );
+
+        return membersWithXP;
     },
 });
 

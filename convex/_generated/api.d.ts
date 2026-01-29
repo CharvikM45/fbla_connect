@@ -15,6 +15,7 @@ import type * as init from "../init.js";
 import type * as meetings from "../meetings.js";
 import type * as news from "../news.js";
 import type * as profiles from "../profiles.js";
+import type * as seed from "../seed.js";
 import type * as seed_all_events from "../seed_all_events.js";
 import type * as seed_data from "../seed_data.js";
 import type * as update_event_urls from "../update_event_urls.js";
@@ -34,6 +35,7 @@ declare const fullApi: ApiFromModules<{
   meetings: typeof meetings;
   news: typeof news;
   profiles: typeof profiles;
+  seed: typeof seed;
   seed_all_events: typeof seed_all_events;
   seed_data: typeof seed_data;
   update_event_urls: typeof update_event_urls;

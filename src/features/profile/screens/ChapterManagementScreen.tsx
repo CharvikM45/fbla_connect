@@ -200,9 +200,10 @@ export default function ChapterManagementScreen() {
                                                             member.role === 'officer' ? 'Officer' : 'Member'}
                                                     </Text>
                                                 </View>
-                                                {member.schoolName && (
-                                                    <Text style={styles.schoolName}>{member.schoolName}</Text>
-                                                )}
+                                                <View style={styles.xpBadge}>
+                                                    <Ionicons name="sparkles" size={12} color={colors.secondary[600]} />
+                                                    <Text style={styles.xpText}>{member.totalXP || 0} XP</Text>
+                                                </View>
                                             </View>
                                             <View style={styles.emailRow}>
                                                 <Ionicons name="mail-outline" size={14} color={colors.neutral[500]} />
@@ -422,6 +423,20 @@ const styles = StyleSheet.create({
     roleText: {
         fontSize: 11,
         fontWeight: 'bold',
+    },
+    xpBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 12,
+        backgroundColor: colors.secondary[50],
+        gap: 4,
+    },
+    xpText: {
+        fontSize: 11,
+        fontWeight: 'bold',
+        color: colors.secondary[700],
     },
     schoolName: {
         fontSize: 12,

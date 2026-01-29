@@ -159,6 +159,15 @@ export default function AdvisorDashboardScreen() {
                     </Card>
                     <Card style={styles.statCard}>
                         <Card.Content style={styles.statContent}>
+                            <Ionicons name="sparkles" size={24} color={colors.secondary[500]} />
+                            <Text style={styles.statValue}>
+                                {chapterMembers?.reduce((acc: number, m: any) => acc + (m.totalXP || 0), 0) || 0}
+                            </Text>
+                            <Text style={styles.statLabel}>Total XP</Text>
+                        </Card.Content>
+                    </Card>
+                    <Card style={styles.statCard}>
+                        <Card.Content style={styles.statContent}>
                             <Ionicons name="megaphone-outline" size={24} color="#8B5CF6" />
                             <Text style={styles.statValue}>{chapterAnnouncements.length}</Text>
                             <Text style={styles.statLabel}>Announcements</Text>

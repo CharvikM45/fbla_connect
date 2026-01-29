@@ -77,34 +77,44 @@ export const seedChapterMembers = mutation({
     handler: async (ctx, args) => {
         const mockMembers = [
             {
-                email: "alex.rivera@fbla.org",
                 displayName: "Alex Rivera",
+                email: "alex.rivera@northview.edu",
                 role: "officer" as const,
-                competitiveEvents: ["Accounting I", "Business Communication"],
+                xp: 1250,
+                level: 13,
+                competitiveEvents: ["Business Communication", "Management Decision Making"]
             },
             {
-                email: "sam.chen@fbla.org",
-                displayName: "Sam Chen",
+                displayName: "Sarah Chen",
+                email: "s.chen@northview.edu",
                 role: "officer" as const,
-                competitiveEvents: ["Mobile Application Development"],
+                xp: 980,
+                level: 10,
+                competitiveEvents: ["Computer Applications", "Cyber Security"]
             },
             {
-                email: "jordan.smith@fbla.org",
-                displayName: "Jordan Smith",
+                displayName: "Marcus Johnson",
+                email: "m.johnson@northview.edu",
                 role: "member" as const,
-                competitiveEvents: ["Accounting I"],
+                xp: 450,
+                level: 5,
+                competitiveEvents: ["Accounting I", "Securities and Investments"]
             },
             {
-                email: "taylor.jones@fbla.org",
-                displayName: "Taylor Jones",
+                displayName: "Priya Sharma",
+                email: "p.sharma@northview.edu",
                 role: "member" as const,
-                competitiveEvents: ["Business Communication"],
+                xp: 720,
+                level: 8,
+                competitiveEvents: ["Social Media Strategies", "Digital Video Production"]
             },
             {
-                email: "riley.brown@fbla.org",
-                displayName: "Riley Brown",
+                displayName: "Jordan Lee",
+                email: "j.lee@northview.edu",
                 role: "member" as const,
-                competitiveEvents: ["Mobile Application Development", "Accounting I"],
+                xp: 310,
+                level: 4,
+                competitiveEvents: ["Business Plan"]
             },
         ];
 
@@ -115,21 +125,47 @@ export const seedChapterMembers = mutation({
                 .withIndex("by_email", (q) => q.eq("email", member.email))
                 .unique();
 
+            let userId;
             if (!existing) {
-                const userId = await ctx.db.insert("users", {
-                    ...member,
+                userId = await ctx.db.insert("users", {
+                    email: member.email,
+                    displayName: member.displayName,
+                    role: member.role,
                     chapterName: args.chapterName,
                     schoolName: args.schoolName,
                     state: args.state,
+                    competitiveEvents: member.competitiveEvents,
                     createdAt: new Date().toISOString(),
                     tokenIdentifier: `mock_${member.email}`,
                 });
+            } else {
+                userId = existing._id;
+                await ctx.db.patch(userId, {
+                    chapterName: args.chapterName,
+                    schoolName: args.schoolName,
+                    state: args.state,
+                    role: member.role,
+                    competitiveEvents: member.competitiveEvents,
+                });
+            }
 
+            // Update or create profile
+            const existingProfile = await ctx.db
+                .query("profiles")
+                .withIndex("by_userId", (q) => q.eq("userId", userId))
+                .unique();
+
+            if (existingProfile) {
+                await ctx.db.patch(existingProfile._id, {
+                    totalXP: member.xp,
+                    level: member.level,
+                });
+            } else {
                 await ctx.db.insert("profiles", {
                     userId,
-                    totalXP: Math.floor(Math.random() * 500),
-                    level: Math.floor(Math.random() * 5) + 1,
-                    badges: ["Early Adopter"],
+                    totalXP: member.xp,
+                    level: member.level,
+                    badges: ["Chapter Founder"],
                 });
             }
         }
