@@ -9,13 +9,14 @@
  */
 
 import type * as ai from "../ai.js";
+import type * as chapter_data from "../chapter_data.js";
 import type * as competitive_events from "../competitive_events.js";
 import type * as conferences from "../conferences.js";
+import type * as debug from "../debug.js";
 import type * as init from "../init.js";
 import type * as meetings from "../meetings.js";
 import type * as news from "../news.js";
 import type * as profiles from "../profiles.js";
-import type * as seed from "../seed.js";
 import type * as seed_all_events from "../seed_all_events.js";
 import type * as seed_data from "../seed_data.js";
 import type * as update_event_urls from "../update_event_urls.js";
@@ -29,13 +30,14 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   ai: typeof ai;
+  chapter_data: typeof chapter_data;
   competitive_events: typeof competitive_events;
   conferences: typeof conferences;
+  debug: typeof debug;
   init: typeof init;
   meetings: typeof meetings;
   news: typeof news;
   profiles: typeof profiles;
-  seed: typeof seed;
   seed_all_events: typeof seed_all_events;
   seed_data: typeof seed_data;
   update_event_urls: typeof update_event_urls;

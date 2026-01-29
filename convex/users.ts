@@ -156,7 +156,7 @@ export const getChapterEventsStatus = query({
             .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
             .unique();
 
-        if (!user || user.role !== "adviser" || !user.chapterName) {
+        if (!user || (user.role !== "adviser" && user.role !== "officer") || !user.chapterName) {
             return [];
         }
 

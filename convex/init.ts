@@ -167,6 +167,31 @@ export const seedChapterMembers = mutation({
                     level: member.level,
                     badges: ["Chapter Founder"],
                 });
+            } else {
+                // If they exist, update their chapter details to match the current advisor
+                await ctx.db.patch(existing._id, {
+                    chapterName: args.chapterName,
+                    schoolName: args.schoolName,
+                    state: args.state,
+                });
+            }
+        }
+
+        // Also update the current user (advisor) to be in this chapter
+        const identity = await ctx.auth.getUserIdentity();
+        if (identity) {
+            const advisor = await ctx.db
+                .query("users")
+                .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+                .unique();
+
+            if (advisor) {
+                // Force update the chapter for the caller to ensure they see the data
+                await ctx.db.patch(advisor._id, {
+                    chapterName: args.chapterName,
+                    schoolName: args.schoolName,
+                    state: args.state,
+                });
             }
         }
     },

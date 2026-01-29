@@ -12,18 +12,20 @@ import { useAppSelector } from '../../../shared/hooks/useRedux';
 import { colors, spacing, borderRadius } from '../../../shared/theme';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
-import { Button, TextInput, Portal, Modal, Dialog } from 'react-native-paper';
+import { Button, TextInput, Portal, Modal, Dialog, SegmentedButtons } from 'react-native-paper';
 
 export default function ChapterManagementScreen() {
     const user = useAppSelector(state => state.auth.user);
     const chapterId = user?.chapterName || '';
 
-    const chapterMembers = useQuery(api.users.getChapterMembers);
+    const chapterMembers = useQuery(api.chapter_data.getChapterData, {
+        chapterName: user?.chapterName || ''
+    });
 
-    const removeMember = useMutation(api.users.removeMemberFromChapter);
-    const addMember = useMutation(api.users.addMemberToChapter);
-    const updateRole = useMutation(api.users.updateUserRole);
-    const seedMembers = useMutation(api.init.seedChapterMembers);
+    const removeMember = useMutation(api.chapter_data.removeChapterMember);
+    const updateMember = useMutation(api.chapter_data.updateChapterMember);
+    // const addMember = useMutation(api.users.addMemberToChapter);
+    const seedMembers = useMutation(api.chapter_data.seedChapterData);
 
     const [showAddModal, setShowAddModal] = React.useState(false);
     const [emailToAdd, setEmailToAdd] = React.useState('');
@@ -33,22 +35,32 @@ export default function ChapterManagementScreen() {
     const [memberToRemove, setMemberToRemove] = React.useState<any>(null);
     const [showConfirmDelete, setShowConfirmDelete] = React.useState(false);
 
-    const [selectedStudent, setSelectedStudent] = React.useState<any>(null);
-    const [showDetailModal, setShowDetailModal] = React.useState(false);
-    const [isUpdatingRole, setIsUpdatingRole] = React.useState(false);
+    const [memberToEdit, setMemberToEdit] = React.useState<any>(null);
+    const [showEditModal, setShowEditModal] = React.useState(false);
+    const [editForm, setEditForm] = React.useState({ firstName: '', lastName: '', grade: '', role: '' });
+
+    // Autopopulate with mock data if chapter is empty
+    React.useEffect(() => {
+        if (chapterMembers && chapterMembers.length <= 1) {
+            // If only the advisor is here, or it's empty, seed some data
+            handleSeedData();
+        }
+    }, [chapterMembers]);
 
     const handleAddMember = async () => {
         if (!emailToAdd) return;
         setIsSubmitting(true);
         setAddError(null);
         try {
-            await addMember({
-                email: emailToAdd,
-                chapterName: user!.chapterName || '',
-                schoolName: user!.schoolName || '',
-                state: user!.state || '',
-            });
-            setEmailToAdd('');
+            // await addMember({
+            //     email: emailToAdd,
+            //     chapterName: user!.chapterName || '',
+            //     schoolName: user!.schoolName || '',
+            //     state: user!.state || '',
+            // });
+            // setEmailToAdd('');
+            // setShowAddModal(false);
+            console.log("Add member temporarily disabled for mock data");
             setShowAddModal(false);
         } catch (error) {
             setAddError(error instanceof Error ? error.message : 'Failed to add member');
@@ -60,7 +72,7 @@ export default function ChapterManagementScreen() {
     const handleRemoveMember = async () => {
         if (!memberToRemove) return;
         try {
-            await removeMember({ userId: memberToRemove._id });
+            await removeMember({ id: memberToRemove._id });
             setShowConfirmDelete(false);
             setMemberToRemove(null);
         } catch (error) {
@@ -68,41 +80,55 @@ export default function ChapterManagementScreen() {
         }
     };
 
+    const handleEditMember = async () => {
+        if (!memberToEdit) return;
+        setIsSubmitting(true);
+        try {
+            await updateMember({
+                id: memberToEdit._id,
+                firstName: editForm.firstName,
+                lastName: editForm.lastName,
+                grade: editForm.grade,
+                role: editForm.role as any,
+            });
+            setShowEditModal(false);
+            setMemberToEdit(null);
+        } catch (error) {
+            console.error("Failed to update member:", error);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const openEditModal = (member: any) => {
+        setMemberToEdit(member);
+        setEditForm({
+            firstName: member.firstName,
+            lastName: member.lastName,
+            grade: member.grade || '',
+            role: member.role,
+        });
+        setShowEditModal(true);
+    };
+
     const handleSeedData = async () => {
         try {
             await seedMembers({
                 chapterName: user!.chapterName || '',
-                schoolName: user!.schoolName || '',
-                state: user!.state || '',
             });
         } catch (error) {
             console.error("Failed to seed data:", error);
         }
     };
 
-    const handleUpdateRole = async (newRole: 'member' | 'officer') => {
-        if (!selectedStudent) return;
-        setIsUpdatingRole(true);
-        try {
-            await updateRole({
-                userId: selectedStudent._id,
-                role: newRole,
-            });
-            setSelectedStudent({ ...selectedStudent, role: newRole });
-        } catch (error) {
-            console.error("Failed to update role:", error);
-        } finally {
-            setIsUpdatingRole(false);
-        }
-    };
 
-    if (!user || user.role !== 'adviser') {
+    if (!user || (user.role !== 'adviser' && user.role !== 'officer')) {
         return (
             <View style={styles.container}>
                 <View style={styles.errorContainer}>
                     <Ionicons name="lock-closed" size={48} color={colors.error.main} />
                     <Text style={styles.errorText}>Access Denied</Text>
-                    <Text style={styles.errorSubtext}>Only advisors can access this page.</Text>
+                    <Text style={styles.errorSubtext}>Only advisors and officers can access this page.</Text>
                 </View>
             </View>
         );
@@ -176,79 +202,73 @@ export default function ChapterManagementScreen() {
                         </View>
                     ) : (
                         chapterMembers.map((member: any) => (
-                            <TouchableOpacity
-                                key={member._id}
-                                activeOpacity={0.7}
-                                onPress={() => {
-                                    setSelectedStudent(member);
-                                    setShowDetailModal(true);
-                                }}
-                            >
-                                <Card style={styles.memberCard}>
-                                    <Card.Content style={styles.memberContent}>
-                                        <View style={styles.memberInfo}>
-                                            <Avatar.Text
-                                                size={48}
-                                                label={member.displayName?.charAt(0) || 'U'}
-                                                style={styles.avatar}
-                                            />
-                                            <View style={styles.memberDetails}>
-                                                <View style={styles.nameRow}>
-                                                    <Text style={styles.memberName}>{member.displayName}</Text>
-                                                    {member.role !== 'adviser' && (
-                                                        <TouchableOpacity
-                                                            onPress={() => {
-                                                                setMemberToRemove(member);
-                                                                setShowConfirmDelete(true);
-                                                            }}
-                                                        >
-                                                            <Ionicons name="trash-outline" size={20} color={colors.error.main} />
-                                                        </TouchableOpacity>
-                                                    )}
-                                                </View>
-                                                <View style={styles.memberMeta}>
-                                                    <View style={[
-                                                        styles.roleBadge,
-                                                        {
-                                                            backgroundColor:
-                                                                member.role === 'adviser' ? colors.primary[100] :
-                                                                    member.role === 'officer' ? colors.secondary[100] :
-                                                                        colors.neutral[100]
-                                                        }
-                                                    ]}>
-                                                        <Text style={[
-                                                            styles.roleText,
-                                                            {
-                                                                color:
-                                                                    member.role === 'adviser' ? colors.primary[700] :
-                                                                        member.role === 'officer' ? colors.secondary[700] :
-                                                                            colors.neutral[700]
-                                                            }
-                                                        ]}>
-                                                            {member.role === 'adviser' ? 'Adviser' :
-                                                                member.role === 'officer' ? 'Officer' : 'Member'}
-                                                        </Text>
-                                                    </View>
-                                                    <View style={styles.xpBadge}>
-                                                        <Ionicons name="sparkles" size={12} color={colors.secondary[600]} />
-                                                        <Text style={styles.xpText}>{member.totalXP || 0} XP</Text>
-                                                    </View>
-                                                </View>
-                                                <View style={styles.emailRow}>
-                                                    <Ionicons name="mail-outline" size={14} color={colors.neutral[500]} />
-                                                    <Text style={styles.email}>{member.email}</Text>
+                            <Card key={member._id} style={styles.memberCard}>
+                                <Card.Content style={styles.memberContent}>
+                                    <View style={styles.memberInfo}>
+                                        <Avatar.Text
+                                            size={48}
+                                            label={member.firstName?.charAt(0) || 'U'}
+                                            style={styles.avatar}
+                                        />
+                                        <View style={styles.memberDetails}>
+                                            <View style={styles.nameRow}>
+                                                <Text style={styles.memberName}>{member.firstName} {member.lastName}</Text>
+                                                <View style={{ flexDirection: 'row', gap: 8 }}>
+                                                    <TouchableOpacity onPress={() => openEditModal(member)}>
+                                                        <Ionicons name="pencil-outline" size={20} color={colors.primary[600]} />
+                                                    </TouchableOpacity>
+                                                    <TouchableOpacity
+                                                        onPress={() => {
+                                                            setMemberToRemove(member);
+                                                            setShowConfirmDelete(true);
+                                                        }}
+                                                    >
+                                                        <Ionicons name="trash-outline" size={20} color={colors.error.main} />
+                                                    </TouchableOpacity>
                                                 </View>
                                             </View>
+                                            <View style={styles.memberMeta}>
+                                                <View style={[
+                                                    styles.roleBadge,
+                                                    {
+                                                        backgroundColor:
+                                                            member.role === 'adviser' ? colors.primary[100] :
+                                                                member.role === 'officer' ? colors.secondary[100] :
+                                                                    colors.neutral[100]
+                                                    }
+                                                ]}>
+                                                    <Text style={[
+                                                        styles.roleText,
+                                                        {
+                                                            color:
+                                                                member.role === 'adviser' ? colors.primary[700] :
+                                                                    member.role === 'officer' ? colors.secondary[700] :
+                                                                        colors.neutral[700]
+                                                        }
+                                                    ]}>
+                                                        {member.role === 'adviser' ? 'Adviser' :
+                                                            member.role === 'officer' ? 'Officer' : 'Member'}
+                                                    </Text>
+                                                </View>
+                                                <View style={styles.xpBadge}>
+                                                    <Ionicons name="sparkles" size={12} color={colors.secondary[600]} />
+                                                    <Text style={styles.xpText}>{member.totalXP || 0} XP</Text>
+                                                </View>
+                                            </View>
+                                            <View style={styles.emailRow}>
+                                                <Ionicons name="mail-outline" size={14} color={colors.neutral[500]} />
+                                                <Text style={styles.email}>{member.email}</Text>
+                                            </View>
                                         </View>
-                                    </Card.Content>
-                                </Card>
-                            </TouchableOpacity>
+                                    </View>
+                                </Card.Content>
+                            </Card>
                         ))
                     )}
                 </View>
 
                 <View style={{ height: 100 }} />
-            </ScrollView>
+            </ScrollView >
 
             <Portal>
                 {/* Add Member Modal */}
@@ -295,94 +315,72 @@ export default function ChapterManagementScreen() {
                     </View>
                 </Modal>
 
-                {/* Student Detail Modal */}
+                {/* Edit Member Modal */}
                 <Modal
-                    visible={showDetailModal}
-                    onDismiss={() => setShowDetailModal(false)}
+                    visible={showEditModal}
+                    onDismiss={() => setShowEditModal(false)}
                     contentContainerStyle={styles.modal}
                 >
-                    {selectedStudent && (
-                        <>
-                            <View style={styles.detailHeader}>
-                                <Avatar.Text
-                                    size={64}
-                                    label={selectedStudent.displayName?.charAt(0) || 'U'}
-                                    style={styles.avatarLarge}
-                                />
-                                <View style={styles.detailTitleContainer}>
-                                    <Text style={styles.detailName}>{selectedStudent.displayName}</Text>
-                                    <Text style={styles.detailEmail}>{selectedStudent.email}</Text>
-                                </View>
-                            </View>
-
-                            <View style={styles.detailStats}>
-                                <View style={styles.detailStatItem}>
-                                    <Text style={styles.detailStatValue}>{selectedStudent.totalXP || 0}</Text>
-                                    <Text style={styles.detailStatLabel}>Total XP</Text>
-                                </View>
-                                <View style={styles.detailStatDivider} />
-                                <View style={styles.detailStatItem}>
-                                    <Text style={styles.detailStatValue}>{selectedStudent.level || 1}</Text>
-                                    <Text style={styles.detailStatLabel}>Level</Text>
-                                </View>
-                            </View>
-
-                            <View style={styles.detailSection}>
-                                <Text style={styles.detailSectionTitle}>Competitive Events</Text>
-                                <View style={styles.eventsList}>
-                                    {selectedStudent.competitiveEvents && selectedStudent.competitiveEvents.length > 0 ? (
-                                        selectedStudent.competitiveEvents.map((event: string, idx: number) => (
-                                            <View key={idx} style={styles.eventBadge}>
-                                                <Text style={styles.eventBadgeText}>{event}</Text>
-                                            </View>
-                                        ))
-                                    ) : (
-                                        <Text style={styles.noEventsText}>No events selected</Text>
-                                    )}
-                                </View>
-                            </View>
-
-                            <View style={styles.detailSection}>
-                                <Text style={styles.detailSectionTitle}>Manage Role</Text>
-                                <View style={styles.roleToggle}>
-                                    <TouchableOpacity
-                                        style={[
-                                            styles.roleOption,
-                                            selectedStudent.role === 'member' && styles.roleOptionSelected
-                                        ]}
-                                        onPress={() => handleUpdateRole('member')}
-                                        disabled={isUpdatingRole}
-                                    >
-                                        <Text style={[
-                                            styles.roleOptionText,
-                                            selectedStudent.role === 'member' && styles.roleOptionTextSelected
-                                        ]}>Member</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        style={[
-                                            styles.roleOption,
-                                            selectedStudent.role === 'officer' && styles.roleOptionSelected
-                                        ]}
-                                        onPress={() => handleUpdateRole('officer')}
-                                        disabled={isUpdatingRole}
-                                    >
-                                        <Text style={[
-                                            styles.roleOptionText,
-                                            selectedStudent.role === 'officer' && styles.roleOptionTextSelected
-                                        ]}>Officer</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-
-                            <Button
-                                mode="contained"
-                                onPress={() => setShowDetailModal(false)}
-                                style={styles.closeModalButton}
-                            >
-                                Close
-                            </Button>
-                        </>
-                    )}
+                    <Text style={styles.modalTitle}>Edit Member</Text>
+                    <TextInput
+                        mode="outlined"
+                        label="First Name"
+                        value={editForm.firstName}
+                        onChangeText={(text) => setEditForm(prev => ({ ...prev, firstName: text }))}
+                        style={styles.input}
+                    />
+                    <TextInput
+                        mode="outlined"
+                        label="Last Name"
+                        value={editForm.lastName}
+                        onChangeText={(text) => setEditForm(prev => ({ ...prev, lastName: text }))}
+                        style={styles.input}
+                    />
+                    <TextInput
+                        mode="outlined"
+                        label="Grade"
+                        value={editForm.grade}
+                        onChangeText={(text) => setEditForm(prev => ({ ...prev, grade: text }))}
+                        style={styles.input}
+                        keyboardType="numeric"
+                    />
+                    <Text style={styles.inputLabel}>Role</Text>
+                    <SegmentedButtons
+                        value={editForm.role}
+                        onValueChange={value => setEditForm(prev => ({ ...prev, role: value }))}
+                        buttons={[
+                            {
+                                value: 'member',
+                                label: 'Member',
+                            },
+                            {
+                                value: 'officer',
+                                label: 'Officer',
+                            },
+                            {
+                                value: 'advisor',
+                                label: 'Advisor',
+                            },
+                        ]}
+                        style={styles.segmentedButton}
+                    />
+                    <View style={styles.modalActions}>
+                        <Button
+                            mode="outlined"
+                            onPress={() => setShowEditModal(false)}
+                            style={styles.modalButton}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            mode="contained"
+                            onPress={handleEditMember}
+                            loading={isSubmitting}
+                            style={styles.modalButton}
+                        >
+                            Save
+                        </Button>
+                    </View>
                 </Modal>
 
                 {/* Confirm Removal Dialog */}
@@ -408,7 +406,7 @@ export default function ChapterManagementScreen() {
                     </Dialog.Actions>
                 </Dialog>
             </Portal>
-        </View>
+        </View >
     );
 }
 
@@ -652,6 +650,16 @@ const styles = StyleSheet.create({
     },
     modalButton: {
         borderRadius: borderRadius.md,
+    },
+    inputLabel: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: colors.neutral[900],
+        marginBottom: 8,
+        marginTop: 16,
+    },
+    segmentedButton: {
+        marginBottom: 24,
     },
     dialog: {
         backgroundColor: 'white',

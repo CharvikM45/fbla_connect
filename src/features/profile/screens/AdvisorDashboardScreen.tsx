@@ -5,12 +5,13 @@ import {
     StyleSheet,
     ScrollView,
     TouchableOpacity,
+    Alert,
 } from 'react-native';
 import { Text, Card, Avatar, ActivityIndicator } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector } from '../../../shared/hooks/useRedux';
 import { colors, spacing, borderRadius } from '../../../shared/theme';
-import { useQuery } from 'convex/react';
+import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -26,7 +27,10 @@ export default function AdvisorDashboardScreen() {
     const user = useAppSelector(state => state.auth.user);
     const chapterId = user?.chapterName || '';
 
-    const chapterMembers = useQuery(api.users.getChapterMembers);
+    const chapterMembers = useQuery(api.chapter_data.getChapterData, {
+        chapterName: user?.chapterName || ''
+    });
+    const seedMembers = useMutation(api.chapter_data.seedChapterData);
 
     const meetings = useQuery(api.meetings.getMeetings, {
         chapterId: chapterId,
@@ -49,6 +53,25 @@ export default function AdvisorDashboardScreen() {
         groupme: '',
         twitter: '',
     });
+
+    // Autopopulate Northview High School if empty
+    React.useEffect(() => {
+        if (chapterMembers && chapterMembers.length <= 1) {
+            handleSeedData();
+        }
+    }, [chapterMembers]);
+
+    const handleSeedData = async () => {
+        try {
+            await seedMembers({
+                chapterName: user?.chapterName || '',
+            });
+            Alert.alert("Success", "Mock data populated! You should see members appear momentarily.");
+        } catch (error) {
+            console.error("Failed to seed data:", error);
+            Alert.alert("Error", "Failed to populate mock data. Please try again.");
+        }
+    };
 
     if (!user || (user.role !== 'adviser' && user.role !== 'officer')) {
         return (
@@ -323,6 +346,15 @@ export default function AdvisorDashboardScreen() {
                                 <Text style={styles.emptySubtext}>
                                     Create a meeting or announcement to get started
                                 </Text>
+                                {totalMembers <= 1 && (
+                                    <Button
+                                        mode="outlined"
+                                        onPress={handleSeedData}
+                                        style={{ marginTop: spacing.md }}
+                                    >
+                                        Seed Sample Data
+                                    </Button>
+                                )}
                             </Card.Content>
                         </Card>
                     ) : (
@@ -367,6 +399,59 @@ export default function AdvisorDashboardScreen() {
                                 </Card>
                             )}
                         </>
+                    )}
+                </View>
+
+                {/* Manual Seeding for Demo/Testing */}
+                {(totalMembers <= 1) && (
+                    <View style={{ paddingHorizontal: spacing.md, marginBottom: spacing.md }}>
+                        <Button
+                            mode="contained"
+                            buttonColor={colors.secondary[500]}
+                            onPress={handleSeedData}
+                            icon="cloud-upload"
+                        >
+                            Populate Mock Data
+                        </Button>
+                    </View>
+                )}
+
+                {/* Chapter Members List */}
+                <View style={styles.section}>
+                    <View style={styles.sectionHeader}>
+                        <Text style={styles.sectionTitle}>Chapter Members</Text>
+                        <TouchableOpacity onPress={() => navigation.navigate('ChapterManagement')}>
+                            <Text style={styles.seeAllText}>Manage</Text>
+                        </TouchableOpacity>
+                    </View>
+                    {chapterMembers && chapterMembers.length > 0 ? (
+                        <View style={styles.membersList}>
+                            {chapterMembers.slice(0, 5).map((member: any) => (
+                                <TouchableOpacity
+                                    key={member._id}
+                                    style={styles.memberListItem}
+                                    onPress={() => navigation.navigate('ChapterManagement')}
+                                >
+                                    <Avatar.Text
+                                        size={40}
+                                        label={member.firstName?.charAt(0) || 'U'}
+                                        style={styles.memberAvatar}
+                                    />
+                                    <View style={styles.memberInfoSmall}>
+                                        <Text style={styles.memberItemName}>{member.firstName} {member.lastName}</Text>
+                                        <Text style={styles.memberItemRole}>{member.role.charAt(0).toUpperCase() + member.role.slice(1)} • Grade {member.grade}</Text>
+                                    </View>
+                                    <Ionicons name="chevron-forward" size={16} color={colors.neutral[400]} />
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    ) : (
+                        <Card style={styles.emptyCard}>
+                            <Card.Content style={styles.emptyContent}>
+                                <ActivityIndicator size="small" color={colors.primary[600]} />
+                                <Text style={styles.emptySubtext}>Populating members...</Text>
+                            </Card.Content>
+                        </Card>
                     )}
                 </View>
 
@@ -856,5 +941,35 @@ const styles = StyleSheet.create({
     },
     connectedBtnText: {
         color: colors.neutral[600],
+    },
+    membersList: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: borderRadius.lg,
+        padding: spacing.sm,
+        elevation: 1,
+    },
+    memberListItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: spacing.sm,
+        paddingHorizontal: spacing.sm,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.neutral[50],
+    },
+    memberAvatar: {
+        backgroundColor: colors.primary[50],
+    },
+    memberInfoSmall: {
+        flex: 1,
+        marginLeft: spacing.md,
+    },
+    memberItemName: {
+        fontSize: 15,
+        fontWeight: '600',
+        color: colors.neutral[900],
+    },
+    memberItemRole: {
+        fontSize: 12,
+        color: colors.neutral[500],
     },
 });

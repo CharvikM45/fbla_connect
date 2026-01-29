@@ -90,4 +90,13 @@ export default defineSchema({
         state: v.string(),
         level: v.union(v.literal("National"), v.literal("State")),
     }).index("by_event", ["eventId"]).index("by_year", ["year"]),
+
+    chapter_data: defineTable({
+        firstName: v.string(),
+        lastName: v.string(),
+        role: v.union(v.literal("member"), v.literal("officer"), v.literal("advisor")),
+        grade: v.optional(v.string()),
+        email: v.optional(v.string()),
+        chapterName: v.string(),
+    }).index("by_chapter", ["chapterName"]),
 });
