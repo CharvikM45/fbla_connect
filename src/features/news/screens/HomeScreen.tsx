@@ -22,6 +22,7 @@ import { colors, spacing, typography, borderRadius } from '../../../shared/theme
 import AddAnnouncementModal from '../components/AddAnnouncementModal';
 import AddMeetingModal from '../../calendar/components/AddMeetingModal';
 import * as SecureStore from 'expo-secure-store';
+import AppTutorial from '../../../shared/components/AppTutorial';
 const { width } = Dimensions.get('window');
 
 const demoNews: NewsItem[] = [
@@ -73,6 +74,7 @@ export default function HomeScreen() {
     const [refreshing, setRefreshing] = useState(false);
     const [showAddAnnouncementModal, setShowAddAnnouncementModal] = useState(false);
     const [showAddMeetingModal, setShowAddMeetingModal] = useState(false);
+    const [showTutorial, setShowTutorial] = useState(false);
 
     const addXP = useMutation(api.profiles.addXP);
     const [dailyXPClaimed, setDailyXPClaimed] = useState(false);
@@ -103,6 +105,15 @@ export default function HomeScreen() {
         };
 
         checkDailyXP();
+
+        // Check if tutorial should be shown
+        const checkTutorial = async () => {
+            const hasSeenTutorial = await SecureStore.getItemAsync('has_seen_tutorial_v1');
+            if (!hasSeenTutorial) {
+                setShowTutorial(true);
+            }
+        };
+        checkTutorial();
     }, [user, dailyXPClaimed]);
 
     const handleMarkAsRead = async (newsId: string) => {
@@ -187,7 +198,15 @@ export default function HomeScreen() {
                         <View style={styles.welcomeHeader}>
                             <View>
                                 <Text style={styles.welcomeText}>Welcome back,</Text>
-                                <Text style={styles.userName}>{user?.displayName?.split(' ')[0] || 'Member'}!</Text>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                                    <Text style={styles.userName}>{user?.displayName?.split(' ')[0] || 'Member'}!</Text>
+                                    <TouchableOpacity
+                                        onPress={() => setShowTutorial(true)}
+                                        style={styles.helpButton}
+                                    >
+                                        <Ionicons name="help-circle-outline" size={20} color="rgba(255,255,255,0.7)" />
+                                    </TouchableOpacity>
+                                </View>
                             </View>
                             <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
                                 <View style={styles.avatarContainer}>
@@ -282,6 +301,15 @@ export default function HomeScreen() {
                 visible={showAddMeetingModal}
                 onDismiss={() => setShowAddMeetingModal(false)}
                 onSuccess={() => setShowAddMeetingModal(false)}
+            />
+
+            <AppTutorial
+                visible={showTutorial}
+                onClose={async () => {
+                    setShowTutorial(false);
+                    await SecureStore.setItemAsync('has_seen_tutorial_v1', 'true');
+                }}
+                userRole={user?.role || 'student'}
             />
         </View>
     );
@@ -383,6 +411,15 @@ const styles = StyleSheet.create({
         fontWeight: '900',
         color: '#FFFFFF',
         letterSpacing: -0.5,
+    },
+    helpButton: {
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        width: 28,
+        height: 28,
+        borderRadius: 14,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 4,
     },
     avatarContainer: {
         position: 'relative',

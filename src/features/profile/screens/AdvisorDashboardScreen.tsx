@@ -43,6 +43,13 @@ export default function AdvisorDashboardScreen() {
     const [showAnnouncementModal, setShowAnnouncementModal] = React.useState(false);
     const [showStatsModal, setShowStatsModal] = React.useState(false);
 
+    const [socialLinks, setSocialLinks] = React.useState({
+        instagram: '',
+        facebook: '',
+        groupme: '',
+        twitter: '',
+    });
+
     if (!user || (user.role !== 'adviser' && user.role !== 'officer')) {
         return (
             <View style={styles.container}>
@@ -247,6 +254,49 @@ export default function AdvisorDashboardScreen() {
                     </ScrollView>
                 </View>
 
+                {/* Chapter Social Hub */}
+                <View style={styles.section}>
+                    <View style={styles.sectionHeader}>
+                        <Text style={styles.sectionTitle}>Chapter Social Hub</Text>
+                        <Text style={styles.seeAllText}>Hub</Text>
+                    </View>
+                    <Card style={styles.socialCard}>
+                        <Card.Content>
+                            <Text style={styles.socialDesc}>Connect your chapter's social media to keep members engaged across platforms.</Text>
+                            <View style={styles.socialGrid}>
+                                <SocialItem
+                                    icon="logo-instagram"
+                                    name="Instagram"
+                                    color="#E1306C"
+                                    connected={!!socialLinks.instagram}
+                                    onConnect={() => setSocialLinks({ ...socialLinks, instagram: '@fbla_chapter' })}
+                                />
+                                <SocialItem
+                                    icon="logo-facebook"
+                                    name="Facebook"
+                                    color="#1877F2"
+                                    connected={!!socialLinks.facebook}
+                                    onConnect={() => setSocialLinks({ ...socialLinks, facebook: 'fbla_chapter' })}
+                                />
+                                <SocialItem
+                                    icon="chatbubbles-outline"
+                                    name="GroupMe"
+                                    color="#00AFF0"
+                                    connected={!!socialLinks.groupme}
+                                    onConnect={() => setSocialLinks({ ...socialLinks, groupme: 'ChapterChat' })}
+                                />
+                                <SocialItem
+                                    icon="logo-twitter"
+                                    name="X / Twitter"
+                                    color="#000000"
+                                    connected={!!socialLinks.twitter}
+                                    onConnect={() => setSocialLinks({ ...socialLinks, twitter: '@fbla_chapter' })}
+                                />
+                            </View>
+                        </Card.Content>
+                    </Card>
+                </View>
+
                 {/* Recent Activity */}
                 <View style={styles.section}>
                     <View style={styles.sectionHeader}>
@@ -378,6 +428,28 @@ function ResourceLink({ icon, label, color }: { icon: string, label: string, col
             </View>
             <Text style={styles.resourceLabel}>{label}</Text>
         </TouchableOpacity>
+    );
+}
+
+function SocialItem({ icon, name, color, connected, onConnect }: { icon: string, name: string, color: string, connected: boolean, onConnect: () => void }) {
+    return (
+        <View style={styles.socialItem}>
+            <View style={[styles.socialIconContainer, { backgroundColor: color + '15' }]}>
+                <Ionicons name={icon as any} size={24} color={color} />
+            </View>
+            <View style={styles.socialInfo}>
+                <Text style={styles.socialName}>{name}</Text>
+                <Text style={styles.socialStatus}>{connected ? 'Connected' : 'Not Linked'}</Text>
+            </View>
+            <TouchableOpacity
+                style={[styles.connectBtn, connected && styles.connectedBtn]}
+                onPress={onConnect}
+            >
+                <Text style={[styles.connectBtnText, connected && styles.connectedBtnText]}>
+                    {connected ? 'Manage' : 'Connect'}
+                </Text>
+            </TouchableOpacity>
+        </View>
     );
 }
 
@@ -719,5 +791,61 @@ const styles = StyleSheet.create({
         color: colors.neutral[700],
         fontWeight: '500',
         textAlign: 'center',
+    },
+    socialCard: {
+        borderRadius: borderRadius.lg,
+        backgroundColor: '#FFFFFF',
+        elevation: 1,
+    },
+    socialDesc: {
+        fontSize: 13,
+        color: colors.neutral[500],
+        marginBottom: spacing.lg,
+        lineHeight: 18,
+    },
+    socialGrid: {
+        gap: spacing.md,
+    },
+    socialItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: spacing.xs,
+    },
+    socialIconContainer: {
+        width: 44,
+        height: 44,
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: spacing.md,
+    },
+    socialInfo: {
+        flex: 1,
+    },
+    socialName: {
+        fontSize: 15,
+        fontWeight: 'bold',
+        color: colors.neutral[800],
+    },
+    socialStatus: {
+        fontSize: 12,
+        color: colors.neutral[400],
+    },
+    connectBtn: {
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 8,
+        backgroundColor: colors.primary[50],
+    },
+    connectBtnText: {
+        fontSize: 12,
+        fontWeight: 'bold',
+        color: colors.primary[600],
+    },
+    connectedBtn: {
+        backgroundColor: colors.neutral[100],
+    },
+    connectedBtnText: {
+        color: colors.neutral[600],
     },
 });

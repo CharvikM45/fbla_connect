@@ -35,6 +35,27 @@ const quickPrompts = [
     { icon: '📋', text: 'What are the SLC deadlines?' },
 ];
 
+const MODE_THEMES: Record<AIMode, { primary: string; secondary: string; light: string; icon: string }> = {
+    standard: {
+        primary: colors.primary[600],
+        secondary: colors.primary[700],
+        light: colors.primary[50],
+        icon: 'sparkles-outline',
+    },
+    practice: {
+        primary: colors.secondary[600],
+        secondary: colors.secondary[700],
+        light: colors.secondary[50],
+        icon: 'book-outline',
+    },
+    grade: {
+        primary: '#8B5CF6',
+        secondary: '#7C3AED',
+        light: '#F5F3FF',
+        icon: 'medal-outline',
+    },
+};
+
 const initialMessages: Message[] = [
     {
         id: '1',
@@ -114,16 +135,27 @@ export default function AIAssistantScreen() {
         }
     };
 
+    const theme = MODE_THEMES[currentMode];
+
     return (
         <View style={styles.container}>
             {/* Enhanced Header */}
-            <View style={styles.headerContainer}>
+            <View style={[styles.headerContainer, { backgroundColor: theme.primary }]}>
                 <View style={styles.headerContent}>
-                    <View style={styles.headerIconContainer}>
-                        <Ionicons name="sparkles-outline" size={28} color="#FFFFFF" />
-                    </View>
-                    <Text style={styles.headerTitle}>AI Assistant</Text>
-                    <Text style={styles.headerSubtitle}>Get instant answers about FBLA</Text>
+                    <MotiView
+                        from={{ scale: 0.5, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        key={currentMode}
+                        style={styles.headerIconContainer}
+                    >
+                        <Ionicons name={theme.icon as any} size={28} color="#FFFFFF" />
+                    </MotiView>
+                    <Text style={styles.headerTitle}>
+                        {currentMode === 'standard' ? 'AI Assistant' : currentMode === 'practice' ? 'Practice Mode' : 'Grading Mode'}
+                    </Text>
+                    <Text style={styles.headerSubtitle}>
+                        {currentMode === 'standard' ? 'Get instant answers about FBLA' : currentMode === 'practice' ? 'Test your knowledge' : 'Get professional feedback'}
+                    </Text>
                 </View>
             </View>
 
@@ -139,7 +171,7 @@ export default function AIAssistantScreen() {
                     showsVerticalScrollIndicator={false}
                 >
                     {/* AI Mode Selector */}
-                    <AIModeSelector currentMode={currentMode} onModeChange={(mode) => {
+                    <AIModeSelector currentMode={currentMode} theme={theme} onModeChange={(mode) => {
                         setCurrentMode(mode);
                         setMessages([initialMessages[0]]); // Reset chat on mode change for clarity
                     }} />
@@ -157,12 +189,12 @@ export default function AIAssistantScreen() {
                                         onPress={() => setSelectedEvent(event.title)}
                                         style={[
                                             styles.eventChip,
-                                            selectedEvent === event.title && styles.eventChipSelected
+                                            selectedEvent === event.title && { backgroundColor: theme.light, borderColor: theme.primary }
                                         ]}
                                     >
                                         <Text style={[
                                             styles.eventChipText,
-                                            selectedEvent === event.title && styles.eventChipTextSelected
+                                            selectedEvent === event.title && { color: theme.primary, fontWeight: '700' }
                                         ]}>
                                             {event.title}
                                         </Text>
@@ -202,6 +234,7 @@ export default function AIAssistantScreen() {
                         >
                             <MessageBubble
                                 message={message}
+                                theme={theme}
                                 onSuggestionPress={sendMessage}
                             />
                         </MotiView>
@@ -210,7 +243,7 @@ export default function AIAssistantScreen() {
                     {isTyping && (
                         <View style={styles.typingContainer}>
                             <View style={styles.typingBubble}>
-                                <ActivityIndicator size={12} color={colors.primary[600]} />
+                                <ActivityIndicator size={12} color={theme.primary} />
                                 <Text style={styles.typingText}>Thinking...</Text>
                             </View>
                         </View>
@@ -223,20 +256,20 @@ export default function AIAssistantScreen() {
                             <TextInput
                                 value={inputText}
                                 onChangeText={setInputText}
-                                placeholder="Ask FBLA AI..."
+                                placeholder={currentMode === 'grade' ? "Paste your transcript here..." : "Ask FBLA AI..."}
                                 placeholderTextColor={colors.neutral[400]}
                                 style={styles.textInput}
                                 textColor={colors.neutral[900]}
                                 mode="flat"
                                 multiline
-                                maxLength={500}
+                                maxLength={2000}
                                 underlineColor="transparent"
                                 activeUnderlineColor="transparent"
                                 dense
                             />
                             <IconButton
                                 icon="send"
-                                iconColor={inputText.trim() ? colors.primary[600] : colors.neutral[300]}
+                                iconColor={inputText.trim() ? theme.primary : colors.neutral[300]}
                                 size={24}
                                 onPress={() => sendMessage(inputText)}
                                 disabled={!inputText.trim()}
@@ -249,7 +282,7 @@ export default function AIAssistantScreen() {
     );
 }
 
-function AIModeSelector({ currentMode, onModeChange }: { currentMode: AIMode, onModeChange: (mode: AIMode) => void }) {
+function AIModeSelector({ currentMode, theme, onModeChange }: { currentMode: AIMode, theme: any, onModeChange: (mode: AIMode) => void }) {
     const modes: { id: AIMode; label: string; icon: string; desc: string }[] = [
         { id: 'standard', label: 'Chat', icon: 'chatbubble-ellipses', desc: 'General Q&A' },
         { id: 'practice', label: 'Practice', icon: 'school', desc: 'Questions & Tasks' },
@@ -264,7 +297,7 @@ function AIModeSelector({ currentMode, onModeChange }: { currentMode: AIMode, on
                     onPress={() => onModeChange(mode.id)}
                     style={[
                         styles.modeButton,
-                        currentMode === mode.id && styles.modeButtonSelected
+                        currentMode === mode.id && { backgroundColor: MODE_THEMES[mode.id].primary }
                     ]}
                 >
                     <Ionicons
@@ -286,9 +319,11 @@ function AIModeSelector({ currentMode, onModeChange }: { currentMode: AIMode, on
 
 function MessageBubble({
     message,
+    theme,
     onSuggestionPress,
 }: {
     message: Message;
+    theme: any;
     onSuggestionPress: (text: string) => void;
 }) {
     const isUser = message.type === 'user';
@@ -297,7 +332,7 @@ function MessageBubble({
         <View style={[styles.messageBubbleContainer, isUser && styles.userBubbleContainer]}>
             <View style={[
                 styles.messageBubble,
-                isUser ? styles.userBubble : styles.assistantBubble,
+                isUser ? { backgroundColor: theme.primary, borderBottomRightRadius: 2 } : { backgroundColor: '#FFFFFF', borderBottomLeftRadius: 2, borderWidth: 1, borderColor: colors.neutral[100] },
                 shadows.sm
             ]}>
                 <Text style={[styles.messageText, isUser && styles.userMessageText]}>
@@ -310,11 +345,11 @@ function MessageBubble({
                     {message.suggestions.map((suggestion, index) => (
                         <TouchableOpacity
                             key={index}
-                            style={styles.suggestionChip}
+                            style={[styles.suggestionChip, { backgroundColor: theme.light, borderColor: theme.primary + '30' }]}
                             onPress={() => onSuggestionPress(suggestion)}
                         >
                             <View style={styles.suggestionInner}>
-                                <Text style={styles.suggestionText}>{suggestion}</Text>
+                                <Text style={[styles.suggestionText, { color: theme.primary }]}>{suggestion}</Text>
                             </View>
                         </TouchableOpacity>
                     ))}
