@@ -22,6 +22,7 @@ import { GlowView } from '../../../shared/components/GlowView';
 import { StaggeredList } from '../../../shared/components/StaggeredList';
 import { Image } from 'react-native';
 import { interestSubsets } from '../../../shared/constants/interests';
+import EventSelector from '../../../shared/components/EventSelector';
 
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
@@ -67,6 +68,7 @@ export default function ProfileScreen() {
     const convexProfile = useQuery(api.profiles.getCurrentUserProfile);
     const allEvents = useQuery(api.competitive_events.getEvents, {});
     const updateConvexUser = useMutation(api.users.updateUser);
+    const addXP = useMutation(api.profiles.addXP);
 
     const navigation = useNavigation<NavigationProp>();
 
@@ -645,37 +647,29 @@ export default function ProfileScreen() {
                                     left={props => <List.Icon {...props} icon="star" />}
                                 >
                                     <View style={styles.accordionContent}>
-                                        <Text style={styles.formLabel}>Select Competitive Events</Text>
-                                        <View style={styles.chipContainer}>
-                                            {allEvents?.map(event => (
-                                                <Chip
-                                                    key={event._id}
-                                                    selected={editForm.competitiveEvents.includes(event._id)}
-                                                    onPress={() => {
-                                                        setEditForm(prev => ({
-                                                            ...prev,
-                                                            competitiveEvents: prev.competitiveEvents.includes(event._id)
-                                                                ? prev.competitiveEvents.filter((id: string) => id !== event._id)
-                                                                : [...prev.competitiveEvents, event._id]
-                                                        }));
-                                                    }}
-                                                    style={[
-                                                        styles.chip,
-                                                        editForm.competitiveEvents.includes(event._id) && styles.chipSelected,
-                                                    ]}
-                                                    textStyle={[
-                                                        styles.chipText,
-                                                        editForm.competitiveEvents.includes(event._id) && styles.chipTextSelected,
-                                                    ]}
-                                                    showSelectedCheck={false}
-                                                >
-                                                    {event.title}
-                                                </Chip>
-                                            ))}
-                                            {(!allEvents || allEvents.length === 0) && (
-                                                <Text style={{ color: colors.neutral[400], fontStyle: 'italic', padding: spacing.sm }}>No events found.</Text>
-                                            )}
-                                        </View>
+                                        <Text style={[styles.formLabel, { marginBottom: spacing.md }]}>Select Competitive Events</Text>
+                                        <EventSelector
+                                            allEvents={allEvents ? allEvents.map((e: any) => ({
+                                                id: e._id,
+                                                title: e.title,
+                                                category: e.category || 'General'
+                                            })) : []}
+                                            selectedEvents={editForm.competitiveEvents}
+                                            onToggleEvent={(id: string) => {
+                                                setEditForm(prev => ({
+                                                    ...prev,
+                                                    competitiveEvents: prev.competitiveEvents.includes(id)
+                                                        ? prev.competitiveEvents.filter((eid: string) => eid !== id)
+                                                        : [...prev.competitiveEvents, id]
+                                                }));
+                                            }}
+                                            onSelect={() => {
+                                                if (reduxUser?.id) {
+                                                    addXP({ amount: 20, userId: reduxUser.id as any });
+                                                }
+                                            }}
+                                            placeholder="Search for an event..."
+                                        />
                                     </View>
                                 </List.Accordion>
                             </List.AccordionGroup>

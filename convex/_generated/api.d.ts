@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as ai from "../ai.js";
 import type * as competitive_events from "../competitive_events.js";
 import type * as conferences from "../conferences.js";
 import type * as init from "../init.js";
@@ -26,6 +27,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  ai: typeof ai;
   competitive_events: typeof competitive_events;
   conferences: typeof conferences;
   init: typeof init;

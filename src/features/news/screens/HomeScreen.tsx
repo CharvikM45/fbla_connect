@@ -7,6 +7,7 @@ import {
     RefreshControl,
     TouchableOpacity,
     Dimensions,
+    Platform,
 } from 'react-native';
 import { Text, Avatar, Badge, Card } from 'react-native-paper';
 import { MotiView } from 'moti';
@@ -15,11 +16,12 @@ import { useAppSelector, useAppDispatch } from '../../../shared/hooks/useRedux';
 import { setNews, markAsRead, NewsItem } from '../newsSlice';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { colors, spacing, typography, borderRadius } from '../../../shared/theme';
 import AddAnnouncementModal from '../components/AddAnnouncementModal';
 import AddMeetingModal from '../../calendar/components/AddMeetingModal';
+import * as SecureStore from 'expo-secure-store';
 const { width } = Dimensions.get('window');
 
 const demoNews: NewsItem[] = [
@@ -72,11 +74,48 @@ export default function HomeScreen() {
     const [showAddAnnouncementModal, setShowAddAnnouncementModal] = useState(false);
     const [showAddMeetingModal, setShowAddMeetingModal] = useState(false);
 
+    const addXP = useMutation(api.profiles.addXP);
+    const [dailyXPClaimed, setDailyXPClaimed] = useState(false);
+
     // Convex Query for real-time news
     const liveNews = useQuery(api.news.getFilteredNews, {
         stateId: user?.state,
         chapterId: user?.chapterName
     });
+
+    useEffect(() => {
+        // Daily Login XP Award
+        const checkDailyXP = async () => {
+            if (!user) return;
+            const lastLoginDate = await SecureStore.getItemAsync('last_login_date');
+            const today = new Date().toDateString();
+
+            if (lastLoginDate !== today && !dailyXPClaimed) {
+                try {
+                    await addXP({ amount: 10, userId: user.id as any });
+                    await SecureStore.setItemAsync('last_login_date', today);
+                    setDailyXPClaimed(true);
+                    console.log('Daily XP Awarded!');
+                } catch (error) {
+                    console.error('Failed to award daily XP:', error);
+                }
+            }
+        };
+
+        checkDailyXP();
+    }, [user, dailyXPClaimed]);
+
+    const handleMarkAsRead = async (newsId: string) => {
+        const item = news.find(n => n.id === newsId);
+        if (item && !item.isRead && user) {
+            dispatch(markAsRead(newsId));
+            try {
+                await addXP({ amount: 5, userId: user.id as any });
+            } catch (error) {
+                console.error('Failed to add XP for reading news:', error);
+            }
+        }
+    };
 
     const news = React.useMemo((): NewsItem[] => {
         if (liveNews && liveNews.length > 0) {
@@ -141,9 +180,9 @@ export default function HomeScreen() {
                 {/* Welcome Section */}
                 <View style={styles.welcomeSection}>
                     <MotiView
-                        from={{ opacity: 0, translateY: -20 }}
-                        animate={{ opacity: 1, translateY: 0 }}
-                        transition={{ type: 'spring', damping: 12 }}
+                        from={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ type: 'spring', damping: 15 }}
                     >
                         <View style={styles.welcomeHeader}>
                             <View>
@@ -153,7 +192,7 @@ export default function HomeScreen() {
                             <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
                                 <View style={styles.avatarContainer}>
                                     <Avatar.Text
-                                        size={56}
+                                        size={50}
                                         label={user?.displayName?.charAt(0) || 'U'}
                                         style={styles.avatar}
                                     />
@@ -166,47 +205,39 @@ export default function HomeScreen() {
                             </TouchableOpacity>
                         </View>
 
-                        <Card style={styles.statsCard}>
-                            <Card.Content>
-                                <View style={styles.statsRow}>
-                                    <View style={styles.statItem}>
-                                        <Text style={styles.statValue}>{profile?.totalXP || 0}</Text>
-                                        <Text style={styles.statLabel}>XP Points</Text>
-                                    </View>
-                                    <View style={styles.statDivider} />
-                                    <View style={styles.statItem}>
-                                        <Text style={styles.statValue}>{profile?.badges?.length || 0}</Text>
-                                        <Text style={styles.statLabel}>Badges</Text>
-                                    </View>
-                                    <View style={styles.statDivider} />
-                                    <View style={styles.statItem}>
-                                        <Text style={styles.statValue}>3</Text>
-                                        <Text style={styles.statLabel}>Events</Text>
-                                    </View>
-                                </View>
-                            </Card.Content>
-                        </Card>
+                        <View style={styles.statsOverview}>
+                            <View style={styles.statMini}>
+                                <Text style={styles.statMiniValue}>{profile?.totalXP || 0}</Text>
+                                <Text style={styles.statMiniLabel}>XP</Text>
+                            </View>
+                            <View style={styles.statMiniDivider} />
+                            <View style={styles.statMini}>
+                                <Text style={styles.statMiniValue}>{profile?.badges?.length || 0}</Text>
+                                <Text style={styles.statMiniLabel}>Badges</Text>
+                            </View>
+                            <View style={styles.statMiniDivider} />
+                            <View style={styles.statMini}>
+                                <Text style={styles.statMiniValue}>3</Text>
+                                <Text style={styles.statMiniLabel}>Events</Text>
+                            </View>
+                        </View>
                     </MotiView>
                 </View>
 
-                {/* Quick Actions */}
+                {/* Quick Actions Grid */}
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Quick Actions</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                        <View style={styles.actionsRow}>
-                            <QuickAction icon="sparkles-outline" label="Ask AI" color="#8B5CF6" onPress={() => handleQuickAction('Ask AI')} />
-                            <QuickAction icon="calendar" label="Events" color="#3B82F6" onPress={() => handleQuickAction('Events')} />
-                            <QuickAction icon="library-outline" label="Resources" color="#10B981" onPress={() => handleQuickAction('Resources')} />
-                            <QuickAction icon="trophy" label="Compete" color="#F59E0B" onPress={() => handleQuickAction('Compete')} />
-                            <QuickAction icon="people" label="Network" color="#EC4899" onPress={() => handleQuickAction('Network')} />
-                        </View>
-                    </ScrollView>
+                    <View style={styles.quickActionsGrid}>
+                        <QuickAction icon="sparkles" label="Ask AI" color="#8B5CF6" onPress={() => handleQuickAction('Ask AI')} />
+                        <QuickAction icon="calendar" label="Events" color="#3B82F6" onPress={() => handleQuickAction('Events')} />
+                        <QuickAction icon="book" label="Resources" color="#10B981" onPress={() => handleQuickAction('Resources')} />
+                        <QuickAction icon="trophy" label="Compete" color="#F59E0B" onPress={() => handleQuickAction('Compete')} />
+                    </View>
                 </View>
 
                 {/* News Feed */}
                 <View style={styles.section}>
                     <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionTitle}>News Feed</Text>
+                        <Text style={styles.sectionSubtitle}>RECENT UPDATES</Text>
                         <View style={styles.sectionHeaderRight}>
                             {(user?.role === 'adviser' || user?.role === 'officer') && (
                                 <TouchableOpacity
@@ -219,12 +250,9 @@ export default function HomeScreen() {
                                         }
                                     }}
                                 >
-                                    <Ionicons name="add-circle" size={20} color={colors.primary[600]} />
-                                    <Text style={styles.addAnnouncementText}>Create</Text>
+                                    <Ionicons name="add" size={18} color={colors.primary[600]} />
+                                    <Text style={styles.addAnnouncementText}>New</Text>
                                 </TouchableOpacity>
-                            )}
-                            {unreadCount > 0 && (
-                                <Badge style={styles.unreadBadge}>{unreadCount}</Badge>
                             )}
                         </View>
                     </View>
@@ -232,35 +260,28 @@ export default function HomeScreen() {
                     {news.map((item, index) => (
                         <MotiView
                             key={item.id}
-                            from={{ opacity: 0, translateY: 30 }}
+                            from={{ opacity: 0, translateY: 20 }}
                             animate={{ opacity: 1, translateY: 0 }}
-                            transition={{ type: 'spring', damping: 15, delay: index * 100 }}
+                            transition={{ type: 'timing', duration: 400, delay: index * 50 }}
                         >
-                            <NewsCard item={item} onPress={() => dispatch(markAsRead(item.id))} />
+                            <NewsCard item={item} onPress={() => handleMarkAsRead(item.id)} />
                         </MotiView>
                     ))}
                 </View>
 
-                <View style={{ height: 120 }} />
+                <View style={{ height: 100 }} />
             </ScrollView>
 
-            {/* Add Announcement Modal */}
+            {/* Modals remain same */}
             <AddAnnouncementModal
                 visible={showAddAnnouncementModal}
                 onDismiss={() => setShowAddAnnouncementModal(false)}
-                onSuccess={() => {
-                    // Refetch handled automatically by Convex
-                    setShowAddAnnouncementModal(false);
-                }}
+                onSuccess={() => setShowAddAnnouncementModal(false)}
             />
-
-            {/* Add Meeting Modal */}
             <AddMeetingModal
                 visible={showAddMeetingModal}
                 onDismiss={() => setShowAddMeetingModal(false)}
-                onSuccess={() => {
-                    setShowAddMeetingModal(false);
-                }}
+                onSuccess={() => setShowAddMeetingModal(false)}
             />
         </View>
     );
@@ -269,8 +290,8 @@ export default function HomeScreen() {
 function QuickAction({ icon, label, color, onPress }: { icon: string; label: string; color: string; onPress?: () => void }) {
     return (
         <TouchableOpacity style={styles.actionButton} onPress={onPress} activeOpacity={0.7}>
-            <View style={[styles.actionIconContainer, { backgroundColor: color + '15' }]}>
-                <Ionicons name={icon as any} size={28} color={color} />
+            <View style={[styles.actionIconContainer, { backgroundColor: color + '12' }]}>
+                <Ionicons name={icon as any} size={24} color={color} />
             </View>
             <Text style={styles.actionLabel}>{label}</Text>
         </TouchableOpacity>
@@ -280,9 +301,9 @@ function QuickAction({ icon, label, color, onPress }: { icon: string; label: str
 function NewsCard({ item, onPress }: { item: NewsItem; onPress: () => void }) {
     const getLevelColor = () => {
         switch (item.level) {
-            case 'national': return colors.primary[600];
-            case 'state': return '#FBBF24';
-            case 'chapter': return '#34D399';
+            case 'national': return colors.primary[500];
+            case 'state': return '#F59E0B';
+            case 'chapter': return '#10B981';
             default: return colors.neutral[400];
         }
     };
@@ -290,32 +311,33 @@ function NewsCard({ item, onPress }: { item: NewsItem; onPress: () => void }) {
     return (
         <TouchableOpacity onPress={onPress} style={{ marginBottom: spacing.md }} activeOpacity={0.8}>
             <Card style={[styles.newsCard, item.isPinned && styles.newsCardPinned]}>
-                <Card.Content>
-                    {item.isPinned && (
-                        <View style={styles.pinnedBadge}>
-                            <Ionicons name="pin" size={12} color="#FBBF24" />
-                            <Text style={styles.pinnedText}>PINNED</Text>
+                <Card.Content style={styles.newsCardContent}>
+                    <View style={styles.newsCardBody}>
+                        <View style={styles.newsMainInfo}>
+                            <View style={styles.newsMetaRow}>
+                                <View style={[styles.levelBadgeMini, { backgroundColor: getLevelColor() + '12' }]}>
+                                    <Text style={[styles.levelTextMini, { color: getLevelColor() }]}>
+                                        {item.level.toUpperCase()}
+                                    </Text>
+                                </View>
+                                <Text style={styles.newsTime}>
+                                    {new Date(item.publishedAt).toLocaleDateString()}
+                                </Text>
+                            </View>
+                            <Text style={styles.newsTitle} numberOfLines={2}>{item.title}</Text>
+                            <Text style={styles.newsSummary} numberOfLines={2}>{item.summary}</Text>
                         </View>
-                    )}
-                    <View style={styles.newsHeader}>
-                        <View style={[styles.levelBadgeMini, { backgroundColor: getLevelColor() + '15' }]}>
-                            <Text style={[styles.levelTextMini, { color: getLevelColor() }]}>
-                                {item.level.toUpperCase()}
-                            </Text>
-                        </View>
-                        {!item.isRead && <View style={styles.unreadDot} />}
+                        {item.imageUrl && (
+                            <Avatar.Image size={70} source={{ uri: item.imageUrl }} style={styles.newsImage} />
+                        )}
                     </View>
-                    <Text style={styles.newsTitle}>{item.title}</Text>
-                    <Text style={styles.newsSummary}>{item.summary}</Text>
 
                     <View style={styles.newsFooter}>
                         <View style={styles.authorInfo}>
-                            <Avatar.Text size={20} label={item.authorName?.charAt(0) || 'F'} style={styles.authorAvatar} />
+                            <Avatar.Text size={16} label={item.authorName?.charAt(0) || 'F'} style={styles.authorAvatar} labelStyle={{ fontSize: 8 }} />
                             <Text style={styles.newsAuthor}>{item.authorName}</Text>
                         </View>
-                        <Text style={styles.newsTime}>
-                            {new Date(item.publishedAt).toLocaleDateString()}
-                        </Text>
+                        {!item.isRead && <View style={styles.unreadDot} />}
                     </View>
                 </Card.Content>
             </Card>
@@ -326,91 +348,97 @@ function NewsCard({ item, onPress }: { item: NewsItem; onPress: () => void }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: colors.neutral[50],
+        backgroundColor: '#F8FAFC',
     },
     scrollView: {
         flex: 1,
     },
     welcomeSection: {
-        paddingTop: spacing.xl,
-        paddingHorizontal: spacing.md,
+        paddingTop: Platform.OS === 'ios' ? 60 : 40,
+        paddingHorizontal: spacing.lg,
         paddingBottom: spacing.lg,
         backgroundColor: colors.primary[600],
-        borderBottomLeftRadius: 30,
-        borderBottomRightRadius: 30,
+        borderBottomLeftRadius: 36,
+        borderBottomRightRadius: 36,
+        elevation: 10,
+        shadowColor: colors.primary[900],
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.2,
+        shadowRadius: 20,
     },
     welcomeHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: spacing.xl,
+        marginBottom: spacing.lg,
     },
     welcomeText: {
-        fontSize: 16,
-        color: 'rgba(255, 255, 255, 0.8)',
+        fontSize: 14,
+        color: 'rgba(255, 255, 255, 0.7)',
         fontWeight: '500',
+        letterSpacing: 0.5,
     },
     userName: {
-        fontSize: 32,
-        fontWeight: 'bold',
+        fontSize: 28,
+        fontWeight: '900',
         color: '#FFFFFF',
+        letterSpacing: -0.5,
     },
     avatarContainer: {
         position: 'relative',
     },
     avatar: {
-        backgroundColor: 'rgba(255,255,255,0.2)',
-        borderWidth: 2,
+        backgroundColor: 'rgba(255,255,255,0.15)',
+        borderWidth: 1.5,
         borderColor: 'rgba(255,255,255,0.3)',
     },
     levelBadge: {
         position: 'absolute',
-        bottom: -2,
-        right: -2,
+        bottom: -4,
+        right: -4,
         backgroundColor: colors.secondary[500],
-        paddingHorizontal: 8,
+        paddingHorizontal: 6,
         paddingVertical: 2,
-        borderRadius: 8,
-        borderWidth: 2,
+        borderRadius: 6,
+        borderWidth: 1.5,
         borderColor: colors.primary[600],
     },
     levelText: {
-        fontSize: 10,
+        fontSize: 9,
         fontWeight: 'bold',
         color: '#FFFFFF',
     },
-    statsCard: {
-        borderRadius: 20,
-        elevation: 4,
-        backgroundColor: '#FFFFFF',
-    },
-    statsRow: {
+    statsOverview: {
         flexDirection: 'row',
         alignItems: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        borderRadius: 20,
+        paddingVertical: 12,
+        paddingHorizontal: 8,
     },
-    statItem: {
+    statMini: {
         flex: 1,
         alignItems: 'center',
     },
-    statValue: {
-        fontSize: 20,
+    statMiniValue: {
+        fontSize: 18,
         fontWeight: 'bold',
-        color: colors.neutral[900],
+        color: '#FFFFFF',
     },
-    statLabel: {
+    statMiniLabel: {
         fontSize: 10,
-        color: colors.neutral[500],
-        fontWeight: '600',
+        color: 'rgba(255, 255, 255, 0.6)',
+        fontWeight: '700',
         textTransform: 'uppercase',
-        marginTop: 4,
+        marginTop: 2,
     },
-    statDivider: {
+    statMiniDivider: {
         width: 1,
-        height: 30,
-        backgroundColor: colors.neutral[200],
+        height: 16,
+        backgroundColor: 'rgba(255, 255, 255, 0.2)',
     },
     section: {
-        paddingHorizontal: spacing.md,
+        paddingHorizontal: spacing.lg,
         marginTop: spacing.xl,
     },
     sectionHeader: {
@@ -424,127 +452,144 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: spacing.sm,
     },
+    sectionSubtitle: {
+        fontSize: 12,
+        fontWeight: '800',
+        color: colors.neutral[400],
+        letterSpacing: 1.5,
+    },
     addAnnouncementBtn: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: colors.primary[50],
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 10,
-        gap: 4,
+        backgroundColor: '#FFFFFF',
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: colors.neutral[100],
+        gap: 2,
     },
     addAnnouncementText: {
-        fontSize: 12,
+        fontSize: 11,
         fontWeight: 'bold',
         color: colors.primary[600],
     },
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: colors.neutral[900],
-    },
-    unreadBadge: {
-        backgroundColor: colors.primary[600],
-    },
-    actionsRow: {
+    quickActionsGrid: {
         flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
         gap: spacing.md,
-        paddingBottom: spacing.sm,
     },
     actionButton: {
+        width: (width - spacing.lg * 2 - spacing.md) / 2,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 20,
+        padding: spacing.md,
+        flexDirection: 'row',
         alignItems: 'center',
-        width: 76,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 8,
     },
     actionIconContainer: {
-        width: 60,
-        height: 60,
-        borderRadius: 18,
+        width: 44,
+        height: 44,
+        borderRadius: 12,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: spacing.xs,
+        marginRight: spacing.md,
     },
     actionLabel: {
-        fontSize: 11,
-        color: colors.neutral[600],
-        fontWeight: '600',
-        textAlign: 'center',
+        fontSize: 14,
+        color: colors.neutral[800],
+        fontWeight: '700',
     },
     newsCard: {
-        borderRadius: 20,
-        elevation: 2,
+        borderRadius: 24,
+        elevation: 3,
         backgroundColor: '#FFFFFF',
-    },
-    newsCardPinned: {
-        borderColor: colors.secondary[200],
         borderWidth: 1,
+        borderColor: 'rgba(0,0,0,0.03)',
     },
-    pinnedBadge: {
+    newsCardContent: {
+        padding: spacing.md,
+    },
+    newsCardBody: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    newsMainInfo: {
+        flex: 1,
+        marginRight: spacing.sm,
+    },
+    newsMetaRow: {
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 8,
-    },
-    pinnedText: {
-        fontSize: 10,
-        color: colors.secondary[600],
-        marginLeft: 4,
-        fontWeight: 'bold',
-    },
-    newsHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: 10,
+        gap: 8,
     },
     levelBadgeMini: {
-        paddingHorizontal: 8,
+        paddingHorizontal: 6,
         paddingVertical: 2,
         borderRadius: 6,
     },
     levelTextMini: {
-        fontSize: 10,
-        fontWeight: 'bold',
+        fontSize: 9,
+        fontWeight: '900',
     },
-    unreadDot: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        backgroundColor: colors.primary[600],
+    newsTime: {
+        fontSize: 10,
+        color: colors.neutral[400],
+        fontWeight: '500',
     },
     newsTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
+        fontSize: 16,
+        fontWeight: '800',
         color: colors.neutral[900],
-        marginBottom: 6,
+        lineHeight: 22,
+        marginBottom: 4,
     },
     newsSummary: {
-        fontSize: 14,
-        color: colors.neutral[600],
-        lineHeight: 20,
-        marginBottom: 12,
+        fontSize: 13,
+        color: colors.neutral[500],
+        lineHeight: 18,
+    },
+    newsImage: {
+        borderRadius: 16,
+        backgroundColor: colors.neutral[100],
     },
     newsFooter: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        marginTop: 12,
+        paddingTop: 12,
         borderTopWidth: 1,
-        borderTopColor: colors.neutral[100],
-        paddingTop: 10,
+        borderTopColor: '#F1F5F9',
     },
     authorInfo: {
         flexDirection: 'row',
         alignItems: 'center',
     },
     authorAvatar: {
-        backgroundColor: colors.primary[100],
+        backgroundColor: colors.primary[50],
         marginRight: 6,
     },
     newsAuthor: {
-        fontSize: 12,
-        color: colors.neutral[700],
+        fontSize: 11,
+        color: colors.neutral[600],
         fontWeight: '600',
     },
-    newsTime: {
-        fontSize: 11,
-        color: colors.neutral[400],
+    unreadDot: {
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+        backgroundColor: colors.primary[500],
+    },
+    newsCardPinned: {
+        borderColor: colors.secondary[300],
+        borderWidth: 1.5,
     },
 });

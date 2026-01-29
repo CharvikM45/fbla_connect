@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { OnboardingStackParamList } from '../../../shared/navigation/types';
-import { useAppDispatch } from '../../../shared/hooks/useRedux';
+import { useAppDispatch, useAppSelector } from '../../../shared/hooks/useRedux';
 import { updateProfile } from '../../profile/profileSlice';
 import { colors, spacing, typography, borderRadius, shadows } from '../../../shared/theme';
 import { useMutation } from "convex/react";
@@ -13,6 +13,7 @@ import { api } from "../../../../convex/_generated/api";
 import competitiveEventsData from '../../../assets/data/competitive_events.json';
 import { MotiView } from 'moti';
 import { interestSubsets } from '../../../shared/constants/interests';
+import EventSelector from '../../../shared/components/EventSelector';
 
 type Props = {
     navigation: NativeStackNavigationProp<OnboardingStackParamList, 'Interests'>;
@@ -21,17 +22,9 @@ type Props = {
 
 export default function InterestsScreen({ navigation }: Props) {
     const dispatch = useAppDispatch();
+    const user = useAppSelector(state => state.auth.user);
     const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
     const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
-    const [searchQuery, setSearchQuery] = useState('');
-
-    const filteredEvents = useMemo(() => {
-        if (!searchQuery) return competitiveEventsData;
-        return competitiveEventsData.filter(event =>
-            event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            event.category.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-    }, [searchQuery]);
 
     const toggleInterest = (id: string) => {
         setSelectedInterests(prev =>
@@ -46,6 +39,7 @@ export default function InterestsScreen({ navigation }: Props) {
     };
 
     const updateConvexUser = useMutation(api.users.updateUser);
+    const addXP = useMutation(api.profiles.addXP);
 
     const handleContinue = async () => {
         const interestLabels = selectedInterests.map(id => {
@@ -141,48 +135,27 @@ export default function InterestsScreen({ navigation }: Props) {
                 {/* Events Section */}
                 <Card style={[styles.sectionCard, { marginBottom: 120 }]}>
                     <Card.Content>
-                        <Text style={styles.sectionTitle}>Event Discovery</Text>
-                        <Text style={styles.sectionSubtitle}>
-                            Search and select FBLA events
-                        </Text>
-
-                        <Searchbar
-                            placeholder="Search events..."
-                            onChangeText={setSearchQuery}
-                            value={searchQuery}
-                            style={styles.searchBar}
-                            inputStyle={styles.searchBarInput}
-                            iconColor={colors.primary[600]}
-                            placeholderTextColor={colors.neutral[400]}
-                        />
-
-                        <View style={styles.eventsContainer}>
-                            {filteredEvents.slice(0, 8).map(event => (
-                                <TouchableOpacity
-                                    key={event.id}
-                                    style={[
-                                        styles.eventCard,
-                                        selectedEvents.includes(event.id) && styles.eventCardSelected
-                                    ]}
-                                    onPress={() => toggleEvent(event.id)}
-                                >
-                                    <View style={styles.eventInfo}>
-                                        <Text style={[
-                                            styles.eventTitle,
-                                            selectedEvents.includes(event.id) && styles.eventTitleSelected
-                                        ]}>
-                                            {event.title}
-                                        </Text>
-                                        <Text style={styles.eventCategory}>{event.category}</Text>
-                                    </View>
-                                    <Ionicons
-                                        name={selectedEvents.includes(event.id) ? "checkbox" : "square-outline"}
-                                        size={24}
-                                        color={selectedEvents.includes(event.id) ? colors.primary[600] : colors.neutral[300]}
-                                    />
-                                </TouchableOpacity>
-                            ))}
+                        <View style={styles.sectionHeader}>
+                            <View style={[styles.sectionIcon, { backgroundColor: colors.primary[50] }]}>
+                                <Ionicons name="trophy" size={28} color={colors.primary[600]} />
+                            </View>
+                            <View>
+                                <Text style={styles.sectionTitle}>Event Discovery</Text>
+                                <Text style={styles.sectionSubtitle}>Search and select FBLA competitive events</Text>
+                            </View>
                         </View>
+
+                        <EventSelector
+                            allEvents={competitiveEventsData}
+                            selectedEvents={selectedEvents}
+                            onToggleEvent={toggleEvent}
+                            onSelect={() => {
+                                if (user?.id) {
+                                    addXP({ amount: 20, userId: user.id as any });
+                                }
+                            }}
+                            placeholder="Type an event name..."
+                        />
                     </Card.Content>
                 </Card>
             </ScrollView>

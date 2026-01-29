@@ -35,27 +35,30 @@ export const getCurrentUserProfile = query({
 // Update profile (XP, level, badges)
 export const updateProfile = mutation({
     args: {
+        userId: v.id("users"),
         totalXP: v.optional(v.number()),
         level: v.optional(v.number()),
         badges: v.optional(v.array(v.string())),
     },
     handler: async (ctx, args) => {
-        const identity = await ctx.auth.getUserIdentity();
-        if (!identity) throw new Error("Unauthenticated");
-
-        const user = await ctx.db
-            .query("users")
-            .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
-            .unique();
-
+        const user = await ctx.db.get(args.userId);
         if (!user) throw new Error("User not found");
 
-        const profile = await ctx.db
+        let profile = await ctx.db
             .query("profiles")
             .withIndex("by_userId", (q) => q.eq("userId", user._id))
             .unique();
 
-        if (!profile) throw new Error("Profile not found");
+        if (!profile) {
+            // Create profile if it doesn't exist
+            const profileId = await ctx.db.insert("profiles", {
+                userId: user._id,
+                totalXP: args.totalXP ?? 0,
+                level: args.level ?? 1,
+                badges: args.badges ?? [],
+            });
+            return profileId;
+        }
 
         const updates: Partial<{ totalXP: number; level: number; badges: string[] }> = {};
         if (args.totalXP !== undefined) updates.totalXP = args.totalXP;
@@ -71,24 +74,38 @@ export const updateProfile = mutation({
 export const addXP = mutation({
     args: {
         amount: v.number(),
+        userId: v.optional(v.id("users")),
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
-        if (!identity) throw new Error("Unauthenticated");
+        const user = args.userId
+            ? await ctx.db.get(args.userId)
+            : identity
+                ? await ctx.db
+                    .query("users")
+                    .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+                    .unique()
+                : null;
 
-        const user = await ctx.db
-            .query("users")
-            .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
-            .unique();
+        if (!user) throw new Error("Unauthenticated or User not found");
 
-        if (!user) throw new Error("User not found");
-
-        const profile = await ctx.db
+        let profile = await ctx.db
             .query("profiles")
             .withIndex("by_userId", (q) => q.eq("userId", user._id))
             .unique();
 
-        if (!profile) throw new Error("Profile not found");
+        if (!profile) {
+            // Create profile if it doesn't exist
+            const newXP = args.amount;
+            const newLevel = Math.floor(newXP / 100) + 1;
+            const profileId = await ctx.db.insert("profiles", {
+                userId: user._id,
+                totalXP: newXP,
+                level: newLevel,
+                badges: [],
+            });
+            return { totalXP: newXP, level: newLevel, leveledUp: newLevel > 1 };
+        }
 
         const newXP = profile.totalXP + args.amount;
         // Simple level-up: every 100 XP = 1 level
@@ -107,24 +124,36 @@ export const addXP = mutation({
 export const awardBadge = mutation({
     args: {
         badgeName: v.string(),
+        userId: v.optional(v.id("users")),
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
-        if (!identity) throw new Error("Unauthenticated");
+        const user = args.userId
+            ? await ctx.db.get(args.userId)
+            : identity
+                ? await ctx.db
+                    .query("users")
+                    .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+                    .unique()
+                : null;
 
-        const user = await ctx.db
-            .query("users")
-            .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
-            .unique();
+        if (!user) throw new Error("Unauthenticated or User not found");
 
-        if (!user) throw new Error("User not found");
-
-        const profile = await ctx.db
+        let profile = await ctx.db
             .query("profiles")
             .withIndex("by_userId", (q) => q.eq("userId", user._id))
             .unique();
 
-        if (!profile) throw new Error("Profile not found");
+        if (!profile) {
+            // Create profile if it doesn't exist
+            const profileId = await ctx.db.insert("profiles", {
+                userId: user._id,
+                totalXP: 0,
+                level: 1,
+                badges: [args.badgeName],
+            });
+            return { success: true, badge: args.badgeName };
+        }
 
         // Don't add duplicate badges
         if (profile.badges.includes(args.badgeName)) {

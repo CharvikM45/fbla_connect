@@ -1,4 +1,4 @@
-// FBLA Connect - AI Assistant Screen
+// FBLA Connect - AI Assistant Screen (Updated)
 import React, { useState, useRef, useEffect } from 'react';
 import {
     View,
@@ -15,6 +15,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, typography, borderRadius, shadows } from '../../../../shared/theme';
 import { MotiView } from 'moti';
 
+import { useAction, useQuery } from "convex/react";
+import { api } from "../../../../../convex/_generated/api";
+
 interface Message {
     id: string;
     type: 'user' | 'assistant';
@@ -22,6 +25,8 @@ interface Message {
     timestamp: Date;
     suggestions?: string[];
 }
+
+type AIMode = 'standard' | 'practice' | 'grade';
 
 const quickPrompts = [
     { icon: '📅', text: 'What events should I attend?' },
@@ -48,11 +53,16 @@ export default function AIAssistantScreen() {
     const [messages, setMessages] = useState<Message[]>(initialMessages);
     const [inputText, setInputText] = useState('');
     const [isTyping, setIsTyping] = useState(false);
+    const [currentMode, setCurrentMode] = useState<AIMode>('standard');
+    const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
     const scrollViewRef = useRef<ScrollView>(null);
+
+    const chatAction = useAction(api.ai.chat);
+    const competitiveEvents = useQuery(api.competitive_events.getEvents, {});
 
     useEffect(() => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
-    }, [messages]);
+    }, [messages, isTyping]);
 
     const sendMessage = async (text: string) => {
         if (!text.trim()) return;
@@ -68,9 +78,20 @@ export default function AIAssistantScreen() {
         setInputText('');
         setIsTyping(true);
 
-        // Simulate AI response
-        setTimeout(() => {
-            const response = generateResponse(text);
+        try {
+            // Convert history to OpenAI format
+            const history = messages.map(msg => ({
+                role: (msg.type === 'user' ? 'user' : 'assistant') as "user" | "assistant",
+                content: msg.content,
+            }));
+
+            const response = await chatAction({
+                message: text.trim(),
+                history,
+                mode: currentMode,
+                eventContext: selectedEvent || undefined,
+            });
+
             const assistantMessage: Message = {
                 id: (Date.now() + 1).toString(),
                 type: 'assistant',
@@ -79,31 +100,18 @@ export default function AIAssistantScreen() {
                 suggestions: response.suggestions,
             };
             setMessages(prev => [...prev, assistantMessage]);
-            setIsTyping(false);
-        }, 1500);
-    };
-
-    const generateResponse = (query: string): { content: string; suggestions?: string[] } => {
-        const lowerQuery = query.toLowerCase();
-
-        if (lowerQuery.includes('mobile app') || lowerQuery.includes('mad')) {
-            return {
-                content: "**Mobile Application Development** is a great choice! Here's what you need to know:\n\n📱 **2025-26 Theme**: \"Design the Future of Member Engagement\"\n\n**Requirements:**\n• Member profiles with secure login\n• Event calendar with reminders\n• Access to FBLA resources\n• News feed with announcements\n• Social media integration\n\n**Tips for Success:**\n1. Focus on user experience and accessibility\n2. Include innovative AI features\n3. Ensure code quality and documentation\n\nWould you like me to create a prep timeline for you?",
-                suggestions: [
-                    'Create a prep timeline',
-                    'Show me the rubric',
-                ],
+        } catch (error) {
+            console.error("Chat Error:", error);
+            const errorMessage: Message = {
+                id: (Date.now() + 1).toString(),
+                type: 'assistant',
+                content: "I'm sorry, I'm having trouble connecting right now. Please try again later.",
+                timestamp: new Date(),
             };
+            setMessages(prev => [...prev, errorMessage]);
+        } finally {
+            setIsTyping(false);
         }
-
-        return {
-            content: "I'm looking into that for you! FBLA has a lot of great opportunities. Is there a specific division or category you're interested in?",
-            suggestions: [
-                'High School Division',
-                'Middle School Division',
-                'Collegiate Division',
-            ],
-        };
     };
 
     return (
@@ -118,7 +126,7 @@ export default function AIAssistantScreen() {
                     <Text style={styles.headerSubtitle}>Get instant answers about FBLA</Text>
                 </View>
             </View>
-            
+
             <KeyboardAvoidingView
                 style={{ flex: 1 }}
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -130,7 +138,41 @@ export default function AIAssistantScreen() {
                     contentContainerStyle={styles.messagesContent}
                     showsVerticalScrollIndicator={false}
                 >
-                    {messages.length === 1 && (
+                    {/* AI Mode Selector */}
+                    <AIModeSelector currentMode={currentMode} onModeChange={(mode) => {
+                        setCurrentMode(mode);
+                        setMessages([initialMessages[0]]); // Reset chat on mode change for clarity
+                    }} />
+
+                    {/* Event Context Selector (shown only in Practice/Grade modes) */}
+                    {currentMode !== 'standard' && (
+                        <View style={styles.eventContextContainer}>
+                            <Text style={styles.eventContextTitle}>
+                                Select Event for {currentMode === 'practice' ? 'Practice' : 'Grading'}:
+                            </Text>
+                            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.eventScroll}>
+                                {competitiveEvents?.map((event: any) => (
+                                    <TouchableOpacity
+                                        key={event._id}
+                                        onPress={() => setSelectedEvent(event.title)}
+                                        style={[
+                                            styles.eventChip,
+                                            selectedEvent === event.title && styles.eventChipSelected
+                                        ]}
+                                    >
+                                        <Text style={[
+                                            styles.eventChipText,
+                                            selectedEvent === event.title && styles.eventChipTextSelected
+                                        ]}>
+                                            {event.title}
+                                        </Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </ScrollView>
+                        </View>
+                    )}
+
+                    {messages.length === 1 && currentMode === 'standard' && (
                         <View style={styles.quickPromptsContainer}>
                             <Text style={styles.quickPromptsTitle}>Quick Questions</Text>
                             <View style={styles.quickPromptsGrid}>
@@ -203,6 +245,41 @@ export default function AIAssistantScreen() {
                     </Card>
                 </View>
             </KeyboardAvoidingView>
+        </View>
+    );
+}
+
+function AIModeSelector({ currentMode, onModeChange }: { currentMode: AIMode, onModeChange: (mode: AIMode) => void }) {
+    const modes: { id: AIMode; label: string; icon: string; desc: string }[] = [
+        { id: 'standard', label: 'Chat', icon: 'chatbubble-ellipses', desc: 'General Q&A' },
+        { id: 'practice', label: 'Practice', icon: 'school', desc: 'Questions & Tasks' },
+        { id: 'grade', label: 'Grade', icon: 'checkmark-circle', desc: 'Feedback & Score' },
+    ];
+
+    return (
+        <View style={styles.modeSelectorContainer}>
+            {modes.map((mode) => (
+                <TouchableOpacity
+                    key={mode.id}
+                    onPress={() => onModeChange(mode.id)}
+                    style={[
+                        styles.modeButton,
+                        currentMode === mode.id && styles.modeButtonSelected
+                    ]}
+                >
+                    <Ionicons
+                        name={mode.icon as any}
+                        size={18}
+                        color={currentMode === mode.id ? '#FFFFFF' : colors.neutral[500]}
+                    />
+                    <Text style={[
+                        styles.modeLabel,
+                        currentMode === mode.id && styles.modeLabelSelected
+                    ]}>
+                        {mode.label}
+                    </Text>
+                </TouchableOpacity>
+            ))}
         </View>
     );
 }
@@ -430,5 +507,74 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
         maxHeight: 120,
         fontSize: 15,
+    },
+    // New Styles for Mode Selector
+    modeSelectorContainer: {
+        flexDirection: 'row',
+        backgroundColor: colors.neutral[100],
+        borderRadius: 12,
+        padding: 4,
+        marginBottom: spacing.md,
+    },
+    modeButton: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 8,
+        borderRadius: 8,
+        gap: 6,
+    },
+    modeButtonSelected: {
+        backgroundColor: colors.primary[600],
+    },
+    modeLabel: {
+        fontSize: 13,
+        fontWeight: '600',
+        color: colors.neutral[500],
+    },
+    modeLabelSelected: {
+        color: '#FFFFFF',
+    },
+    // Event Context Styles
+    eventContextContainer: {
+        marginBottom: spacing.md,
+        padding: spacing.sm,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 15,
+        borderWidth: 1,
+        borderColor: colors.neutral[100],
+    },
+    eventContextTitle: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: colors.neutral[400],
+        marginBottom: 8,
+        textTransform: 'uppercase',
+    },
+    eventScroll: {
+        flexDirection: 'row',
+    },
+    eventChip: {
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20,
+        backgroundColor: colors.neutral[50],
+        marginRight: 8,
+        borderWidth: 1,
+        borderColor: colors.neutral[200],
+    },
+    eventChipSelected: {
+        backgroundColor: colors.primary[50],
+        borderColor: colors.primary[600],
+    },
+    eventChipText: {
+        fontSize: 12,
+        color: colors.neutral[600],
+        fontWeight: '500',
+    },
+    eventChipTextSelected: {
+        color: colors.primary[600],
+        fontWeight: '700',
     },
 });

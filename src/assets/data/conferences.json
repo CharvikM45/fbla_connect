@@ -707,6 +707,16 @@
         "type": "RLC"
     },
     {
+        "id": "conf-ne-flc-2025",
+        "name": "Nebraska FBLA Fall Leadership Conference",
+        "level": "State",
+        "stateId": "NE",
+        "date": "2025-09-24",
+        "endDate": "2025-09-24",
+        "location": "Omaha, NE",
+        "type": "FLC"
+    },
+    {
         "id": "conf-nh-slc-2026",
         "name": "NH FBLA State Leadership Conference",
         "level": "State",

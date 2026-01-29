@@ -143,12 +143,12 @@ export default function CalendarScreen() {
                     <Text style={styles.headerSubtitle}>Upcoming meetings and conferences</Text>
                 </View>
             </View>
-            
+
             {/* Header / Tabs */}
             <View style={styles.filterContainer}>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                     <View style={styles.filterRow}>
-                        {(['all', 'meeting', 'conference', 'competition'] as const).map((filter) => (
+                        {(['all', 'meeting', 'conference'] as const).map((filter) => (
                             <TouchableOpacity
                                 key={filter}
                                 onPress={() => setSelectedFilter(filter)}
@@ -201,12 +201,12 @@ export default function CalendarScreen() {
                             <View style={styles.emptyState}>
                                 <Ionicons name="calendar-clear-outline" size={64} color={colors.neutral[200]} />
                                 <Text style={styles.emptyStateTitle}>
-                                    {selectedFilter === 'meeting' ? "No meetings scheduled" : "Nothing scheduled here"}
+                                    {selectedFilter === 'meeting' ? "No chapter meetings scheduled" : "Nothing scheduled here"}
                                 </Text>
                                 <Text style={styles.emptyStateDesc}>
                                     {selectedFilter === 'meeting'
-                                        ? "No meetings have been added by your advisor yet."
-                                        : "Check back later for updates from FBLA National and Nebraska."}
+                                        ? "No meetings have been added by your advisor yet. Check back once your advisor updates the schedule."
+                                        : `Check back later for updates from FBLA National and ${user?.state || 'your state'}.`}
                                 </Text>
                             </View>
                         ) : (

@@ -4,6 +4,7 @@ import { Text, Searchbar, IconButton, Portal, Modal, List, Card, ActivityIndicat
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, typography, borderRadius, shadows } from '../../../shared/theme';
 import InAppBrowserModal from '../../../shared/components/InAppBrowserModal';
+import MobileAppDevGuidelines from '../components/MobileAppDevGuidelines';
 import { MotiView } from 'moti';
 
 import { useQuery } from "convex/react";
@@ -33,6 +34,8 @@ export default function CompetitiveEventsScreen() {
     const [selectedEvent, setSelectedEvent] = useState<CompetitiveEvent | null>(null);
     const [showModal, setShowModal] = useState(false);
     const [browserUrl, setBrowserUrl] = useState<string | null>(null);
+    const [showMADGuidelines, setShowMADGuidelines] = useState(false);
+    const [madMode, setMadMode] = useState<'guidelines' | 'rubric'>('guidelines');
 
     // Convex Query
     const liveEvents = useQuery(api.competitive_events.getEvents, {
@@ -224,21 +227,41 @@ export default function CompetitiveEventsScreen() {
                                         <Text style={styles.sectionTitle}>Official Rubrics & Tools</Text>
                                         <TouchableOpacity
                                             style={styles.resourceAction}
-                                            onPress={() => handleOpenLink(selectedEvent.pdfUrl || 'https://www.fbla.org/wp-content/uploads/2024/08/2025-2026-Competitive-Events-Guidelines.pdf')}
+                                            onPress={() => {
+                                                if (selectedEvent.title === 'Mobile Application Development') {
+                                                    setShowModal(false); // Close the detail modal first
+                                                    setMadMode('rubric');
+                                                    setTimeout(() => setShowMADGuidelines(true), 100);
+                                                } else {
+                                                    handleOpenLink(selectedEvent.pdfUrl || 'https://www.fbla.org/wp-content/uploads/2024/08/2025-2026-Competitive-Events-Guidelines.pdf');
+                                                }
+                                            }}
                                         >
                                             <View style={styles.resourceActionIcon}>
                                                 <Ionicons name="document-text" size={22} color={colors.error.main} />
                                             </View>
                                             <View style={{ flex: 1 }}>
-                                                <Text style={styles.resourceActionTitle}>View Rubrics (PDF)</Text>
-                                                <Text style={styles.resourceActionDesc}>Standard national evaluation criteria</Text>
+                                                <Text style={styles.resourceActionTitle}>
+                                                    {selectedEvent.title === 'Mobile Application Development' ? 'View Rubric (Pages 7-8)' : 'View Rubrics (PDF)'}
+                                                </Text>
+                                                <Text style={styles.resourceActionDesc}>
+                                                    {selectedEvent.title === 'Mobile Application Development' ? 'Event guide and specific rubric' : 'Standard national evaluation criteria'}
+                                                </Text>
                                             </View>
                                             <Ionicons name="chevron-forward" size={18} color={colors.neutral[300]} />
                                         </TouchableOpacity>
 
                                         <TouchableOpacity
                                             style={styles.resourceAction}
-                                            onPress={() => handleOpenLink(selectedEvent.linkUrl)}
+                                            onPress={() => {
+                                                if (selectedEvent.title === 'Mobile Application Development') {
+                                                    setShowModal(false);
+                                                    setMadMode('guidelines');
+                                                    setTimeout(() => setShowMADGuidelines(true), 100);
+                                                } else {
+                                                    handleOpenLink(selectedEvent.linkUrl);
+                                                }
+                                            }}
                                         >
                                             <View style={styles.resourceActionIcon}>
                                                 <Ionicons name="flash" size={22} color={colors.secondary[500]} />
@@ -287,7 +310,13 @@ export default function CompetitiveEventsScreen() {
                     )}
                 </Modal>
             </Portal>
-        </View>
+
+            <MobileAppDevGuidelines
+                visible={showMADGuidelines}
+                onClose={() => setShowMADGuidelines(false)}
+                mode={madMode}
+            />
+        </View >
     );
 }
 
