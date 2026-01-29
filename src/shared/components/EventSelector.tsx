@@ -36,15 +36,33 @@ export default function EventSelector({
     const [isFocused, setIsFocused] = useState(false);
 
     const filteredEvents = useMemo(() => {
-        if (!searchQuery) return [];
-        return allEvents.filter(event =>
+        if (!searchQuery.trim()) return [];
+
+        const query = searchQuery.toLowerCase().trim();
+        const matches = allEvents.filter(event =>
             !selectedEvents.includes(event.id) &&
-            (event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                event.category.toLowerCase().includes(searchQuery.toLowerCase()))
+            (event.title.toLowerCase().includes(query) ||
+                event.category.toLowerCase().includes(query))
         ).slice(0, 5);
+
+        // Add a "Custom" option if the query doesn't perfectly match a known event
+        const exactMatch = allEvents.find(e => e.title.toLowerCase() === query);
+        if (query && !exactMatch) {
+            // Check if it's already selected as a custom event
+            if (!selectedEvents.includes(searchQuery.trim())) {
+                matches.push({
+                    id: searchQuery.trim(), // Use title as ID for custom events
+                    title: `Add "${searchQuery.trim()}"`,
+                    category: 'Custom Entry',
+                    isCustom: true
+                } as any);
+            }
+        }
+
+        return matches;
     }, [searchQuery, allEvents, selectedEvents]);
 
-    const handleSelectEvent = (id: string) => {
+    const handleSelectEvent = (id: string, isCustom = false) => {
         onToggleEvent(id);
         if (onSelect) onSelect(id);
         setSearchQuery('');
@@ -66,6 +84,12 @@ export default function EventSelector({
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setTimeout(() => setIsFocused(false), 200)}
                     placeholderTextColor={colors.neutral[400]}
+                    onSubmitEditing={() => {
+                        if (filteredEvents.length > 0) {
+                            handleSelectEvent(filteredEvents[0].id, (filteredEvents[0] as any).isCustom);
+                        }
+                    }}
+                    returnKeyType="done"
                 />
                 {searchQuery.length > 0 && (
                     <TouchableOpacity onPress={() => setSearchQuery('')}>
@@ -80,14 +104,20 @@ export default function EventSelector({
                     {filteredEvents.map((event) => (
                         <TouchableOpacity
                             key={event.id}
-                            style={styles.suggestionItem}
-                            onPress={() => handleSelectEvent(event.id)}
+                            style={[styles.suggestionItem, (event as any).isCustom && styles.customSuggestion]}
+                            onPress={() => handleSelectEvent(event.id, (event as any).isCustom)}
                         >
-                            <View>
-                                <Text style={styles.suggestionTitle}>{event.title}</Text>
+                            <View style={{ flex: 1 }}>
+                                <Text style={[styles.suggestionTitle, (event as any).isCustom && { color: colors.primary[600] }]}>
+                                    {event.title}
+                                </Text>
                                 <Text style={styles.suggestionCategory}>{event.category}</Text>
                             </View>
-                            <Ionicons name="add-circle-outline" size={20} color={colors.primary[600]} />
+                            <Ionicons
+                                name={(event as any).isCustom ? "add" : "add-circle-outline"}
+                                size={20}
+                                color={colors.primary[600]}
+                            />
                         </TouchableOpacity>
                     ))}
                 </View>
@@ -189,5 +219,10 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         fontSize: 12,
         fontWeight: 'bold',
+    },
+    customSuggestion: {
+        backgroundColor: colors.primary[50],
+        borderLeftWidth: 4,
+        borderLeftColor: colors.primary[600],
     },
 });

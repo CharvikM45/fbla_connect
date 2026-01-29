@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView, FlatList, Platform } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ScrollView, FlatList, Platform, KeyboardAvoidingView } from 'react-native';
 import { Text, Button, Chip, Searchbar, Divider, Card } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -79,86 +79,97 @@ export default function InterestsScreen({ navigation }: Props) {
 
     return (
         <SafeAreaView style={styles.container}>
-            <ScrollView style={styles.content} nestedScrollEnabled={true} showsVerticalScrollIndicator={false}>
-                {/* Header */}
-                <View style={styles.header}>
-                    <TouchableOpacity
-                        style={styles.backButton}
-                        onPress={() => navigation.goBack()}
-                    >
-                        <Ionicons name="arrow-back" size={24} color={colors.neutral[900]} />
-                    </TouchableOpacity>
-                    <Text style={styles.stepText}>Step 3 of 5</Text>
-                    <Text style={styles.title}>Your Interests</Text>
-                    <Text style={styles.subtitle}>
-                        Select topics and competitive events
-                    </Text>
-                </View>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={{ flex: 1 }}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+            >
+                <ScrollView
+                    style={styles.content}
+                    contentContainerStyle={{ paddingBottom: 140 }}
+                    nestedScrollEnabled={true}
+                    showsVerticalScrollIndicator={false}
+                >
+                    {/* Header */}
+                    <View style={styles.header}>
+                        <TouchableOpacity
+                            style={styles.backButton}
+                            onPress={() => navigation.goBack()}
+                        >
+                            <Ionicons name="arrow-back" size={24} color={colors.neutral[900]} />
+                        </TouchableOpacity>
+                        <Text style={styles.stepText}>Step 3 of 5</Text>
+                        <Text style={styles.title}>Your Interests</Text>
+                        <Text style={styles.subtitle}>
+                            Select topics and competitive events
+                        </Text>
+                    </View>
 
-                {/* Interests Subsets */}
-                {interestSubsets.map((subset, index) => (
-                    <Card key={index} style={styles.sectionCard}>
+                    {/* Interests Subsets */}
+                    {interestSubsets.map((subset, index) => (
+                        <Card key={index} style={styles.sectionCard}>
+                            <Card.Content>
+                                <View style={styles.sectionHeader}>
+                                    <View style={[styles.sectionIcon, { backgroundColor: subset.color + '15' }]}>
+                                        <Ionicons name={subset.icon as any} size={28} color={subset.color} />
+                                    </View>
+                                    <View>
+                                        <Text style={styles.sectionTitle}>{subset.title}</Text>
+                                        <Text style={styles.sectionSubtitle}>Select topics that interest you</Text>
+                                    </View>
+                                </View>
+                                <View style={styles.chipContainer}>
+                                    {subset.items.map(item => (
+                                        <Chip
+                                            key={item.id}
+                                            selected={selectedInterests.includes(item.id)}
+                                            onPress={() => toggleInterest(item.id)}
+                                            style={[
+                                                styles.chip,
+                                                selectedInterests.includes(item.id) && styles.chipSelected,
+                                            ]}
+                                            textStyle={[
+                                                styles.chipText,
+                                                selectedInterests.includes(item.id) && styles.chipTextSelected,
+                                            ]}
+                                            showSelectedCheck={false}
+                                        >
+                                            {item.label}
+                                        </Chip>
+                                    ))}
+                                </View>
+                            </Card.Content>
+                        </Card>
+                    ))}
+
+                    {/* Events Section */}
+                    <Card style={[styles.sectionCard, { marginBottom: 120 }]}>
                         <Card.Content>
                             <View style={styles.sectionHeader}>
-                                <View style={[styles.sectionIcon, { backgroundColor: subset.color + '15' }]}>
-                                    <Ionicons name={subset.icon as any} size={28} color={subset.color} />
+                                <View style={[styles.sectionIcon, { backgroundColor: colors.primary[50] }]}>
+                                    <Ionicons name="trophy" size={28} color={colors.primary[600]} />
                                 </View>
                                 <View>
-                                    <Text style={styles.sectionTitle}>{subset.title}</Text>
-                                    <Text style={styles.sectionSubtitle}>Select topics that interest you</Text>
+                                    <Text style={styles.sectionTitle}>Event Discovery</Text>
+                                    <Text style={styles.sectionSubtitle}>Search and select FBLA competitive events</Text>
                                 </View>
                             </View>
-                            <View style={styles.chipContainer}>
-                                {subset.items.map(item => (
-                                    <Chip
-                                        key={item.id}
-                                        selected={selectedInterests.includes(item.id)}
-                                        onPress={() => toggleInterest(item.id)}
-                                        style={[
-                                            styles.chip,
-                                            selectedInterests.includes(item.id) && styles.chipSelected,
-                                        ]}
-                                        textStyle={[
-                                            styles.chipText,
-                                            selectedInterests.includes(item.id) && styles.chipTextSelected,
-                                        ]}
-                                        showSelectedCheck={false}
-                                    >
-                                        {item.label}
-                                    </Chip>
-                                ))}
-                            </View>
+
+                            <EventSelector
+                                allEvents={competitiveEventsData}
+                                selectedEvents={selectedEvents}
+                                onToggleEvent={toggleEvent}
+                                onSelect={() => {
+                                    if (user?.id) {
+                                        addXP({ amount: 20, userId: user.id as any });
+                                    }
+                                }}
+                                placeholder="Type an event name..."
+                            />
                         </Card.Content>
                     </Card>
-                ))}
-
-                {/* Events Section */}
-                <Card style={[styles.sectionCard, { marginBottom: 120 }]}>
-                    <Card.Content>
-                        <View style={styles.sectionHeader}>
-                            <View style={[styles.sectionIcon, { backgroundColor: colors.primary[50] }]}>
-                                <Ionicons name="trophy" size={28} color={colors.primary[600]} />
-                            </View>
-                            <View>
-                                <Text style={styles.sectionTitle}>Event Discovery</Text>
-                                <Text style={styles.sectionSubtitle}>Search and select FBLA competitive events</Text>
-                            </View>
-                        </View>
-
-                        <EventSelector
-                            allEvents={competitiveEventsData}
-                            selectedEvents={selectedEvents}
-                            onToggleEvent={toggleEvent}
-                            onSelect={() => {
-                                if (user?.id) {
-                                    addXP({ amount: 20, userId: user.id as any });
-                                }
-                            }}
-                            placeholder="Type an event name..."
-                        />
-                    </Card.Content>
-                </Card>
-            </ScrollView>
+                </ScrollView>
+            </KeyboardAvoidingView>
 
             <View style={styles.footer}>
                 <Divider style={{ marginBottom: spacing.md }} />
