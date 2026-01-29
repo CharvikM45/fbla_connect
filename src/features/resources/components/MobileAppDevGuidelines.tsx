@@ -24,7 +24,18 @@ const RUBRIC_IMAGES = [
     require('../../../assets/images/mad_guidelines/p8.png'),
 ];
 
-export default function MobileAppDevGuidelines({ visible, onClose, mode }: Props) {
+// Preload all images for instant access
+const ALL_IMAGES = [...GUIDELINE_IMAGES, ...RUBRIC_IMAGES];
+ALL_IMAGES.forEach(img => {
+    try {
+        const asset = Image.resolveAssetSource(img);
+        if (asset && asset.uri) {
+            Image.prefetch(asset.uri).catch(() => { });
+        }
+    } catch (e) { }
+});
+
+function MobileAppDevGuidelines({ visible, onClose, mode }: Props) {
     const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
     // Fallback dimensions if context isn't ready
@@ -77,8 +88,6 @@ export default function MobileAppDevGuidelines({ visible, onClose, mode }: Props
                                         style={styles.image}
                                         resizeMode="contain"
                                         fadeDuration={0}
-                                        onLoad={() => console.log(`Loaded page ${index}`)}
-                                        onError={(e) => console.error(`Error loading page ${index}:`, e.nativeEvent.error)}
                                     />
                                 </View>
                             </View>
@@ -176,3 +185,5 @@ const styles = StyleSheet.create({
         height: '100%',
     },
 });
+
+export default React.memo(MobileAppDevGuidelines);

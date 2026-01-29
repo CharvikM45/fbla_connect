@@ -140,7 +140,6 @@ export default function CompetitiveEventsScreen() {
             <FlatList
                 data={filteredEvents}
                 keyExtractor={(item) => item.id}
-                contentContainerStyle={styles.listContent}
                 renderItem={({ item, index }) => (
                     <MotiView
                         from={{ opacity: 0, translateY: 20 }}
@@ -165,11 +164,22 @@ export default function CompetitiveEventsScreen() {
                         </TouchableOpacity>
                     </MotiView>
                 )}
+                contentContainerStyle={styles.listContent}
+                initialNumToRender={10}
+                maxToRenderPerBatch={10}
+                windowSize={5}
+                removeClippedSubviews={true}
                 ListEmptyComponent={
                     <View style={styles.emptyState}>
-                        {/* Only show loading if we don't have fallback events yet, which shouldn't happen with our logic */}
-                        <ActivityIndicator color={colors.primary[600]} />
-                        <Text style={styles.emptyText}>Loading competitive events...</Text>
+                        {[1, 2, 3, 4, 5].map(i => (
+                            <View key={i} style={[styles.eventCard, styles.skeletonCard]}>
+                                <View style={[styles.skeletonIcon, { backgroundColor: colors.neutral[100] }]} />
+                                <View style={{ flex: 1, gap: 8 }}>
+                                    <View style={[styles.skeletonLine, { width: '60%' }]} />
+                                    <View style={[styles.skeletonLine, { width: '40%', height: 10 }]} />
+                                </View>
+                            </View>
+                        ))}
                     </View>
                 }
             />
@@ -583,5 +593,22 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         fontSize: 18,
         fontWeight: 'bold',
+    },
+    skeletonCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: spacing.md,
+        opacity: 0.6,
+    },
+    skeletonIcon: {
+        width: 44,
+        height: 44,
+        borderRadius: 14,
+        marginRight: spacing.md,
+    },
+    skeletonLine: {
+        height: 14,
+        backgroundColor: colors.neutral[100],
+        borderRadius: 4,
     },
 });
