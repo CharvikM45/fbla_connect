@@ -20,6 +20,54 @@ import { api } from "../../../../convex/_generated/api";
 
 const { width } = Dimensions.get('window');
 
+const STATIC_FALLBACKS: CalendarEvent[] = [
+    {
+        id: 'nlc-2026',
+        title: 'FBLA National Leadership Conference (NLC)',
+        description: 'The premier event for FBLA members to compete at the national level and develop leadership skills.',
+        type: 'conference',
+        level: 'national',
+        location: 'San Antonio, TX',
+        startDate: '2026-06-29T09:00:00.000Z',
+        endDate: '2026-07-02T17:00:00.000Z',
+        allDay: true,
+        reminderEnabled: true,
+        isRSVPed: false,
+        organizer: 'FBLA National',
+        tags: ['NLC', 'National', 'Conference'],
+    },
+    {
+        id: 'slc-2026',
+        title: 'State Leadership Conference (SLC)',
+        description: 'Qualify for Nationals and join workshops at the state level.',
+        type: 'conference',
+        level: 'state',
+        location: 'Variable (Check State Site)',
+        startDate: '2026-04-10T09:00:00.000Z',
+        endDate: '2026-04-12T17:00:00.000Z',
+        allDay: true,
+        reminderEnabled: true,
+        isRSVPed: false,
+        organizer: 'State FBLA',
+        tags: ['SLC', 'State', 'Conference'],
+    },
+    {
+        id: 'deadline-nlc',
+        title: 'NLC Registration Deadline',
+        description: 'Last day to register for the National Leadership Conference.',
+        type: 'deadline',
+        level: 'national',
+        location: 'Online',
+        startDate: '2026-05-15T23:59:59.000Z',
+        endDate: '2026-05-15T23:59:59.000Z',
+        allDay: true,
+        reminderEnabled: true,
+        isRSVPed: false,
+        organizer: 'FBLA National',
+        tags: ['Deadline', 'NLC'],
+    }
+];
+
 export default function CalendarScreen() {
     const dispatch = useAppDispatch();
     const user = useAppSelector(state => state.auth.user);
@@ -38,44 +86,55 @@ export default function CalendarScreen() {
     });
 
     const events = React.useMemo((): CalendarEvent[] => {
-        // Use live data if available, otherwise empty
-        const sourceConferences = (liveConferences && liveConferences.length > 0)
-            ? liveConferences
-            : [];
+        // Start with static fallbacks for instant feel
+        const combined = [...STATIC_FALLBACKS];
 
-        const confMapped: CalendarEvent[] = sourceConferences.map((conf: any) => ({
-            id: conf._id || conf.id,
-            title: conf.name,
-            description: `${conf.level} level ${conf.type} conference.`,
-            type: 'conference',
-            level: conf.level.toLowerCase() as EventLevel,
-            location: conf.location,
-            startDate: new Date(conf.date).toISOString(),
-            endDate: new Date(conf.endDate || conf.date).toISOString(),
-            allDay: true,
-            reminderEnabled: true,
-            isRSVPed: false,
-            organizer: conf.level === 'National' ? 'FBLA National' : `${conf.stateId || 'State'} FBLA`,
-            tags: [conf.type, conf.level],
-        }));
+        // Add live conferences
+        if (liveConferences) {
+            liveConferences.forEach((conf: any) => {
+                // Avoid duplicates with statics if we happen to have them in DB too
+                if (!combined.some(e => e.title === conf.name)) {
+                    combined.push({
+                        id: conf._id || conf.id,
+                        title: conf.name,
+                        description: `${conf.level} level ${conf.type} conference.`,
+                        type: 'conference',
+                        level: conf.level.toLowerCase() as EventLevel,
+                        location: conf.location,
+                        startDate: new Date(conf.date).toISOString(),
+                        endDate: new Date(conf.endDate || conf.date).toISOString(),
+                        allDay: true,
+                        reminderEnabled: true,
+                        isRSVPed: false,
+                        organizer: conf.level === 'National' ? 'FBLA National' : `${conf.stateId || 'State'} FBLA`,
+                        tags: [conf.type, conf.level],
+                    });
+                }
+            });
+        }
 
-        const meetingMapped: CalendarEvent[] = (liveMeetings || []).map((meeting: any) => ({
-            id: meeting._id,
-            title: meeting.title,
-            description: meeting.description,
-            type: 'meeting',
-            level: 'chapter',
-            location: meeting.location,
-            startDate: meeting.date,
-            endDate: new Date(new Date(meeting.date).getTime() + 3600000).toISOString(),
-            allDay: false,
-            reminderEnabled: true,
-            isRSVPed: false,
-            organizer: `${user?.chapterName || 'Your'} Chapter`,
-            tags: ['Chapter', meeting.type],
-        }));
+        // Add live meetings
+        if (liveMeetings) {
+            liveMeetings.forEach((meeting: any) => {
+                combined.push({
+                    id: meeting._id,
+                    title: meeting.title,
+                    description: meeting.description,
+                    type: 'meeting',
+                    level: 'chapter',
+                    location: meeting.location,
+                    startDate: meeting.date,
+                    endDate: new Date(new Date(meeting.date).getTime() + 3600000).toISOString(),
+                    allDay: false,
+                    reminderEnabled: true,
+                    isRSVPed: false,
+                    organizer: `${user?.chapterName || 'Your'} Chapter`,
+                    tags: ['Chapter', meeting.type],
+                });
+            });
+        }
 
-        return [...meetingMapped, ...confMapped].sort((a, b) =>
+        return combined.sort((a, b) =>
             new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
         );
     }, [liveConferences, liveMeetings, user?.chapterName, user?.state]);
@@ -174,9 +233,18 @@ export default function CalendarScreen() {
 
             {/* Events List */}
             <ScrollView style={styles.eventsList} showsVerticalScrollIndicator={false}>
-                {events.length === 0 ? (
+                {(!liveConferences && !liveMeetings) ? (
                     <View style={styles.loadingContainer}>
-                        <ActivityIndicator color={colors.primary[600]} />
+                        {[1, 2, 3].map(i => (
+                            <View key={i} style={[styles.eventCard, styles.skeletonCard]}>
+                                <View style={styles.skeletonLeft} />
+                                <View style={{ flex: 1, padding: 15 }}>
+                                    <View style={[styles.skeletonLine, { width: '30%', height: 10, marginBottom: 8 }]} />
+                                    <View style={[styles.skeletonLine, { width: '80%', height: 18, marginBottom: 12 }]} />
+                                    <View style={[styles.skeletonLine, { width: '50%', height: 12 }]} />
+                                </View>
+                            </View>
+                        ))}
                     </View>
                 ) : (
                     <>
@@ -635,5 +703,18 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: colors.neutral[500],
         fontWeight: '600',
+    },
+    skeletonCard: {
+        flexDirection: 'row',
+        height: 100,
+        opacity: 0.5,
+    },
+    skeletonLeft: {
+        width: 6,
+        backgroundColor: colors.neutral[100],
+    },
+    skeletonLine: {
+        backgroundColor: colors.neutral[100],
+        borderRadius: 4,
     },
 });

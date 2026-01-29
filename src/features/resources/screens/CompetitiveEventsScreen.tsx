@@ -28,6 +28,41 @@ interface CompetitiveEvent {
     studyLinks?: StudyLink[];
 }
 
+const PREVIEW_EVENTS: CompetitiveEvent[] = [
+    {
+        id: 'accounting-1',
+        title: 'Accounting I',
+        category: 'Objective Test',
+        division: 'High School',
+        description: 'Covers the basics of accounting, including the accounting cycle, financial statements, and ethics.',
+        linkUrl: 'https://www.fbla.org/competitive-events/accounting-i/',
+    },
+    {
+        id: 'business-law',
+        title: 'Business Law',
+        category: 'Objective Test',
+        division: 'High School',
+        description: 'Focuses on the legal system, contracts, sales, and consumer protection.',
+        linkUrl: 'https://www.fbla.org/competitive-events/business-law/',
+    },
+    {
+        id: 'mobile-app-dev',
+        title: 'Mobile Application Development',
+        category: 'Presentation',
+        division: 'High School',
+        description: 'Design and develop a mobile application based on a specific prompt.',
+        linkUrl: 'https://www.fbla.org/competitive-events/mobile-application-development/',
+    },
+    {
+        id: 'graphic-design',
+        title: 'Graphic Design',
+        category: 'Presentation',
+        division: 'High School',
+        description: 'Create a visual design and branding package for a specific client or event.',
+        linkUrl: 'https://www.fbla.org/competitive-events/graphic-design/',
+    }
+];
+
 export default function CompetitiveEventsScreen() {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState<string | 'All'>('All');
@@ -49,21 +84,24 @@ export default function CompetitiveEventsScreen() {
     }, []);
 
     const filteredEvents = useMemo((): CompetitiveEvent[] => {
-        const sourceEvents = (liveEvents && liveEvents.length > 0) ? liveEvents : [];
+        // Use live data if available, otherwise start with preview events
+        const sourceEvents = (liveEvents && liveEvents.length > 0)
+            ? liveEvents.map((e: any) => ({
+                id: e._id || e.id,
+                title: e.title,
+                category: e.category,
+                division: e.division,
+                description: e.description,
+                linkUrl: e.linkUrl || 'https://www.fbla.org/competitive-events/',
+                pdfUrl: e.pdfUrl,
+                competitionTypes: e.competitionTypes,
+                requirements: e.requirements,
+                studyLinks: e.studyLinks
+            }))
+            : PREVIEW_EVENTS;
 
         // Filter by category and search
-        let filtered = sourceEvents.map((e: any) => ({
-            id: e._id || e.id,
-            title: e.title,
-            category: e.category,
-            division: e.division,
-            description: e.description,
-            linkUrl: e.linkUrl || 'https://www.fbla.org/competitive-events/',
-            pdfUrl: e.pdfUrl,
-            competitionTypes: e.competitionTypes,
-            requirements: e.requirements,
-            studyLinks: e.studyLinks
-        }));
+        let filtered = [...sourceEvents];
 
         if (selectedCategory !== 'All') {
             filtered = filtered.filter(e => e.category === selectedCategory);
